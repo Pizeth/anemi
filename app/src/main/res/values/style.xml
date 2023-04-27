@@ -3,5 +3,35 @@
     <style name="LoginTextInputLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
         <item name="boxStrokeColor">#DA0037</item>
         <item name="boxStrokeWidth">3dp</item>
+<!--        <item name="android:textColorHint">#DA0037</item>-->
+    </style>
+<!--    <style name="Theme.App" parent="Theme.Material3.Dark">-->
+<!--        <item name="textInputStyle">@style/Widget.App.TextInputLayout</item>-->
+<!--    </style>-->
+
+<!--    <style name="Widget.App.TextInputLayout" parent="Widget.Material3.TextInputLayout.OutlinedBox">-->
+<!--        <item name="materialThemeOverlay">@style/ThemeOverlay.App.TextInputLayout</item>-->
+<!--        <item name="shapeAppearance">@style/ShapeAppearance.App.SmallComponent</item>-->
+<!--        <item name="hintTextColor">?attr/colorOnSurface</item>-->
+<!--    </style>-->
+
+<!--    <style name="ThemeOverlay.App.TextInputLayout" parent="">-->
+<!--        <item name="colorPrimary">#FFF</item>-->
+<!--        <item name="colorOnSurface">#FFF</item>-->
+<!--        <item name="colorError">#DA0037</item>-->
+<!--        <item name="textAppearanceTitleMedium">@style/TextAppearance.App.TitleMedium</item>-->
+<!--        <item name="textAppearanceBodySmall">@style/TextAppearance.App.BodySmall</item>-->
+<!--        <item name="editTextStyle">@style/Widget.Material3.TextInputEditText.*</item>-->
+<!--    </style>-->
+
+    <style name="Label">
+        <item name="android:paddingLeft">4px</item>
+        <item name="android:paddingBottom">4px</item>
+        <item name="android:textColor">#ffffffff</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:shadowColor">#DA0037</item>
+        <item name="android:shadowDx">1.5</item>
+        <item name="android:shadowDy">1.5</item>
+        <item name="android:shadowRadius">1.5</item>
     </style>
 </resources>

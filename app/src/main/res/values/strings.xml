@@ -10,4 +10,10 @@
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
     <string name="logo">Anemi</string>
+    <string name="or_label">OR</string>
+    <string name="sign_in">SIGN IN</string>
+    <string name="sign_up">SIGN UP</string>
+    <string name="forget">FORGET PASSWORD?</string>
+    <string name="sign_admin">SIGN IN AS ADMIN</string>
+    <string name="back_sign_in">BACK TO SIGN IN</string>
 </resources>
