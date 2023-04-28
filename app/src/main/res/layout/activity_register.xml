@@ -1,32 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_gravity="center_vertical|center_horizontal"
-    android:orientation="vertical"
-    tools:context=".Register"
-    android:padding="20dp">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
 
-    <ImageView
-        android:id="@+id/imageView2"
-        android:layout_width="wrap_content"
-        android:layout_height="150dp"
-        android:cropToPadding="false"
-        app:srcCompat="@drawable/eanemi" />
-
-    <LinearLayout
+    <LinearLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:gravity="center_vertical|center_horizontal"
+        android:orientation="vertical"
+        android:padding="20dp"
+        tools:context=".Register">
+
+        <ImageView
+            android:id="@+id/imageView2"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:background="@drawable/shape"
+            android:cropToPadding="true"
+            android:scaleType="centerCrop"
+            app:srcCompat="@drawable/baseline_person_24"
+            app:tint="#D90037" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/username"
             style="@style/LoginTextInputLayoutStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="5dp"
             android:hint="USERNAME"
             app:boxCornerRadiusBottomEnd="25dp"
             app:boxCornerRadiusBottomStart="25dp"
@@ -47,7 +50,7 @@
             style="@style/LoginTextInputLayoutStyle"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="10dp"
             android:hint="PASSWORD"
             app:boxCornerRadiusBottomEnd="25dp"
             app:boxCornerRadiusBottomStart="25dp"
@@ -70,7 +73,7 @@
             style="@style/LoginTextInputLayoutStyle"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="10dp"
             android:hint="RE-PASSWORD"
             app:boxCornerRadiusBottomEnd="25dp"
             app:boxCornerRadiusBottomStart="25dp"
@@ -93,15 +96,15 @@
             style="@style/LoginTextInputLayoutStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="10dp"
             android:hint="PHONE"
-            app:startIconDrawable="@drawable/baseline_smartphone_24"
-            app:startIconContentDescription="PASSWORD"
-            app:hintTextColor="#DA0037"
             app:boxCornerRadiusBottomEnd="25dp"
             app:boxCornerRadiusBottomStart="25dp"
             app:boxCornerRadiusTopEnd="25dp"
-            app:boxCornerRadiusTopStart="25dp">
+            app:boxCornerRadiusTopStart="25dp"
+            app:hintTextColor="#DA0037"
+            app:startIconContentDescription="PASSWORD"
+            app:startIconDrawable="@drawable/baseline_smartphone_24">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
@@ -109,14 +112,20 @@
                 android:inputType="textPassword" />
         </com.google.android.material.textfield.TextInputLayout>
 
-    </LinearLayout>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/materialButton3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_marginTop="10dp"
+            android:text="@string/add_photo"
+            android:textColor="#FFFFFF"
+            app:backgroundTint="#DA0037"
+            app:cornerRadius="25dp">
 
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center_vertical|center_horizontal"
-        android:orientation="vertical">
+        </com.google.android.material.button.MaterialButton>
 
         <com.google.android.material.button.MaterialButton
             android:layout_width="wrap_content"
@@ -124,11 +133,11 @@
             android:layout_centerInParent="true"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="10dp"
+            android:text="@string/sign_up"
             android:textColor="#FFFFFF"
             app:backgroundTint="#DA0037"
-            app:cornerRadius="25dp"
-            android:text="@string/sign_up">
+            app:cornerRadius="25dp">
 
         </com.google.android.material.button.MaterialButton>
 
@@ -137,17 +146,16 @@
             style="@style/Widget.Material3.Button.Icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="0dp"
             android:text="@string/back_sign_in"
             android:textColor="#DA0037"
             android:textSize="14sp"
             android:textStyle="bold"
             app:backgroundTint="#00DA0037"
-            app:iconTint="#DA0037"
             app:cornerRadius="25dp"
-            app:icon="@drawable/baseline_login_24">
+            app:icon="@drawable/baseline_login_24"
+            app:iconTint="#DA0037">
 
         </com.google.android.material.button.MaterialButton>
     </LinearLayout>
-
-</LinearLayout>
+</ScrollView>

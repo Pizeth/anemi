@@ -16,4 +16,5 @@
     <string name="forget">FORGET PASSWORD?</string>
     <string name="sign_admin">SIGN IN AS ADMIN</string>
     <string name="back_sign_in">BACK TO SIGN IN</string>
+    <string name="add_photo">ADD PHOTO</string>
 </resources>
