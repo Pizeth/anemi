@@ -16,5 +16,10 @@
     <string name="forget">FORGET PASSWORD?</string>
     <string name="sign_admin">SIGN IN AS ADMIN</string>
     <string name="back_sign_in">BACK TO SIGN IN</string>
+    <string name="back_user_sign_in">BACK TO USER SIGN IN</string>
     <string name="add_photo">ADD PHOTO</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="home">Home</string>
+    <string name="user_manage">MANAGE USER</string>
+    <string name="user_profile">USER PROFILE</string>
 </resources>

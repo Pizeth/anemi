@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_gravity="center_vertical|center_horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <LinearLayout xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical|center_horizontal"
@@ -13,17 +14,12 @@
         android:padding="20dp"
         tools:context=".login">
 
-        <!--            <LinearLayout-->
-        <!--                android:layout_width="match_parent"-->
-        <!--                android:layout_height="wrap_content"-->
-        <!--                android:gravity="center_vertical|center_horizontal"-->
-        <!--                android:orientation="vertical">-->
-
         <ImageView
-            android:id="@+id/imageView2"
+            android:id="@+id/image_logo"
             android:layout_width="150dp"
             android:layout_height="150dp"
             android:cropToPadding="false"
+            android:transitionName="logo_image"
             app:srcCompat="@drawable/eanemi" />
 
         <com.google.android.material.textfield.TextInputLayout
@@ -31,8 +27,9 @@
             style="@style/LoginTextInputLayoutStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="15dp"
             android:hint="USERNAME"
+            android:transitionName="username_input"
             app:boxCornerRadiusBottomEnd="25dp"
             app:boxCornerRadiusBottomStart="25dp"
             app:boxCornerRadiusTopEnd="25dp"
@@ -54,6 +51,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:hint="PASSWORD"
+            android:transitionName="password_input"
             app:boxCornerRadiusBottomEnd="25dp"
             app:boxCornerRadiusBottomStart="25dp"
             app:boxCornerRadiusTopEnd="25dp"
@@ -71,7 +69,7 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <Button
-            android:id="@+id/button"
+            android:id="@+id/btnForgetPwd"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="right"
@@ -82,14 +80,17 @@
             android:textStyle="bold" />
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSignIn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
             android:layout_marginTop="10dp"
+            android:onClick="btnSignInOnClick"
             android:text="@string/sign_in"
             android:textColor="#FFFFFF"
+            android:transitionName="sign_in"
             app:backgroundTint="#DA0037"
             app:cornerRadius="25dp">
 
@@ -99,17 +100,18 @@
             android:id="@+id/textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="15dp"
             android:text="@string/or_label"
             android:textAlignment="center"
             android:textColor="#D90037"
             android:textStyle="bold" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/materialButton"
+            android:id="@+id/btnSignUp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
+            android:onClick="btnSignUpOnClick"
             android:text="@string/sign_up"
             android:textColor="#FFFFFF"
             app:backgroundTint="#DA0037"
@@ -118,12 +120,14 @@
         </com.google.android.material.button.MaterialButton>
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/materialButton2"
+            android:id="@+id/btnSignAdmin"
             style="@style/Widget.Material3.Button.Icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="5dp"
+            android:onClick="btnSignAsAdminOnClick"
             android:text="@string/sign_admin"
+            android:transitionName="user_sign"
             android:textColor="#DA0037"
             android:textSize="14sp"
             android:textStyle="bold"
@@ -134,5 +138,4 @@
 
         </com.google.android.material.button.MaterialButton>
     </LinearLayout>
-    <!--    </LinearLayout>-->
 </ScrollView>
