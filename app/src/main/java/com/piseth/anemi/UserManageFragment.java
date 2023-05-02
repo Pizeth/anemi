@@ -2,11 +2,18 @@ package com.piseth.anemi;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -23,6 +30,19 @@ public class UserManageFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+    private RecyclerView recyclerView;
+
+    private List<User> loadData() {
+        List<User> users = new ArrayList<>();
+        users.add(new User(1, "Razeth", "1234567", 1, "0123456789", R.mipmap.cover));
+        users.add(new User(1, "Razeth", "1234567", 1, "0123456789", R.mipmap.cover));
+        users.add(new User(1, "Razeth", "1234567", 1, "0123456789", R.mipmap.cover));
+        users.add(new User(1, "Razeth", "1234567", 1, "0123456789", R.mipmap.cover));
+        users.add(new User(1, "Razeth", "1234567", 1, "0123456789", R.mipmap.cover));
+        users.add(new User(1, "Razeth", "1234567", 1, "0123456789", R.mipmap.cover));
+        users.add(new User(1, "Razeth", "1234567", 1, "0123456789", R.mipmap.cover));
+        return users;
+    }
 
     public UserManageFragment() {
         // Required empty public constructor
@@ -60,5 +80,18 @@ public class UserManageFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_user_manage, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+//        dataInitialize();
+
+        recyclerView = view.findViewById(R.id.recyclerUserView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+//        recyclerView.setHasFixedSize(true);
+        CustomRecyclerUserListAdapter adapter = new CustomRecyclerUserListAdapter(getContext(), loadData());
+        recyclerView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
     }
 }

@@ -14,6 +14,7 @@
     <string name="sign_in">SIGN IN</string>
     <string name="sign_up">SIGN UP</string>
     <string name="forget">FORGET PASSWORD?</string>
+    <string name="save">SAVE</string>
     <string name="sign_admin">SIGN IN AS ADMIN</string>
     <string name="back_sign_in">BACK TO SIGN IN</string>
     <string name="back_user_sign_in">BACK TO USER SIGN IN</string>
@@ -22,4 +23,6 @@
     <string name="home">Home</string>
     <string name="user_manage">MANAGE USER</string>
     <string name="user_profile">USER PROFILE</string>
+    <string name="username_label">USER:</string>
+    <string name="phone_label">PHONE:</string>
 </resources>

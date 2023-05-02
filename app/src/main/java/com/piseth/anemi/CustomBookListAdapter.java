@@ -40,9 +40,9 @@ public class CustomBookListAdapter extends BaseAdapter {
         if(view == null) {
             view = inflater.inflate(R.layout.book_list, viewGroup, false);
             viewHolder = new ViewHolder();
-            viewHolder.title = view.findViewById(R.id.txtTitle);
-            viewHolder.author = view.findViewById((R.id.txtAuthor));
-            viewHolder.cover = view.findViewById(R.id.bookCover);
+            viewHolder.title = view.findViewById(R.id.txtUsername);
+            viewHolder.author = view.findViewById((R.id.txtPhone));
+            viewHolder.cover = view.findViewById(R.id.profilePicture);
             view.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) view.getTag();

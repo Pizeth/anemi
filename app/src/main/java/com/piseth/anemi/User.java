@@ -8,15 +8,16 @@ public class User {
     private String password;
     private int userRoleId;
     private String phone;
-    private Bitmap photo;
+    private int photo;
     private int isDeleted;
 
-    public User(int id, String username, String password, int userRoleId, String phone) {
+    public User(int id, String username, String password, int userRoleId, String phone, int photo) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.userRoleId = userRoleId;
         this.phone = phone;
+        this.photo = photo;
     }
 
     public int getId() {
@@ -59,11 +60,11 @@ public class User {
         this.phone = phone;
     }
 
-    public Bitmap getPhoto() {
+    public int getPhoto() {
         return photo;
     }
 
-    public void setPhoto(Bitmap photo) {
+    public void setPhoto(int photo) {
         this.photo = photo;
     }
 

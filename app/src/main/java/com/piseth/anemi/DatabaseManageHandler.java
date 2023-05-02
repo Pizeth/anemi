@@ -20,6 +20,7 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
     public static final String USERNAME = "username";
     public static final String PASSWORD = "password";
     public static final String PHONE = "phone";
+    public static final String PHOTO = "photo";
     public static final String DELETED = "deleted";
 
     // Table UserRole
@@ -45,7 +46,7 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
 
     private static final String CREATE_TABLE_USER = "create table " + TABLE_USER + "(" + _ID
             + " INTEGER PRIMARY KEY AUTOINCREMENT, " + USERNAME + " TEXT NOT NULL, " + PASSWORD
-            + " TEXT NOT NULL, " + USER_ROLE + " INTEGER, " +  PHONE + " TEXT, " + DELETED + " INTEGER);";
+            + " TEXT NOT NULL, " + USER_ROLE + " INTEGER, " +  PHONE + " TEXT, " + PHONE + " BLOB," + DELETED + " INTEGER);";
 
     private static final String CREATE_TABLE_USER_ROLE = "create table " + TABLE_USER_ROLE + "(" + ROLE_ID
             + " INTEGER PRIMARY KEY AUTOINCREMENT, " + USER_ROLE + " TEXT NOT NULL, " + DELETED + " INTEGER);";
@@ -84,7 +85,7 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
 
         User user = new User(Integer.parseInt(cursor.getString(0)),
                         cursor.getString(1), cursor.getString(2),
-                        Integer.parseInt(cursor.getString(3)), cursor.getString(4));
+                        Integer.parseInt(cursor.getString(3)), cursor.getString(4), cursor.getInt(5));
         // return contact
         return user;
     }
@@ -103,7 +104,7 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
             do {
                 User user = new User(Integer.parseInt(cursor.getString(0)),
                                 cursor.getString(1), cursor.getString(2),
-                                Integer.parseInt(cursor.getString(3)), cursor.getString(4));
+                                Integer.parseInt(cursor.getString(3)), cursor.getString(4), cursor.getInt(5));
                 // Adding user to list
                 userList.add(user);
             } while (cursor.moveToNext());

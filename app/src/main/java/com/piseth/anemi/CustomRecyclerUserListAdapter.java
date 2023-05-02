@@ -28,16 +28,16 @@ public class CustomRecyclerUserListAdapter extends RecyclerView.Adapter<CustomRe
     @NonNull
     @Override
     public UserListViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(context).inflate(R.layout.book_list, parent, false);
+        View v = LayoutInflater.from(context).inflate(R.layout.user_list, parent, false);
         return new UserListViewHolder(v);
     }
 
     @Override
     public void onBindViewHolder(@NonNull UserListViewHolder holder, int position) {
         User user = users.get(position);
-//        holder.picture.setImageResource(user.get).
-//        holder.title.setText(book.getBookName());
-//        holder.author.setText(book.getAuthor());
+        holder.picture.setImageResource(user.getPhoto());
+        holder.username.setText(user.getUsername());
+        holder.phone.setText(user.getPhone());
 
     }
 
@@ -52,9 +52,9 @@ public class CustomRecyclerUserListAdapter extends RecyclerView.Adapter<CustomRe
         TextView phone;
         public UserListViewHolder(@NotNull View viewItem) {
             super(viewItem);
-            picture = viewItem.findViewById(R.id.bookCover);
-            username = viewItem.findViewById(R.id.txtTitle);
-            phone = viewItem.findViewById(R.id.txtAuthor);
+            picture = viewItem.findViewById(R.id.profilePicture);
+            username = viewItem.findViewById(R.id.txtUsername);
+            phone = viewItem.findViewById(R.id.txtPhone);
         }
     }
 }

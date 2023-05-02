@@ -7,7 +7,7 @@
     android:background="@drawable/list_border">
 
     <ImageView
-        android:id="@+id/bookCover"
+        android:id="@+id/profilePicture"
         android:layout_width="124dp"
         android:layout_height="124dp"
         android:layout_marginStart="10dp"
@@ -20,7 +20,7 @@
         tools:srcCompat="@drawable/baseline_newspaper_24" />
 
     <TextView
-        android:id="@+id/txtTitle"
+        android:id="@+id/txtUsername"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
@@ -31,11 +31,11 @@
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toEndOf="@+id/bookCover"
+        app:layout_constraintStart_toEndOf="@+id/profilePicture"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/txtAuthor"
+        android:id="@+id/txtPhone"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
@@ -45,8 +45,8 @@
         android:textSize="16sp"
         android:textStyle="italic"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/bookCover"
-        app:layout_constraintTop_toBottomOf="@+id/txtTitle" />
+        app:layout_constraintStart_toEndOf="@+id/profilePicture"
+        app:layout_constraintTop_toBottomOf="@+id/txtUsername" />
 
     <!--    style="@style/Widget.Material3.Button.Icon"-->
     <com.google.android.material.button.MaterialButton
@@ -63,8 +63,8 @@
         app:icon="@drawable/baseline_remove_red_eye_24"
         app:iconSize="22dp"
         app:iconTint="#4CAF50"
-        app:layout_constraintStart_toEndOf="@+id/bookCover"
-        app:layout_constraintTop_toBottomOf="@+id/txtAuthor">
+        app:layout_constraintStart_toEndOf="@+id/profilePicture"
+        app:layout_constraintTop_toBottomOf="@+id/txtPhone">
 
     </com.google.android.material.button.MaterialButton>
 
@@ -83,7 +83,7 @@
         app:iconSize="22dp"
         app:iconTint="#FF9800"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtAuthor">
+        app:layout_constraintTop_toBottomOf="@+id/txtPhone">
 
     </com.google.android.material.button.MaterialButton>
 
@@ -103,7 +103,7 @@
         app:iconSize="22dp"
         app:iconTint="#DA0037"
         app:layout_constraintEnd_toStartOf="@+id/btnSignAdmin2"
-        app:layout_constraintTop_toBottomOf="@+id/txtAuthor">
+        app:layout_constraintTop_toBottomOf="@+id/txtPhone">
 
     </com.google.android.material.button.MaterialButton>
 

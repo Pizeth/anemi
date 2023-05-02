@@ -51,9 +51,9 @@ public class CustomRecyclerBookListAdapter extends RecyclerView.Adapter<CustomRe
         TextView author;
         public BookListViewHolder(@NotNull View viewItem) {
             super(viewItem);
-            cover = viewItem.findViewById(R.id.bookCover);
-            title = viewItem.findViewById(R.id.txtTitle);
-            author = viewItem.findViewById(R.id.txtAuthor);
+            cover = viewItem.findViewById(R.id.profilePicture);
+            title = viewItem.findViewById(R.id.txtUsername);
+            author = viewItem.findViewById(R.id.txtPhone);
         }
     }
 }
