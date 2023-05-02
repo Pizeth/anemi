@@ -4,14 +4,11 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.ActivityOptions;
 import android.content.Intent;
-import android.media.Image;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Pair;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.google.android.material.textfield.TextInputLayout;
@@ -47,7 +44,7 @@ public class login extends AppCompatActivity {
     }
 
     public void btnSignInOnClick(View view) {
-        Intent intent = new Intent(login.this, BookDashBoardAcivity.class);
+        Intent intent = new Intent(login.this, BookDashBoardActivity.class);
         startActivity(intent);
     }
     public void btnSignAsAdminOnClick(View view) {

@@ -41,7 +41,7 @@ public class CustomBookListAdapter extends BaseAdapter {
             view = inflater.inflate(R.layout.book_list, viewGroup, false);
             viewHolder = new ViewHolder();
             viewHolder.title = view.findViewById(R.id.txtTitle);
-            viewHolder.author = view.findViewById((R.id.txtSubTitle));
+            viewHolder.author = view.findViewById((R.id.txtAuthor));
             viewHolder.cover = view.findViewById(R.id.bookCover);
             view.setTag(viewHolder);
         } else {

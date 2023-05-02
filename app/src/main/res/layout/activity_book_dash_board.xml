@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".BookDashBoardAcivity">
+    tools:context=".BookDashBoardActivity">
 
 <!--    <ListView-->
 <!--        android:id="@+id/bookList"-->
@@ -22,10 +22,13 @@
         android:layout_above="@id/bottom_navigation_menu" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation_menu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/bottom_navigation_menu"
         android:layout_alignParentBottom="true"
+        android:background="#D90037"
+        app:itemIconTint="@drawable/nav_view_item_text_color"
+        app:itemTextColor="@drawable/nav_view_item_text_color"
         app:menu="@menu/menu" />
 
 </RelativeLayout>

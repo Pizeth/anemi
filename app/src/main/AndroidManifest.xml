@@ -22,7 +22,7 @@
             android:name=".AddBookActivity"
             android:exported="false" />
         <activity
-            android:name=".BookDashBoardAcivity"
+            android:name=".BookDashBoardActivity"
             android:exported="false" />
         <activity
             android:name=".Admin_Login"

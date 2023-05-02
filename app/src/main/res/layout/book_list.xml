@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:background="@drawable/list_border">
 
     <ImageView
         android:id="@+id/bookCover"
@@ -11,6 +12,8 @@
         android:layout_height="124dp"
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/baseline_newspaper_24"
@@ -32,7 +35,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/txtSubTitle"
+        android:id="@+id/txtAuthor"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
@@ -45,7 +48,7 @@
         app:layout_constraintStart_toEndOf="@+id/bookCover"
         app:layout_constraintTop_toBottomOf="@+id/txtTitle" />
 
-<!--    style="@style/Widget.Material3.Button.Icon"-->
+    <!--    style="@style/Widget.Material3.Button.Icon"-->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnSignAdmin"
 
@@ -61,7 +64,7 @@
         app:iconSize="22dp"
         app:iconTint="#4CAF50"
         app:layout_constraintStart_toEndOf="@+id/bookCover"
-        app:layout_constraintTop_toBottomOf="@+id/txtSubTitle">
+        app:layout_constraintTop_toBottomOf="@+id/txtAuthor">
 
     </com.google.android.material.button.MaterialButton>
 
@@ -80,7 +83,7 @@
         app:iconSize="22dp"
         app:iconTint="#FF9800"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtSubTitle">
+        app:layout_constraintTop_toBottomOf="@+id/txtAuthor">
 
     </com.google.android.material.button.MaterialButton>
 
@@ -100,7 +103,7 @@
         app:iconSize="22dp"
         app:iconTint="#DA0037"
         app:layout_constraintEnd_toStartOf="@+id/btnSignAdmin2"
-        app:layout_constraintTop_toBottomOf="@+id/txtSubTitle">
+        app:layout_constraintTop_toBottomOf="@+id/txtAuthor">
 
     </com.google.android.material.button.MaterialButton>
 
