@@ -31,16 +31,11 @@ public class UserManageFragment extends Fragment {
     private String mParam1;
     private String mParam2;
     private RecyclerView recyclerView;
+    private DatabaseManageHandler db;
 
     private List<User> loadData() {
-        List<User> users = new ArrayList<>();
-        users.add(new User(1, "Razeth", "1234567", 1, "0123456789", R.mipmap.cover));
-        users.add(new User(1, "Razeth", "1234567", 1, "0123456789", R.mipmap.cover));
-        users.add(new User(1, "Razeth", "1234567", 1, "0123456789", R.mipmap.cover));
-        users.add(new User(1, "Razeth", "1234567", 1, "0123456789", R.mipmap.cover));
-        users.add(new User(1, "Razeth", "1234567", 1, "0123456789", R.mipmap.cover));
-        users.add(new User(1, "Razeth", "1234567", 1, "0123456789", R.mipmap.cover));
-        users.add(new User(1, "Razeth", "1234567", 1, "0123456789", R.mipmap.cover));
+        List<User> users = db.getAllUsers();
+//        users.add(new User(1, "Razeth", "1234567", 1, "0123456789", R.mipmap.cover));
         return users;
     }
 
@@ -69,6 +64,7 @@ public class UserManageFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        db = new DatabaseManageHandler(getActivity());
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
@@ -89,7 +85,7 @@ public class UserManageFragment extends Fragment {
 
         recyclerView = view.findViewById(R.id.recyclerUserView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-//        recyclerView.setHasFixedSize(true);
+        recyclerView.setHasFixedSize(true);
         CustomRecyclerUserListAdapter adapter = new CustomRecyclerUserListAdapter(getContext(), loadData());
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();

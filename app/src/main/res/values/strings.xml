@@ -25,4 +25,13 @@
     <string name="user_profile">USER PROFILE</string>
     <string name="username_label">USER:</string>
     <string name="phone_label">PHONE:</string>
+    <string name="username">USERNAME</string>
+    <string name="password">PASSWORD</string>
+    <string name="re_password">RE-PASSWORD</string>
+    <string name="new_password">NEW PASSWORD</string>
+    <string name="phone">PHONE</string>
+    <string name="photo">Profile Photo</string>
+    <string name="logout">LOGOUT</string>
+    <string name="search">SEARCH</string>
+    <string name="add">ADD</string>
 </resources>

@@ -14,12 +14,36 @@
 <!--        android:layout_marginTop="20dp"-->
 <!--        android:layout_marginEnd="20dp"-->
 <!--        android:layout_marginBottom="20dp" />-->
-
-    <FrameLayout
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/container"
-        android:layout_above="@id/bottom_navigation_menu" />
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/top_tool_bar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:menu="@menu/top_menu"
+            app:navigationIcon="@drawable/baseline_menu_24"
+            app:navigationIconTint="#FFFFFF"
+            app:subtitleTextColor="#FFFFFF"
+            app:title="Anemi"
+            app:titleTextColor="#FFFFFF"
+            style="@style/Widget.MaterialComponents.Toolbar.Primary"/>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+<!--    <androidx.core.widget.NestedScrollView-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        app:layout_behavior="@string/appbar_scrolling_view_behavior">-->
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/container"
+            android:layout_above="@id/bottom_navigation_menu" />
+<!--    </androidx.core.widget.NestedScrollView>-->
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation_menu"

@@ -5,9 +5,12 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
 import androidx.annotation.Nullable;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,26 +40,32 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
     public static final String DESCRIPTION = "description";
     public static final String AUTHOR = "author";
     public static final String PAGE = "page";
+    public static final int ADMIN_ID = 1;
 
     // Database Information
-    static final String DB_NAME = "EANEMI.DB";
+    static final String DB_NAME = "ANEMI.DB";
 
     // database version
     static final int DB_VERSION = 1;
 
+    private Context context;
+    private SQLiteDatabase currentDB;
+
     private static final String CREATE_TABLE_USER = "create table " + TABLE_USER + "(" + _ID
             + " INTEGER PRIMARY KEY AUTOINCREMENT, " + USERNAME + " TEXT NOT NULL, " + PASSWORD
-            + " TEXT NOT NULL, " + USER_ROLE + " INTEGER, " +  PHONE + " TEXT, " + PHONE + " BLOB," + DELETED + " INTEGER);";
+            + " TEXT NOT NULL, " + ROLE_ID + " INTEGER, " +  PHONE + " TEXT, " + PHOTO + " BLOB," + DELETED + " INTEGER DEFAULT 0);";
 
     private static final String CREATE_TABLE_USER_ROLE = "create table " + TABLE_USER_ROLE + "(" + ROLE_ID
-            + " INTEGER PRIMARY KEY AUTOINCREMENT, " + USER_ROLE + " TEXT NOT NULL, " + DELETED + " INTEGER);";
+            + " INTEGER PRIMARY KEY AUTOINCREMENT, " + USER_ROLE + " TEXT NOT NULL, " + DELETED + " INTEGER DEFAULT 0);";
 
     private static final String CREATE_TABLE_BOOK = "create table " + TABLE_BOOK + "(" + BOOK_ID
             + " INTEGER PRIMARY KEY AUTOINCREMENT, " + BOOK_NAME + " TEXT NOT NULL, " + DESCRIPTION + " TEXT, " + AUTHOR
-            + " TEXT, " + PAGE + " INTEGER, "+ DELETED + " INTEGER);";
+            + " TEXT, " + PAGE + " INTEGER, "+ DELETED + " INTEGER DEFAULT 0);";
 
     public DatabaseManageHandler(@Nullable Context context) {
         super(context, DB_NAME, null, DB_VERSION);
+        this.context = context;
+//        initializeUserAdmin();
     }
 
     @Override
@@ -64,6 +73,8 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(CREATE_TABLE_USER);
         sqLiteDatabase.execSQL(CREATE_TABLE_USER_ROLE);
         sqLiteDatabase.execSQL(CREATE_TABLE_BOOK);
+        currentDB = sqLiteDatabase;
+        initializeUserAdmin();
     }
 
     @Override
@@ -77,26 +88,53 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
     // Getting single user
     User getUser(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
-
+        int user_id, role_id;
+        String username, password, phone;
+        Bitmap photo;
         Cursor cursor = db.query(TABLE_USER, new String[] { _ID,
-                        USERNAME, PASSWORD, ROLE_ID, PHONE }, _ID + "=?",
+                        USERNAME, PASSWORD, ROLE_ID, PHONE, PHOTO }, _ID + "=?",
                         new String[] { String.valueOf(id) }, null, null, null, null);
-        if (cursor != null) cursor.moveToFirst();
+        if (cursor != null && cursor.moveToFirst()) {
+            user_id = Integer.parseInt(cursor.getString(0));
+            username = cursor.getString(1);
+            password = cursor.getString(2);
+            role_id = Integer.parseInt(cursor.getString(3));
+            phone = cursor.getString(4);
+            photo = AnemiUtils.getBitmapFromBytesArray(cursor.getBlob(5));
+            cursor.close();
+            // return user
+            return new User(user_id, username, password, role_id, phone, photo);
+        } else return null;
+    }
 
-        User user = new User(Integer.parseInt(cursor.getString(0)),
-                        cursor.getString(1), cursor.getString(2),
-                        Integer.parseInt(cursor.getString(3)), cursor.getString(4), cursor.getInt(5));
-        // return contact
-        return user;
+    User getUser(String userName) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        int user_id, role_id;
+        String username, password, phone;
+        Bitmap photo;
+        Cursor cursor = db.query(TABLE_USER, new String[] { _ID,
+                        USERNAME, PASSWORD, ROLE_ID, PHONE, PHOTO }, USERNAME + "=?",
+                new String[] { userName }, null, null, null, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            user_id = Integer.parseInt(cursor.getString(0));
+            username = cursor.getString(1);
+            password = cursor.getString(2);
+            role_id = Integer.parseInt(cursor.getString(3));
+            phone = cursor.getString(4);
+            photo = AnemiUtils.getBitmapFromBytesArray(cursor.getBlob(5));
+            cursor.close();
+            // return user
+            return new User(user_id, username, password, role_id, phone, photo);
+        } else return null;
     }
 
     // Getting All Users
     public List<User> getAllUsers() {
         List<User> userList = new ArrayList<>();
         // Select All Query
-        String selectQuery = "SELECT * FROM " + TABLE_USER;
+        String selectQuery = "SELECT * FROM " + TABLE_USER + " WHERE " + DELETED + " = 0";
 
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
 
         // looping through all rows and adding to list
@@ -104,7 +142,8 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
             do {
                 User user = new User(Integer.parseInt(cursor.getString(0)),
                                 cursor.getString(1), cursor.getString(2),
-                                Integer.parseInt(cursor.getString(3)), cursor.getString(4), cursor.getInt(5));
+                                Integer.parseInt(cursor.getString(3)), cursor.getString(4),
+                                AnemiUtils.getBitmapFromBytesArray(cursor.getBlob(5)));
                 // Adding user to list
                 userList.add(user);
             } while (cursor.moveToNext());
@@ -115,15 +154,24 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
         return userList;
     }
 
-    public void addUser(User user) {
-        SQLiteDatabase db = this.getWritableDatabase();
+    public void initializeUserAdmin() {
+        User admin = new User(ADMIN_ID, "Razeth", "Cocacola1!", 3, "0123456789", BitmapFactory.decodeResource(context.getResources(), R.mipmap.ehhh));
+        addUser(admin);
+    }
+
+    public long addUser(User user) {
+        if(currentDB == null) {
+            currentDB = this.getWritableDatabase();
+        }
+//        SQLiteDatabase db = this.getWritableDatabase();
         ContentValues value = new ContentValues();
         value.put(USERNAME, user.getUsername());
         value.put(PASSWORD, user.getPassword());
         value.put(ROLE_ID, user.getUserRoleId());
         value.put(PHONE, user.getPhone());
-        db.insert(TABLE_USER, null, value);
-        db.close();
+        value.put(PHOTO, AnemiUtils.getBitmapAsByteArray(user.getPhoto()));
+        return currentDB.insert(TABLE_USER, null, value);
+//        return (result == -1) ? false : true;
     }
 
     public int updateUser(User user) {
@@ -133,14 +181,15 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
         value.put(PASSWORD, user.getPassword());
         value.put(ROLE_ID, user.getUserRoleId());
         value.put(PHONE, user.getPhone());
-        return db.update(TABLE_USER, value, " WHERE " + _ID + " = " + user.getId(), null);
+        value.put(PHOTO, AnemiUtils.getBitmapAsByteArray(user.getPhoto()));
+        return db.update(TABLE_USER, value, _ID + " = " + user.getId(), null);
     }
 
     public int deleteUser(int id) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(DELETED, 1);
-        return db.update(TABLE_USER, values, " WHERE " + _ID + " = " + id, null);
+        return db.update(TABLE_USER, values, _ID + " = " + id, null);
     }
 
     UserRole getUserRole(int id) {
@@ -246,4 +295,14 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
         values.put(DELETED, 1);
         return db.update(TABLE_BOOK, values, " WHERE " + BOOK_ID + " = " + id, null);
     }
+
+//    public static byte[] getBitmapAsByteArray(Bitmap bitmap) {
+//        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+//        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+//        return outputStream.toByteArray();
+//    }
+//
+//    public static Bitmap getBitmapFromBytesArray(byte[] image) {
+//        return BitmapFactory.decodeByteArray(image, 0, image.length);
+//    }
 }

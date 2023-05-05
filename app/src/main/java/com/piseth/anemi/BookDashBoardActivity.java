@@ -1,26 +1,30 @@
 package com.piseth.anemi;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.WindowManager;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.navigation.NavigationBarView;
-import com.piseth.anemi.databinding.ActivityMainBinding;
 
 public class BookDashBoardActivity extends AppCompatActivity {
 
 //    ActivityMainBinding binding;
-    BottomNavigationView bottomMenu;
-    HomeFragment homeFragment = new HomeFragment();
-    UserManageFragment userManageFragment =  new UserManageFragment();
-    UserProfileFragment userProfileFragment = new UserProfileFragment();
+    public static String LOGGED_IN_USER = "logged_user";
+    public static String USER_PHOTO = "user_photo";
+    private BottomNavigationView bottomMenu;
+    private MaterialToolbar topMenu;
+    private HomeFragment homeFragment = new HomeFragment();
+    private UserManageFragment userManageFragment =  new UserManageFragment();
+    private UserProfileFragment userProfileFragment = new UserProfileFragment();
+    private SharedPreferences loggedInUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,10 +32,14 @@ public class BookDashBoardActivity extends AppCompatActivity {
 //        binding = ActivityMainBinding.inflate(getLayoutInflater());
 //        setContentView(binding.getRoot());
 //        binding.
+//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_book_dash_board);
         bottomMenu = findViewById(R.id.bottom_navigation_menu);
+        topMenu = findViewById(R.id.top_tool_bar);
+        loggedInUser = getSharedPreferences(LOGGED_IN_USER, MODE_PRIVATE);
 
-        getSupportFragmentManager().beginTransaction().replace(R.id.container, homeFragment).commit();
+//        getSupportFragmentManager().beginTransaction().replace(R.id.container, homeFragment).commit();
+        replaceFragment(homeFragment);
 
 //        BadgeDrawable badge = bottomMenu.getOrCreateBadge(R.id.user_manage);
 //        badge.setVisible(true);
@@ -51,7 +59,30 @@ public class BookDashBoardActivity extends AppCompatActivity {
             }
             return false;
         });
+//        topMenu.setNavigationOnClickListener(); {
+//            // Handle navigation icon press
+//        }
+
+        topMenu.setOnMenuItemClickListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.search:
+//                    replaceFragment(homeFragment);
+                    return true;
+                case R.id.add:
+//                    replaceFragment(userManageFragment);
+                    return true;
+                case R.id.logout:
+                    SharedPreferences.Editor prefsEditor = loggedInUser.edit();
+                    prefsEditor.remove(LOGGED_IN_USER);
+                    prefsEditor.commit();
+                    Intent intent = new Intent(BookDashBoardActivity.this, login.class);
+                    startActivity(intent);
+                    return true;
+            }
+            return false;
+        });
     }
+
 
 //    @Override
 //    public boolean onPrepareOptionsMenu (Menu menu) {
