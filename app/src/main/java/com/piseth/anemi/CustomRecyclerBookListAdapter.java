@@ -35,7 +35,7 @@ public class CustomRecyclerBookListAdapter extends RecyclerView.Adapter<CustomRe
     @Override
     public void onBindViewHolder(@NonNull BookListViewHolder holder, int position) {
         Book book = books.get(position);
-        holder.cover.setImageResource(book.getPage());
+        holder.cover.setImageBitmap(book.getCover());
         holder.title.setText(book.getBookName());
         holder.author.setText(book.getAuthor());
     }

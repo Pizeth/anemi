@@ -1,19 +1,21 @@
 package com.piseth.anemi;
 
+import android.graphics.Bitmap;
+
 public class Book {
     private int bookId;
     private String bookName;
     private String description;
     private String author;
-    private int page;
+    private Bitmap cover;
     private int isDeleted;
 
-    public Book(int bookId, String bookName, String description, String author, int page) {
+    public Book(int bookId, String bookName, String description, String author, Bitmap cover) {
         this.bookId = bookId;
         this.bookName = bookName;
         this.description = description;
         this.author = author;
-        this.page = page;
+        this.cover = cover;
     }
 
     public int getBookId() {
@@ -48,12 +50,12 @@ public class Book {
         this.author = author;
     }
 
-    public int getPage() {
-        return page;
+    public Bitmap getCover() {
+        return cover;
     }
 
-    public void setPage(int page) {
-        this.page = page;
+    public void setCover(Bitmap cover) {
+        this.cover = cover;
     }
 
     public int getIsDeleted() {

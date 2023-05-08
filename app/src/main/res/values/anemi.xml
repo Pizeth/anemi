@@ -1,2 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+
+
+    <style name="PositiveButtonStyle" parent="@style/Widget.Material3.Button.TextButton.Dialog">
+    <!-- text color for the button -->
+<!--    <item name="android:textColor">@color/.....</item>-->
+    <!-- Background tint for the button -->
+<!--    <item name="backgroundTint">@color/primaryDarkColor</item>-->
+    </style>
+</resources>

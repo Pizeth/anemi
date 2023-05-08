@@ -47,7 +47,7 @@ public class Register extends AppCompatActivity {
     public void btnSignUpOnClickListener(View view) {
         String username, password, re_password, phone;
 
-        if(txt_username.getEditText() != null && txt_password.getEditText() != null && txt_re_password.getEditText() != null & txt_phone.getEditText() != null && profileImage != null) {
+        if(txt_username.getEditText() != null && txt_password.getEditText() != null && txt_re_password.getEditText() != null && txt_phone.getEditText() != null && profileImage != null) {
             username = txt_username.getEditText().getText().toString().trim();
             password = txt_password.getEditText().getText().toString().trim();
             re_password = txt_re_password.getEditText().getText().toString().trim();

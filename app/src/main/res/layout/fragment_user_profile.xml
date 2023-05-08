@@ -36,15 +36,23 @@ android:layout_height="wrap_content">
             android:id="@+id/image_logo"
             android:layout_width="150dp"
             android:layout_height="150dp"
-            android:background="@drawable/shape"
-            android:clipToOutline="true"
+            android:background="@drawable/circle"
             android:contentDescription="@string/user_profile"
             android:cropToPadding="true"
             android:scaleType="centerCrop"
             android:transitionName="logo_image"
             app:srcCompat="@drawable/baseline_person_outline_24" />
 
-        <com.google.android.material.button.MaterialButton
+<!--        <com.google.android.material.button.MaterialButton-->
+<!--            android:id="@+id/buttonAddPhoto"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginTop="15dp"-->
+<!--            android:text="@string/add_photo"-->
+<!--            android:textColor="#FFFFFF"-->
+<!--            app:backgroundTint="#DA0037"-->
+<!--            app:cornerRadius="25dp" />-->
+        <Button
             android:id="@+id/buttonAddPhoto"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -152,7 +160,7 @@ android:layout_height="wrap_content">
             android:text="@string/save"
             android:textColor="#FFFFFF"
             app:backgroundTint="#DA0037"
-            app:cornerRadius="25dp"></com.google.android.material.button.MaterialButton>
+            app:cornerRadius="25dp" />
 
 <!--        <com.google.android.material.button.MaterialButton-->
 <!--            android:id="@+id/btnSignAdmin"-->

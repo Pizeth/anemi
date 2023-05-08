@@ -17,10 +17,13 @@
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:id="@+id/top_app_bar"
         android:fitsSystemWindows="true">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/top_tool_bar"
+            style="@style/Widget.MaterialComponents.Toolbar.Primary"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:menu="@menu/top_menu"
@@ -28,8 +31,7 @@
             app:navigationIconTint="#FFFFFF"
             app:subtitleTextColor="#FFFFFF"
             app:title="Anemi"
-            app:titleTextColor="#FFFFFF"
-            style="@style/Widget.MaterialComponents.Toolbar.Primary"/>
+            app:titleTextColor="#FFFFFF" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -38,11 +40,12 @@
 <!--        android:layout_height="match_parent"-->
 <!--        app:layout_behavior="@string/appbar_scrolling_view_behavior">-->
 
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/container"
-            android:layout_above="@id/bottom_navigation_menu" />
+    <FrameLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/top_app_bar"
+        android:layout_above="@id/bottom_navigation_menu" />
 <!--    </androidx.core.widget.NestedScrollView>-->
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
@@ -51,6 +54,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:background="#D90037"
+        app:itemActiveIndicatorStyle="@style/Anemi.Active.Indicator"
         app:itemIconTint="@drawable/nav_view_item_text_color"
         app:itemTextColor="@drawable/nav_view_item_text_color"
         app:menu="@menu/menu" />

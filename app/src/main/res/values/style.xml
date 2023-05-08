@@ -1,9 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="LoginTextInputLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+<!--    <style name="LoginTextInputLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">-->
+    <style name="LoginTextInputLayoutStyle" parent="Widget.Material3.TextInputLayout.OutlinedBox">
         <item name="boxStrokeColor">#DA0037</item>
         <item name="boxStrokeWidth">3dp</item>
 <!--        <item name="android:textColorHint">#DA0037</item>-->
+    </style>
+    <style name="Anemi.Active.Indicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+<!--        <item name="android:color">@android:color/transparent</item>-->
+        <item name="android:color">#FD5555</item>
+    </style>
+    <style name="anemi" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <!-- Background Color-->
+        <item name="android:backgroundTint">#CDDC39</item>
+        <item name="android:background">#FF5722</item>
+        <!-- Text Color for title and message -->
+        <!--        <item name="colorOnSurface">@color/......</item>-->
+        <!-- Style for positive button -->
+        <!--        <item name="buttonBarPositiveButtonStyle">@style/PositiveButtonStyle</item>-->
+        <!-- Style for negative button -->
+        <!--        <item name="buttonBarNegativeButtonStyle">@style/NegativeButtonStyle</item>-->
     </style>
 <!--    <style name="Theme.App" parent="Theme.Material3.Dark">-->
 <!--        <item name="textInputStyle">@style/Widget.App.TextInputLayout</item>-->

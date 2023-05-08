@@ -39,7 +39,7 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
     public static final String BOOK_NAME = "book_name";
     public static final String DESCRIPTION = "description";
     public static final String AUTHOR = "author";
-    public static final String PAGE = "page";
+    public static final String COVER = "cover";
     public static final int ADMIN_ID = 1;
 
     // Database Information
@@ -60,7 +60,7 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
 
     private static final String CREATE_TABLE_BOOK = "create table " + TABLE_BOOK + "(" + BOOK_ID
             + " INTEGER PRIMARY KEY AUTOINCREMENT, " + BOOK_NAME + " TEXT NOT NULL, " + DESCRIPTION + " TEXT, " + AUTHOR
-            + " TEXT, " + PAGE + " INTEGER, "+ DELETED + " INTEGER DEFAULT 0);";
+            + " TEXT, " + COVER + " BLOB, "+ DELETED + " INTEGER DEFAULT 0);";
 
     public DatabaseManageHandler(@Nullable Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -217,14 +217,14 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues value = new ContentValues();
         value.put(USER_ROLE, userRole.getUserRole());
-        return db.update(TABLE_USER_ROLE, value, " WHERE " + ROLE_ID + " = " + userRole.getUserRoleId(), null);
+        return db.update(TABLE_USER_ROLE, value, ROLE_ID + " = " + userRole.getUserRoleId(), null);
     }
 
     public int deleteUserRole(int id) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(DELETED, 1);
-        return db.update(TABLE_USER_ROLE, values, " WHERE " + ROLE_ID + " = " + id, null);
+        return db.update(TABLE_USER_ROLE, values, ROLE_ID + " = " + id, null);
     }
 
     // Getting single book
@@ -232,13 +232,13 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.query(TABLE_BOOK, new String[] { BOOK_ID,
-                        BOOK_NAME, DESCRIPTION, AUTHOR, PAGE }, BOOK_ID + "=?",
+                        BOOK_NAME, DESCRIPTION, AUTHOR, COVER }, BOOK_ID + "=?",
                 new String[] { String.valueOf(id) }, null, null, null, null);
         if (cursor != null) cursor.moveToFirst();
 
         Book book = new Book(Integer.parseInt(cursor.getString(0)),
                     cursor.getString(1), cursor.getString(2),
-                    cursor.getString(3), Integer.parseInt(cursor.getString(4)));
+                    cursor.getString(3), AnemiUtils.getBitmapFromBytesArray(cursor.getBlob(4)));
         // return contact
         return book;
     }
@@ -247,7 +247,7 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
     public List<Book> getAllBooks() {
         List<Book> bookList = new ArrayList<>();
         // Select All Query
-        String selectQuery = "SELECT * FROM " + TABLE_BOOK;
+        String selectQuery = "SELECT * FROM " + TABLE_BOOK + " WHERE " + DELETED + " = 0";
 
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
@@ -257,7 +257,7 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
             do {
                 Book book = new Book(Integer.parseInt(cursor.getString(0)),
                             cursor.getString(1), cursor.getString(2),
-                            cursor.getString(3), Integer.parseInt(cursor.getString(4)));
+                            cursor.getString(3), AnemiUtils.getBitmapFromBytesArray(cursor.getBlob(4)));
                 // Adding user to list
                 bookList.add(book);
             } while (cursor.moveToNext());
@@ -268,15 +268,14 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
         return bookList;
     }
 
-    public void addBook(Book book) {
+    public long addBook(Book book) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues value = new ContentValues();
         value.put(BOOK_NAME, book.getBookName());
         value.put(DESCRIPTION, book.getDescription());
         value.put(AUTHOR, book.getAuthor());
-        value.put(PAGE, book.getPage());
-        db.insert(TABLE_BOOK, null, value);
-        db.close();
+        value.put(COVER, AnemiUtils.getBitmapAsByteArray(book.getCover()));
+        return db.insert(TABLE_BOOK, null, value);
     }
 
     public int updateBook(Book book) {
@@ -285,7 +284,7 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
         value.put(BOOK_NAME, book.getBookName());
         value.put(DESCRIPTION, book.getDescription());
         value.put(AUTHOR, book.getAuthor());
-        value.put(PAGE, book.getPage());
+        value.put(COVER, AnemiUtils.getBitmapAsByteArray(book.getCover()));
         return db.update(TABLE_BOOK, value, " WHERE " + BOOK_ID + " = " + book.getBookId(), null);
     }
 

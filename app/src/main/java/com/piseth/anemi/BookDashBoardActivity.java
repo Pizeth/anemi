@@ -4,13 +4,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.WindowManager;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -21,9 +22,11 @@ public class BookDashBoardActivity extends AppCompatActivity {
     public static String USER_PHOTO = "user_photo";
     private BottomNavigationView bottomMenu;
     private MaterialToolbar topMenu;
-    private HomeFragment homeFragment = new HomeFragment();
-    private UserManageFragment userManageFragment =  new UserManageFragment();
-    private UserProfileFragment userProfileFragment = new UserProfileFragment();
+    private HomeFragment homeFragment;
+    private UserManageFragment userManageFragment;
+    private UserProfileFragment userProfileFragment;
+
+    private AddBookFragment addBookFragment;
     private SharedPreferences loggedInUser;
 
     @Override
@@ -32,14 +35,21 @@ public class BookDashBoardActivity extends AppCompatActivity {
 //        binding = ActivityMainBinding.inflate(getLayoutInflater());
 //        setContentView(binding.getRoot());
 //        binding.
-//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_book_dash_board);
         bottomMenu = findViewById(R.id.bottom_navigation_menu);
         topMenu = findViewById(R.id.top_tool_bar);
         loggedInUser = getSharedPreferences(LOGGED_IN_USER, MODE_PRIVATE);
+        homeFragment = new HomeFragment();
+        userManageFragment =  new UserManageFragment();
+        userProfileFragment = new UserProfileFragment();
+        addBookFragment = new AddBookFragment();
+//        userManageFragment.setListener(this);
 
 //        getSupportFragmentManager().beginTransaction().replace(R.id.container, homeFragment).commit();
-        replaceFragment(homeFragment);
+        if (savedInstanceState == null) {
+            replaceFragment(homeFragment);
+        }
 
 //        BadgeDrawable badge = bottomMenu.getOrCreateBadge(R.id.user_manage);
 //        badge.setVisible(true);
@@ -66,15 +76,15 @@ public class BookDashBoardActivity extends AppCompatActivity {
         topMenu.setOnMenuItemClickListener(item -> {
             switch (item.getItemId()) {
                 case R.id.search:
-//                    replaceFragment(homeFragment);
+//                    replaceFragment(addBookFragment);
                     return true;
                 case R.id.add:
-//                    replaceFragment(userManageFragment);
+                    replaceFragment(addBookFragment);
                     return true;
                 case R.id.logout:
                     SharedPreferences.Editor prefsEditor = loggedInUser.edit();
                     prefsEditor.remove(LOGGED_IN_USER);
-                    prefsEditor.commit();
+                    prefsEditor.apply();
                     Intent intent = new Intent(BookDashBoardActivity.this, login.class);
                     startActivity(intent);
                     return true;
@@ -97,16 +107,14 @@ public class BookDashBoardActivity extends AppCompatActivity {
 //        return true;
 //    }
 
-    public boolean onCreateOptionsMenu(Menu menu) {
+    @Override
+    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
 //        MenuInflater inflater = getMenuInflater();
-//        inflater.inflate(R.menu.menu, menu);
-//        Menu myMenu = menu;
+//        inflater.inflate(R.menu.main_menu, menu);
         MenuItem item = menu.findItem(R.id.user_manage);
-//        if (item != null) {
-//            item.setVisible(true);
-//        }
         item.setVisible(false);
-        return true;
+        menu.removeItem(2);
+        return super.onCreateOptionsMenu(menu);
     }
 
     private void replaceFragment(Fragment fragment) {

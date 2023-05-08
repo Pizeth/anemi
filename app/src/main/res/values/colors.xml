@@ -7,5 +7,8 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="anemi">#DA0037</color>
+    <color name="platinum">#E5E4E2</color>
+    <color name="dialog">#80000000</color>
     <color name="mtrl_textinput_default_box_stroke_color" tools:overide="true">#DA0037</color>
 </resources>

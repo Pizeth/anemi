@@ -1,6 +1,7 @@
 package com.piseth.anemi;
 
 import android.content.Context;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -34,20 +35,20 @@ public class HomeFragment extends Fragment {
     private String mParam2;
     private Context context;
     private RecyclerView recyclerView;
+    private DatabaseManageHandler db;
+    private CustomRecyclerBookListAdapter adapter;
+    private List<Book> loadData;
 
-    private List<Book> loadData() {
-        List<Book> books = new ArrayList<>();
-        books.add(new Book(1, "SpyxFamily", "A Popular Manga", "Tatsuya Endo", R.mipmap.spyxfamily));
-        books.add(new Book(1, "SpyxFamily", "A Popular Manga", "Tatsuya Endo", R.mipmap.spyxfamily));
-        books.add(new Book(1, "SpyxFamily", "A Popular Manga", "Tatsuya Endo", R.mipmap.spyxfamily));
-        books.add(new Book(1, "SpyxFamily", "A Popular Manga", "Tatsuya Endo", R.mipmap.spyxfamily));
-        books.add(new Book(1, "SpyxFamily", "A Popular Manga", "Tatsuya Endo", R.mipmap.spyxfamily));
-        books.add(new Book(1, "SpyxFamily", "A Popular Manga", "Tatsuya Endo", R.mipmap.spyxfamily));
-        books.add(new Book(1, "SpyxFamily", "A Popular Manga", "Tatsuya Endo", R.mipmap.spyxfamily));
-        books.add(new Book(1, "SpyxFamily", "A Popular Manga", "Tatsuya Endo", R.mipmap.spyxfamily));
-        books.add(new Book(1, "SpyxFamily", "A Popular Manga", "Tatsuya Endo", R.mipmap.spyxfamily));
-        return books;
-    }
+
+//    private List<Book> loadData() {
+//        List<Book> books = new ArrayList<>();
+//        books.add(new Book(1, "SpyxFamily", "A Popular Manga", "Tatsuya Endo", BitmapFactory.decodeResource(getResources(), R.mipmap.spyxfamily)));
+//        books.add(new Book(1, "SpyxFamily", "A Popular Manga", "Tatsuya Endo", BitmapFactory.decodeResource(getResources(), R.mipmap.spyxfamily)));
+//        books.add(new Book(1, "SpyxFamily", "A Popular Manga", "Tatsuya Endo", BitmapFactory.decodeResource(getResources(), R.mipmap.spyxfamily)));
+//        books.add(new Book(1, "SpyxFamily", "A Popular Manga", "Tatsuya Endo", BitmapFactory.decodeResource(getResources(), R.mipmap.spyxfamily)));
+//        books.add(new Book(1, "SpyxFamily", "A Popular Manga", "Tatsuya Endo", BitmapFactory.decodeResource(getResources(), R.mipmap.spyxfamily)));
+//        return books;
+//    }
 
     public HomeFragment() {
         // Required empty public constructor
@@ -79,6 +80,8 @@ public class HomeFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        db = new DatabaseManageHandler(getActivity());
+        loadData = db.getAllBooks();
     }
 
     @Override
@@ -103,7 +106,7 @@ public class HomeFragment extends Fragment {
         recyclerView = view.findViewById(R.id.recyclerBookView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 //        recyclerView.setHasFixedSize(true);
-        CustomRecyclerBookListAdapter adapter = new CustomRecyclerBookListAdapter(getContext(), loadData());
+        adapter = new CustomRecyclerBookListAdapter(getContext(), loadData);
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
     }
