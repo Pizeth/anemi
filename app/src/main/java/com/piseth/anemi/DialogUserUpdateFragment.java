@@ -160,18 +160,8 @@ public class DialogUserUpdateFragment extends DialogFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         db = new DatabaseManageHandler(getContext());
-
         Log.d("API123", "onCreate");
-
-//        boolean setFullScreen = false;
-//        if (getArguments() != null) {
-//            setFullScreen = getArguments().getBoolean("fullScreen");
-//        }
-//
-//        if (setFullScreen)
-//            setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
     }
 
     public boolean updateUser(String username, String password, String re_password, String phone, Bitmap imageToStore) {

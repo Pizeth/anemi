@@ -285,7 +285,7 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
         value.put(DESCRIPTION, book.getDescription());
         value.put(AUTHOR, book.getAuthor());
         value.put(COVER, AnemiUtils.getBitmapAsByteArray(book.getCover()));
-        return db.update(TABLE_BOOK, value, " WHERE " + BOOK_ID + " = " + book.getBookId(), null);
+        return db.update(TABLE_BOOK, value, BOOK_ID + " = " + book.getBookId(), null);
     }
 
     public int deleteBook(int id) {

@@ -7,7 +7,7 @@
     android:background="@drawable/list_border">
 
     <ImageView
-        android:id="@+id/profilePicture"
+        android:id="@+id/book_cover"
         android:layout_width="124dp"
         android:layout_height="124dp"
         android:layout_marginStart="10dp"
@@ -20,7 +20,7 @@
         tools:srcCompat="@drawable/baseline_newspaper_24" />
 
     <TextView
-        android:id="@+id/txtUsername"
+        android:id="@+id/txtTitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
@@ -31,11 +31,11 @@
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toEndOf="@+id/profilePicture"
+        app:layout_constraintStart_toEndOf="@+id/book_cover"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/txtPhone"
+        android:id="@+id/txtAuthor"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
@@ -45,12 +45,12 @@
         android:textSize="16sp"
         android:textStyle="italic"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/profilePicture"
-        app:layout_constraintTop_toBottomOf="@+id/txtUsername" />
+        app:layout_constraintStart_toEndOf="@+id/book_cover"
+        app:layout_constraintTop_toBottomOf="@+id/txtTitle" />
 
     <!--    style="@style/Widget.Material3.Button.Icon"-->
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnSignAdmin"
+        android:id="@+id/btnView"
 
         style="@style/Widget.Material3.Button.IconButton"
         android:layout_width="wrap_content"
@@ -63,13 +63,13 @@
         app:icon="@drawable/baseline_remove_red_eye_24"
         app:iconSize="22dp"
         app:iconTint="#4CAF50"
-        app:layout_constraintStart_toEndOf="@+id/profilePicture"
-        app:layout_constraintTop_toBottomOf="@+id/txtPhone">
+        app:layout_constraintStart_toEndOf="@+id/book_cover"
+        app:layout_constraintTop_toBottomOf="@+id/txtAuthor">
 
     </com.google.android.material.button.MaterialButton>
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnUpdateUser"
+        android:id="@+id/btnUpdateBook"
 
         style="@style/Widget.Material3.Button.IconButton"
         android:layout_width="wrap_content"
@@ -83,13 +83,12 @@
         app:iconSize="22dp"
         app:iconTint="#FF9800"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtPhone">
+        app:layout_constraintTop_toBottomOf="@+id/txtAuthor">
 
     </com.google.android.material.button.MaterialButton>
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnDeleteUser"
-
+        android:id="@+id/btnDeleteBook"
         style="@style/Widget.Material3.Button.IconButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -102,8 +101,8 @@
         app:icon="@drawable/baseline_delete_24"
         app:iconSize="22dp"
         app:iconTint="#DA0037"
-        app:layout_constraintEnd_toStartOf="@+id/btnUpdateUser"
-        app:layout_constraintTop_toBottomOf="@+id/txtPhone">
+        app:layout_constraintEnd_toStartOf="@+id/btnUpdateBook"
+        app:layout_constraintTop_toBottomOf="@+id/txtAuthor">
 
     </com.google.android.material.button.MaterialButton>
 
