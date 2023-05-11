@@ -1,6 +1,9 @@
 package com.piseth.anemi;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -18,6 +21,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
+import com.google.android.material.appbar.MaterialToolbar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +45,10 @@ public class UserManageFragment extends Fragment implements DialogUserUpdateFrag
     private RecyclerView recyclerView;
     private DatabaseManageHandler db;
     private CustomRecyclerUserListAdapter adapter;
+
+    public static String LOGGED_IN_USER = "logged_user";
+    private SharedPreferences loggedInUser;
+    private MaterialToolbar topMenu;
 
 //    private List<User> loadData() {
 //        List<User> users = db.getAllUsers();
@@ -81,7 +90,7 @@ public class UserManageFragment extends Fragment implements DialogUserUpdateFrag
         }
         db = new DatabaseManageHandler(getActivity());
         loadData = db.getAllUsers();
-//        adapter = new CustomRecyclerUserListAdapter(getContext(), loadData, this, this);
+        loggedInUser = getContext().getSharedPreferences(LOGGED_IN_USER, MODE_PRIVATE);
     }
 
     @Override
@@ -101,6 +110,21 @@ public class UserManageFragment extends Fragment implements DialogUserUpdateFrag
         adapter = new CustomRecyclerUserListAdapter(getContext(), loadData, this, this);
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
+        topMenu = view.findViewById(R.id.top_tool_bar);
+        topMenu.setOnMenuItemClickListener(item -> {
+            int itemId = item.getItemId();
+            if (itemId == R.id.add) {
+//                dialogAction(AnemiUtils.NEW_ENTRY, AnemiUtils.STARTING_POSITION, AnemiUtils.ACTION_ADD);
+            } else if (itemId == R.id.logout) {
+                SharedPreferences.Editor prefsEditor = loggedInUser.edit();
+                prefsEditor.remove(LOGGED_IN_USER);
+                prefsEditor.apply();
+                Intent intent = new Intent(getActivity(), login.class);
+                startActivity(intent);
+                return true;
+            }
+            return false;
+        });
     }
 
     @Override

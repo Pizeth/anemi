@@ -1,5 +1,7 @@
 package com.piseth.anemi;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -53,6 +55,7 @@ public class HomeFragment extends Fragment implements DialogUpdateBookFragment.D
     private SharedPreferences loggedInUser;
     private MaterialToolbar topMenu;
     private List<Book> loadData;
+    private BookDetailFragment bookDetailFragment;
     public HomeFragment() {
         // Required empty public constructor
     }
@@ -85,7 +88,7 @@ public class HomeFragment extends Fragment implements DialogUpdateBookFragment.D
         }
         db = new DatabaseManageHandler(getActivity());
         loadData = db.getAllBooks();
-
+        loggedInUser = getContext().getSharedPreferences(LOGGED_IN_USER, MODE_PRIVATE);
     }
 
     @Override
@@ -108,25 +111,23 @@ public class HomeFragment extends Fragment implements DialogUpdateBookFragment.D
         topMenu.setOnMenuItemClickListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.add) {
-//                Log.d("Update: ", "Update button pressed " + adapter.getItemId(p));
-//                Toast.makeText(getContext(), "Update pressed " + adapter.getItemId(p), Toast.LENGTH_SHORT).show();
-
-                Bundle bundle = new Bundle();
-                bundle.putBoolean("notAlertDialog", true);
-//                bundle.putLong("book_id", adapter.getItemId(p));
-                bundle.putInt("position", -1);
-
-                DialogUpdateBookFragment dialogFragment = new DialogUpdateBookFragment(bundle, AnemiUtils.ACTION_ADD, this);
-                dialogFragment.setTargetFragment(this, 0);
-                dialogFragment.setArguments(bundle);
-                FragmentManager fragmentManager = ((FragmentActivity) getContext()).getSupportFragmentManager(); // instantiate your view context
-                FragmentTransaction ft = fragmentManager.beginTransaction();
-                Fragment prev = ((FragmentActivity) getContext()).getSupportFragmentManager().findFragmentByTag("dialog");
-                if (prev != null) {
-                    ft.remove(prev);
-                }
-                ft.addToBackStack(null);
-                dialogFragment.show(ft, "dialog");
+//                Bundle bundle = new Bundle();
+//                bundle.putBoolean("notAlertDialog", true);
+//                bundle.putLong("book_id", AnemiUtils.NEW_ENTRY);
+//                bundle.putInt("position", AnemiUtils.NEW_ENTRY);
+//
+//                DialogUpdateBookFragment dialogFragment = new DialogUpdateBookFragment(bundle, AnemiUtils.ACTION_ADD, this);
+//                dialogFragment.setTargetFragment(this, 0);
+//                dialogFragment.setArguments(bundle);
+//                FragmentManager fragmentManager = ((FragmentActivity) getContext()).getSupportFragmentManager(); // instantiate your view context
+//                FragmentTransaction ft = fragmentManager.beginTransaction();
+//                Fragment prev = ((FragmentActivity) getContext()).getSupportFragmentManager().findFragmentByTag("dialog");
+//                if (prev != null) {
+//                    ft.remove(prev);
+//                }
+//                ft.addToBackStack(null);
+//                dialogFragment.show(ft, "dialog");
+                dialogAction(AnemiUtils.NEW_ENTRY, AnemiUtils.STARTING_POSITION, AnemiUtils.ACTION_ADD);
             } else if (itemId == R.id.logout) {
                 SharedPreferences.Editor prefsEditor = loggedInUser.edit();
                 prefsEditor.remove(LOGGED_IN_USER);
@@ -141,15 +142,78 @@ public class HomeFragment extends Fragment implements DialogUpdateBookFragment.D
 
     @Override
     public void onUpdate(int p) {
-        Log.d("Update: ", "Update button pressed " + adapter.getItemId(p));
-        Toast.makeText(getContext(), "Update pressed " + adapter.getItemId(p), Toast.LENGTH_SHORT).show();
+//        Bundle bundle = new Bundle();
+//        bundle.putBoolean("notAlertDialog", true);
+//        bundle.putLong("book_id", adapter.getItemId(p));
+//        bundle.putInt("position", p);
+//
+//        DialogUpdateBookFragment dialogFragment = new DialogUpdateBookFragment(bundle, AnemiUtils.ACTION_UPDATE, this);
+//        dialogFragment.setTargetFragment(this, 0);
+//        dialogFragment.setArguments(bundle);
+//        FragmentManager fragmentManager = ((FragmentActivity) getContext()).getSupportFragmentManager(); // instantiate your view context
+//        FragmentTransaction ft = fragmentManager.beginTransaction();
+//        Fragment prev = ((FragmentActivity) getContext()).getSupportFragmentManager().findFragmentByTag("dialog");
+//        if (prev != null) {
+//            ft.remove(prev);
+//        }
+//        ft.addToBackStack(null);
+//        dialogFragment.show(ft, "dialog");
+        dialogAction(adapter.getItemId(p), p, AnemiUtils.ACTION_UPDATE);
+    }
 
+    @Override
+    public void onDelete(int p) {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(getContext());
+        alertDialog.setTitle("Delete Book");
+        alertDialog.setMessage("Delete this book?");
+        alertDialog.setPositiveButton("CANCEL", (dialog, which) -> dialog.cancel());
+        alertDialog.setNegativeButton("YES", (dialog, which) -> {
+            // DO SOMETHING HERE
+            db.deleteBook((int)(adapter.getItemId(p)));
+            Log.d("success", "Successfully delete book");
+            Toast.makeText(getContext(), "Successfully delete book", Toast.LENGTH_SHORT).show();
+            loadData.remove(p);
+            adapter.notifyItemRemoved(p);
+        });
+
+        AlertDialog dialog = alertDialog.create();
+        dialog.show();
+    }
+
+    @Override
+    public void onView(int p) {
+        Bundle book_id = new Bundle();
+        book_id.putInt("book_id", (int) adapter.getItemId(p));
+        bookDetailFragment = new BookDetailFragment(book_id);
+        Toast.makeText(getContext(), "View clicked", Toast.LENGTH_SHORT).show();
+        getParentFragmentManager().beginTransaction().replace(R.id.container, bookDetailFragment).commit();
+    }
+
+    @Override
+    public void onFinishUpdateDialog(int position, Book book) {
+        Log.d("success!", "Total Available Book:"  + loadData.size());
+        if(loadData.size() > 0) {
+            if(position != -1) {
+                loadData.set(position, book);
+                adapter.notifyItemChanged(position);
+                Log.d("success!", "Adding new book"  + book.getBookName());
+            } else {
+                Log.d("success!", "Adding new book"  + book.getBookName());
+                reloadData(book);
+            }
+        } else {
+            Log.d("success!", "Adding new book"  + book.getBookName() + " empty list");
+            reloadData(book);
+        }
+    }
+
+    public void dialogAction(long book_id, int list_position, int action) {
         Bundle bundle = new Bundle();
         bundle.putBoolean("notAlertDialog", true);
-        bundle.putLong("book_id", adapter.getItemId(p));
-        bundle.putInt("position", p);
+        bundle.putLong("book_id", book_id);
+        bundle.putInt("position", list_position);
 
-        DialogUpdateBookFragment dialogFragment = new DialogUpdateBookFragment(bundle, AnemiUtils.ACTION_UPDATE, this);
+        DialogUpdateBookFragment dialogFragment = new DialogUpdateBookFragment(bundle, action, this);
         dialogFragment.setTargetFragment(this, 0);
         dialogFragment.setArguments(bundle);
         FragmentManager fragmentManager = ((FragmentActivity) getContext()).getSupportFragmentManager(); // instantiate your view context
@@ -162,30 +226,8 @@ public class HomeFragment extends Fragment implements DialogUpdateBookFragment.D
         dialogFragment.show(ft, "dialog");
     }
 
-    @Override
-    public void onDelete(int p) {
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(getContext());
-        alertDialog.setTitle("Delete Book");
-        alertDialog.setMessage("Delete this book?");
-        alertDialog.setPositiveButton("CANCEL", (dialog, which) -> dialog.cancel());
-        alertDialog.setNegativeButton("YES", (dialog, which) -> {
-            Log.d("Update: ", "Delete button pressed " + adapter.getItemId(p));
-            Toast.makeText(getContext(), "Delete pressed " + adapter.getItemId(p), Toast.LENGTH_SHORT).show();
-            // DO SOMETHING HERE
-            db.deleteBook((int)(adapter.getItemId(p)));
-            Log.d("Update: ", "Delete button pressed " + adapter.getItemId(p));
-            Toast.makeText(getContext(), "Delete pressed " + adapter.getItemId(p), Toast.LENGTH_SHORT).show();
-            loadData.remove(p);
-            adapter.notifyItemRemoved(p);
-        });
-
-        AlertDialog dialog = alertDialog.create();
-        dialog.show();
-    }
-
-    @Override
-    public void onFinishUpdateDialog(int position, Book book) {
-        loadData.set(position, book);
-        adapter.notifyItemChanged(position);
+    public void reloadData(Book book) {
+        loadData.add(book);
+        adapter.notifyDataSetChanged();
     }
 }

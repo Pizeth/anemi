@@ -15,6 +15,7 @@ public class AnemiUtils {
     public static final int ACTION_ADD = 1;
     public static final int ACTION_UPDATE = 2;
     public static final int NEW_ENTRY = 0;
+    public static final int STARTING_POSITION = -1;
 
     public static byte[] getBitmapAsByteArray(Bitmap bitmap) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

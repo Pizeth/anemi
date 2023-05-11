@@ -156,7 +156,7 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
     }
 
     public void initializeUserAdmin() {
-        User admin = new User(ADMIN_ID, "Razeth", "Cocacola1!", 3, "0123456789", BitmapFactory.decodeResource(context.getResources(), R.mipmap.ehhh));
+        User admin = new User(ADMIN_ID, "admin", "123", 3, "0123456789", BitmapFactory.decodeResource(context.getResources(), R.mipmap.ehhh));
         addUser(admin);
     }
 
@@ -314,7 +314,7 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(DELETED, 1);
-        return db.update(TABLE_BOOK, values, " WHERE " + BOOK_ID + " = " + id, null);
+        return db.update(TABLE_BOOK, values, BOOK_ID + " = " + id, null);
     }
 
 //    public static byte[] getBitmapAsByteArray(Bitmap bitmap) {
