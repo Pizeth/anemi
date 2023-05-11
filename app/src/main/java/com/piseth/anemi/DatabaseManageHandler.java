@@ -75,6 +75,7 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(CREATE_TABLE_BOOK);
         currentDB = sqLiteDatabase;
         initializeUserAdmin();
+        initializeRole();
     }
 
     @Override
@@ -159,6 +160,16 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
         addUser(admin);
     }
 
+    public void initializeRole() {
+        List<UserRole> roles = new ArrayList<>();
+        roles.add( new UserRole(1, "Member"));
+        roles.add( new UserRole(2, "Editor"));
+        roles.add( new UserRole(3, "Admin"));
+        for (UserRole r : roles) {
+            addUserRole(r);
+        }
+    }
+
     public long addUser(User user) {
         if(currentDB == null) {
             currentDB = this.getWritableDatabase();
@@ -205,12 +216,23 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
         return userRole;
     }
 
+    String getRole(int id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.query(TABLE_USER_ROLE, new String[] {USER_ROLE }, ROLE_ID + "=?",
+                        new String[] { String.valueOf(id) }, null, null, null, null);
+        if (cursor != null) cursor.moveToFirst();
+        return cursor.getString(0);
+    }
+
     public void addUserRole(UserRole userRole) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        if(currentDB == null) {
+            currentDB = this.getWritableDatabase();
+        }
+//        SQLiteDatabase db = this.getWritableDatabase();
         ContentValues value = new ContentValues();
         value.put(USER_ROLE, userRole.getUserRole());
-        db.insert(TABLE_USER_ROLE, null, value);
-        db.close();
+        currentDB.insert(TABLE_USER_ROLE, null, value);
     }
 
     public int updateUserRole(UserRole userRole) {

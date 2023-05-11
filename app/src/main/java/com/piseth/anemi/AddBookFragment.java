@@ -125,26 +125,26 @@ public class AddBookFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.btnAddCover:
-                chooseImage();
-                return;
-            case R.id.btnSaveBook:
-                String title, author, description;
+        int id = view.getId();
+        if (id == R.id.btnAddCover) {
+            chooseImage();
+            return;
+        } else if (id == R.id.btnSaveBook) {
+            String title, author, description;
 
-                if(txt_title.getEditText() != null && txt_author.getEditText() != null && txt_description.getEditText() != null && bookCover != null) {
-                    title = txt_title.getEditText().getText().toString().trim();
-                    author = txt_author.getEditText().getText().toString().trim();
-                    description = txt_description.getEditText().getText().toString().trim();
-                    Log.d("Insert Book: ", title + " " + author + " " + description);
-                    boolean result = addBook(title, description, author, imageToStore);
-                    if (result) {
-                        Toast.makeText(getContext(), "Successfully added new Book", Toast.LENGTH_SHORT).show();
-                        Log.d("Successful: ", "Back to Book Dashboard");
-                        homeFragment = new HomeFragment();
-                        replaceFragment(homeFragment);
-                    }
+            if (txt_title.getEditText() != null && txt_author.getEditText() != null && txt_description.getEditText() != null && bookCover != null) {
+                title = txt_title.getEditText().getText().toString().trim();
+                author = txt_author.getEditText().getText().toString().trim();
+                description = txt_description.getEditText().getText().toString().trim();
+                Log.d("Insert Book: ", title + " " + author + " " + description);
+                boolean result = addBook(title, description, author, imageToStore);
+                if (result) {
+                    Toast.makeText(getContext(), "Successfully added new Book", Toast.LENGTH_SHORT).show();
+                    Log.d("Successful: ", "Back to Book Dashboard");
+                    homeFragment = new HomeFragment();
+                    replaceFragment(homeFragment);
                 }
+            }
         }
     }
 

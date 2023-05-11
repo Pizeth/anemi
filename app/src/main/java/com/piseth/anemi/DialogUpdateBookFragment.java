@@ -38,6 +38,8 @@ public class DialogUpdateBookFragment extends DialogFragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     public static final int PICK_IMAGE = 1;
+    public static final int DUMMY_ID = 99;
+    private int action;
     private DatabaseManageHandler db;
     private Book book;
     private Bitmap imageToStore;
@@ -45,9 +47,10 @@ public class DialogUpdateBookFragment extends DialogFragment {
     private ImageView bookCover;
     private DialogUpdateBookFragment.DialogListener dialogListener;
 
-    public DialogUpdateBookFragment(Bundle savedInstanceState, DialogUpdateBookFragment.DialogListener dialogListener) {
-        this.dialogListener = dialogListener;
+    public DialogUpdateBookFragment(Bundle savedInstanceState, int action, DialogUpdateBookFragment.DialogListener dialogListener) {
         super.setArguments(savedInstanceState);
+        this.action = action;
+        this.dialogListener = dialogListener;
     }
 
     public static HomeFragment newInstance(String param1, String param2) {
@@ -68,8 +71,13 @@ public class DialogUpdateBookFragment extends DialogFragment {
             }
         }
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getActivity(), R.style.anemi);
-        builder.setTitle("Update Book");
-        builder.setMessage("Update Book's information");
+        if(action == AnemiUtils.ACTION_ADD) {
+            builder.setTitle("Add Book");
+            builder.setMessage("Add Book's information");
+        } else if (action == AnemiUtils.ACTION_UPDATE) {
+            builder.setTitle("Update Book");
+            builder.setMessage("Update Book's information");
+        }
         builder.setNeutralButton("OK", (dialog, which) -> dismiss());
         builder.setPositiveButton("SAVE", (dialog, which) -> dismiss());
         builder.setNegativeButton("CANCEL", (dialog, which) -> dismiss());
@@ -135,7 +143,13 @@ public class DialogUpdateBookFragment extends DialogFragment {
             title = (txt_title.getEditText() != null) ? txt_title.getEditText().getText().toString().trim() : "";
             author = (txt_author.getEditText() != null) ? txt_author.getEditText().getText().toString().trim() : "";
             description = (txt_description.getEditText() != null) ? txt_description.getEditText().getText().toString().trim() : "";
-            boolean result = updateBook(title, description, author, imageToStore);
+//            bookCover != null && imageToStore != null
+            boolean result = false;
+            if(action == AnemiUtils.ACTION_ADD && imageToStore != null) {
+                result = addBook(title, description, author, imageToStore);
+            } else if (action == AnemiUtils.ACTION_UPDATE && imageToStore != null) {
+                result = updateBook(title, description, author, imageToStore);
+            }
             if (result) {
                 Toast.makeText(getContext(), "Successfully update book", Toast.LENGTH_SHORT).show();
                 Log.d("Successful: ", "Back to manage book Screen");
@@ -150,16 +164,30 @@ public class DialogUpdateBookFragment extends DialogFragment {
         });
     }
 
-    public boolean updateBook(String title, String author, String description, Bitmap imageToStore) {
+    public boolean updateBook(String title, String description, String author, Bitmap imageToStore) {
         boolean checkOperation = false;
         if(!title.isEmpty() && !title.equals(book.getBookName())) book.setBookName(title);
-        if(!author.isEmpty() && !author.equals(book.getAuthor())) book.setAuthor(author);
         if(!description.isEmpty() && !description.equals(book.getDescription())) book.setDescription(description);
+        if(!author.isEmpty() && !author.equals(book.getAuthor())) book.setAuthor(author);
         if(imageToStore != null && !imageToStore.sameAs(book.getCover())) book.setCover(imageToStore);
         if(db.updateBook(book) > 0) {
-            Log.d("Update: ", book.getBookName() + " " + book.getAuthor());
+            Log.d("Update Book: ", "Book ID: " + book.getBookId() + " Book Title: " + book.getBookName() + " Author" + book.getAuthor());
             Toast.makeText(getContext(), book.getBookName() + " " + book.getBookName(), Toast.LENGTH_SHORT).show();
             checkOperation = true;
+        }
+        return checkOperation;
+    }
+
+    public boolean addBook(String title, String description, String author, Bitmap imageToStore) {
+        boolean checkOperation = false;
+        if(!title.isEmpty() && !author.isEmpty() && !description.isEmpty() && imageToStore != null) {
+            Book book = new Book(DUMMY_ID, title, description, author, imageToStore);
+            int book_id = (int) db.addBook(book);
+            checkOperation = (book_id == -1) ? false : true;
+            book.setBookId(book_id);
+            Log.d("Insert Book: ", "Book ID: " + book.getBookId() + " Book Title: " + book.getBookName() + " Author" + book.getAuthor());
+            Toast.makeText(getContext(), book.getBookId() + " " + book.getBookName() + " " + book.getAuthor(), Toast.LENGTH_SHORT).show();
+
         }
         return checkOperation;
     }

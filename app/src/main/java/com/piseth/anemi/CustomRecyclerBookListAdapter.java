@@ -83,15 +83,11 @@ public class CustomRecyclerBookListAdapter extends RecyclerView.Adapter<CustomRe
 
         @Override
         public void onClick(View view) {
-            switch (view.getId()) {
-                case R.id.btnUpdateBook:
-                    onBookListClickListener.onUpdate(this.getLayoutPosition());
-                    break;
-                case R.id.btnDeleteBook:
-                    onBookListClickListener.onDelete(this.getLayoutPosition());
-                    break;
-                default:
-                    break;
+            int id = view.getId();
+            if (id == R.id.btnUpdateBook) {
+                onBookListClickListener.onUpdate(this.getLayoutPosition());
+            } else if (id == R.id.btnDeleteBook) {
+                onBookListClickListener.onDelete(this.getLayoutPosition());
             }
         }
     }

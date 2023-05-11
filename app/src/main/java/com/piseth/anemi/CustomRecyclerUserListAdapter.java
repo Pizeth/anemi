@@ -167,15 +167,11 @@ public class CustomRecyclerUserListAdapter extends RecyclerView.Adapter<CustomRe
 
         @Override
         public void onClick(View view) {
-            switch (view.getId()) {
-                case R.id.btnUpdateUser:
-                    onUserListClickListener.onUpdate(this.getLayoutPosition());
-                    break;
-                case R.id.btnDeleteUser:
-                    onUserListClickListener.onDelete(this.getLayoutPosition());
-                    break;
-                default:
-                    break;
+            int id = view.getId();
+            if (id == R.id.btnUpdateUser) {
+                onUserListClickListener.onUpdate(this.getLayoutPosition());
+            } else if (id == R.id.btnDeleteUser) {
+                onUserListClickListener.onDelete(this.getLayoutPosition());
             }
         }
     }

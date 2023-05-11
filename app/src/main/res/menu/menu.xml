@@ -6,8 +6,8 @@
         android:icon="@drawable/baseline_home_24" />
     <item
         android:id="@+id/user_manage"
-        android:title="@string/user_manage"
-        android:icon="@drawable/baseline_manage_accounts_24" />
+        android:icon="@drawable/baseline_manage_accounts_24"
+        android:title="@string/user_manage" />
     <item
         android:id="@+id/user_profile"
         android:title="@string/user_profile"

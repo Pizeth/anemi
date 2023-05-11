@@ -1,6 +1,8 @@
 package com.piseth.anemi;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 
@@ -16,10 +18,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import com.google.android.material.appbar.MaterialToolbar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +49,9 @@ public class HomeFragment extends Fragment implements DialogUpdateBookFragment.D
     private RecyclerView recyclerView;
     private DatabaseManageHandler db;
     private CustomRecyclerBookListAdapter adapter;
+    public static String LOGGED_IN_USER = "logged_user";
+    private SharedPreferences loggedInUser;
+    private MaterialToolbar topMenu;
     private List<Book> loadData;
     public HomeFragment() {
         // Required empty public constructor
@@ -76,6 +85,7 @@ public class HomeFragment extends Fragment implements DialogUpdateBookFragment.D
         }
         db = new DatabaseManageHandler(getActivity());
         loadData = db.getAllBooks();
+
     }
 
     @Override
@@ -94,6 +104,39 @@ public class HomeFragment extends Fragment implements DialogUpdateBookFragment.D
         adapter = new CustomRecyclerBookListAdapter(getContext(), loadData, this, this);
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
+        topMenu = view.findViewById(R.id.top_tool_bar);
+        topMenu.setOnMenuItemClickListener(item -> {
+            int itemId = item.getItemId();
+            if (itemId == R.id.add) {
+//                Log.d("Update: ", "Update button pressed " + adapter.getItemId(p));
+//                Toast.makeText(getContext(), "Update pressed " + adapter.getItemId(p), Toast.LENGTH_SHORT).show();
+
+                Bundle bundle = new Bundle();
+                bundle.putBoolean("notAlertDialog", true);
+//                bundle.putLong("book_id", adapter.getItemId(p));
+                bundle.putInt("position", -1);
+
+                DialogUpdateBookFragment dialogFragment = new DialogUpdateBookFragment(bundle, AnemiUtils.ACTION_ADD, this);
+                dialogFragment.setTargetFragment(this, 0);
+                dialogFragment.setArguments(bundle);
+                FragmentManager fragmentManager = ((FragmentActivity) getContext()).getSupportFragmentManager(); // instantiate your view context
+                FragmentTransaction ft = fragmentManager.beginTransaction();
+                Fragment prev = ((FragmentActivity) getContext()).getSupportFragmentManager().findFragmentByTag("dialog");
+                if (prev != null) {
+                    ft.remove(prev);
+                }
+                ft.addToBackStack(null);
+                dialogFragment.show(ft, "dialog");
+            } else if (itemId == R.id.logout) {
+                SharedPreferences.Editor prefsEditor = loggedInUser.edit();
+                prefsEditor.remove(LOGGED_IN_USER);
+                prefsEditor.apply();
+                Intent intent = new Intent(getActivity(), login.class);
+                startActivity(intent);
+                return true;
+            }
+            return false;
+        });
     }
 
     @Override
@@ -106,7 +149,7 @@ public class HomeFragment extends Fragment implements DialogUpdateBookFragment.D
         bundle.putLong("book_id", adapter.getItemId(p));
         bundle.putInt("position", p);
 
-        DialogUpdateBookFragment dialogFragment = new DialogUpdateBookFragment(bundle, this);
+        DialogUpdateBookFragment dialogFragment = new DialogUpdateBookFragment(bundle, AnemiUtils.ACTION_UPDATE, this);
         dialogFragment.setTargetFragment(this, 0);
         dialogFragment.setArguments(bundle);
         FragmentManager fragmentManager = ((FragmentActivity) getContext()).getSupportFragmentManager(); // instantiate your view context
