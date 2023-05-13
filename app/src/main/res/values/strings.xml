@@ -9,12 +9,13 @@
     <string name="invalid_username">Not a valid username</string>
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
-    <string name="logo">Anemi</string>
+    <string name="logo">ANNEMI</string>
     <string name="or_label">OR</string>
     <string name="sign_in">SIGN IN</string>
     <string name="sign_up">SIGN UP</string>
     <string name="forget">FORGET PASSWORD?</string>
     <string name="save">SAVE</string>
+    <string name="back">BACK</string>
     <string name="sign_admin">SIGN IN AS ADMIN</string>
     <string name="back_sign_in">BACK TO SIGN IN</string>
     <string name="back_user_sign_in">BACK TO USER SIGN IN</string>
@@ -45,5 +46,12 @@
     <string name="author_label">AUTHOR:</string>
     <string name="description_label">DESCRIPTION:</string>
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="welcome_message">WELCOME BACK!!!</string>
+    <string name="setting">SETTING</string>
+    <string name="about">ABOUT US</string>
+    <string name="app_info">APP INFO</string>
+    <string name="contact_info">CONTACT US</string>
+    <string name="fab">FLOATING ACTION BUTTON</string>
 </resources>

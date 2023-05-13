@@ -1,35 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".UserManageFragment" >
+    tools:context=".UserManageFragment">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/top_app_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fitsSystemWindows="true">
-
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/top_tool_bar"
-            style="@style/Widget.MaterialComponents.Toolbar.Primary"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:menu="@menu/top_menu"
-            app:navigationIcon="@drawable/baseline_menu_24"
-            app:navigationIconTint="#FFFFFF"
-            app:subtitleTextColor="#FFFFFF"
-            app:title="Anemi"
-            app:titleTextColor="#FFFFFF" />
-    </com.google.android.material.appbar.AppBarLayout>
+<!--    <com.google.android.material.floatingactionbutton.FloatingActionButton-->
+<!--        android:id="@+id/floating_add_user"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_alignParentStart="true"-->
+<!--        android:layout_alignParentBottom="true"-->
+<!--        android:layout_gravity="start|bottom"-->
+<!--        android:layout_margin="15dp"-->
+<!--        android:contentDescription="@string/fab"-->
+<!--        app:shapeAppearanceOverlay="@style/fab_3_rounded"-->
+<!--        app:backgroundTint="@color/anemi"-->
+<!--        app:srcCompat="@drawable/baseline_add_24_white"-->
+<!--        app:tint="@color/white"-->
+<!--        app:rippleColor="#E91E63" />-->
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerUserView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:listitem="@layout/user_list"/>
+        tools:listitem="@layout/user_list" />
 
-</LinearLayout>
+</RelativeLayout>

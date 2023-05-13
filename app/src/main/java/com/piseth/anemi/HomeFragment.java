@@ -10,7 +10,11 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
@@ -22,12 +26,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +44,7 @@ import java.util.List;
  * Use the {@link HomeFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class HomeFragment extends Fragment implements DialogUpdateBookFragment.DialogListener, CustomRecyclerBookListAdapter.OnBookListClickListener {
+public class HomeFragment extends Fragment implements DialogUpdateBookFragment.DialogListener, CustomRecyclerBookListAdapter.OnBookListClickListener, NavigationView.OnNavigationItemSelectedListener {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -56,6 +63,10 @@ public class HomeFragment extends Fragment implements DialogUpdateBookFragment.D
     private MaterialToolbar topMenu;
     private List<Book> loadData;
     private BookDetailFragment bookDetailFragment;
+    private FloatingActionButton fabAddBook;
+    private DrawerLayout drawerLayout;
+    private NavigationView navigationView;
+
     public HomeFragment() {
         // Required empty public constructor
     }
@@ -107,37 +118,56 @@ public class HomeFragment extends Fragment implements DialogUpdateBookFragment.D
         adapter = new CustomRecyclerBookListAdapter(getContext(), loadData, this, this);
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
-        topMenu = view.findViewById(R.id.top_tool_bar);
-        topMenu.setOnMenuItemClickListener(item -> {
-            int itemId = item.getItemId();
-            if (itemId == R.id.add) {
-//                Bundle bundle = new Bundle();
-//                bundle.putBoolean("notAlertDialog", true);
-//                bundle.putLong("book_id", AnemiUtils.NEW_ENTRY);
-//                bundle.putInt("position", AnemiUtils.NEW_ENTRY);
-//
-//                DialogUpdateBookFragment dialogFragment = new DialogUpdateBookFragment(bundle, AnemiUtils.ACTION_ADD, this);
-//                dialogFragment.setTargetFragment(this, 0);
-//                dialogFragment.setArguments(bundle);
-//                FragmentManager fragmentManager = ((FragmentActivity) getContext()).getSupportFragmentManager(); // instantiate your view context
-//                FragmentTransaction ft = fragmentManager.beginTransaction();
-//                Fragment prev = ((FragmentActivity) getContext()).getSupportFragmentManager().findFragmentByTag("dialog");
-//                if (prev != null) {
-//                    ft.remove(prev);
-//                }
-//                ft.addToBackStack(null);
-//                dialogFragment.show(ft, "dialog");
-                dialogAction(AnemiUtils.NEW_ENTRY, AnemiUtils.STARTING_POSITION, AnemiUtils.ACTION_ADD);
-            } else if (itemId == R.id.logout) {
-                SharedPreferences.Editor prefsEditor = loggedInUser.edit();
-                prefsEditor.remove(LOGGED_IN_USER);
-                prefsEditor.apply();
-                Intent intent = new Intent(getActivity(), login.class);
-                startActivity(intent);
-                return true;
+        fabAddBook = view.findViewById(R.id.floating_add_book);
+        fabAddBook.setOnClickListener(view1 -> dialogAction(AnemiUtils.NEW_ENTRY, AnemiUtils.STARTING_POSITION, AnemiUtils.ACTION_ADD));
+        User user = AnemiUtils.getLoggedInUser(loggedInUser);
+        if(user != null) {
+            if(user.getUserRoleId() != AnemiUtils.ROLE_ADMIN) {
+                fabAddBook.setVisibility(View.INVISIBLE);
             }
-            return false;
-        });
+        }
+        //Hook
+//        drawerLayout = view.findViewById(R.id.home_drawer_layout);
+//        navigationView = view.findViewById(R.id.home_nav_view);
+//        topMenu = view.findViewById(R.id.top_tool_bar);
+//        //Toolbar
+//        ((AppCompatActivity)getActivity()).setSupportActionBar(topMenu);
+//        //Navigation Drawer Menu
+//        navigationView.bringToFront();
+//        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(getActivity(), drawerLayout, topMenu, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+//        drawerLayout.addDrawerListener(toggle);
+//        toggle.syncState();
+//        navigationView.setNavigationItemSelectedListener(this);
+//        topMenu.setOnMenuItemClickListener(item -> {
+//            int itemId = item.getItemId();
+//            if (itemId == R.id.add) {
+////                Bundle bundle = new Bundle();
+////                bundle.putBoolean("notAlertDialog", true);
+////                bundle.putLong("book_id", AnemiUtils.NEW_ENTRY);
+////                bundle.putInt("position", AnemiUtils.NEW_ENTRY);
+////
+////                DialogUpdateBookFragment dialogFragment = new DialogUpdateBookFragment(bundle, AnemiUtils.ACTION_ADD, this);
+////                dialogFragment.setTargetFragment(this, 0);
+////                dialogFragment.setArguments(bundle);
+////                FragmentManager fragmentManager = ((FragmentActivity) getContext()).getSupportFragmentManager(); // instantiate your view context
+////                FragmentTransaction ft = fragmentManager.beginTransaction();
+////                Fragment prev = ((FragmentActivity) getContext()).getSupportFragmentManager().findFragmentByTag("dialog");
+////                if (prev != null) {
+////                    ft.remove(prev);
+////                }
+////                ft.addToBackStack(null);
+////                dialogFragment.show(ft, "dialog");
+//                dialogAction(AnemiUtils.NEW_ENTRY, AnemiUtils.STARTING_POSITION, AnemiUtils.ACTION_ADD);
+//            } else if (itemId == R.id.logout) {
+//                SharedPreferences.Editor prefsEditor = loggedInUser.edit();
+//                prefsEditor.remove(LOGGED_IN_USER);
+//                prefsEditor.apply();
+//                Intent intent = new Intent(getActivity(), login.class);
+//                startActivity(intent);
+//                return true;
+//            }
+//            return false;
+//        });
     }
 
     @Override
@@ -185,7 +215,6 @@ public class HomeFragment extends Fragment implements DialogUpdateBookFragment.D
         Bundle book_id = new Bundle();
         book_id.putInt("book_id", (int) adapter.getItemId(p));
         bookDetailFragment = new BookDetailFragment(book_id);
-        Toast.makeText(getContext(), "View clicked", Toast.LENGTH_SHORT).show();
         getParentFragmentManager().beginTransaction().replace(R.id.container, bookDetailFragment).commit();
     }
 
@@ -229,5 +258,13 @@ public class HomeFragment extends Fragment implements DialogUpdateBookFragment.D
     public void reloadData(Book book) {
         loadData.add(book);
         adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+//        drawerLayout.closeDrawer(GravityCompat.START);
+        item.setChecked(true);
+        drawerLayout.close();
+        return true;
     }
 }

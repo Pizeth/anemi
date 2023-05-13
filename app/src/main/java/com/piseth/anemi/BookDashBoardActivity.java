@@ -4,21 +4,27 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationView;
 import com.google.gson.Gson;
 
-public class BookDashBoardActivity extends AppCompatActivity {
+public class BookDashBoardActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
 //    ActivityMainBinding binding;
     public static String LOGGED_IN_USER = "logged_user";
@@ -31,6 +37,8 @@ public class BookDashBoardActivity extends AppCompatActivity {
     private UserProfileFragment userProfileFragment;
     private AddBookFragment addBookFragment;
     private SharedPreferences loggedInUser;
+    private DrawerLayout drawerLayout;
+    private NavigationView navigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +49,19 @@ public class BookDashBoardActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_book_dash_board);
         bottomMenu = findViewById(R.id.bottom_navigation_menu);
-//        topMenu = findViewById(R.id.top_tool_bar);
+//Hook
+        drawerLayout = findViewById(R.id.drawer_layout);
+        navigationView = findViewById(R.id.nav_view);
+        topMenu = findViewById(R.id.top_tool_bar);
+        //Toolbar
+        setSupportActionBar(topMenu);
+        //Navigation Drawer Menu
+        navigationView.bringToFront();
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, topMenu, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
+        navigationView.setNavigationItemSelectedListener(this);
+
         loggedInUser = getSharedPreferences(LOGGED_IN_USER, MODE_PRIVATE);
         homeFragment = new HomeFragment();
         userManageFragment =  new UserManageFragment();
@@ -58,7 +78,19 @@ public class BookDashBoardActivity extends AppCompatActivity {
 //        bottomMenu.getMenu().findItem(R.id.user_manage).setCheckable(false);
 
         if(user != null) {
-            if(user.getUserRoleId() != ROLE_ADMIN) bottomMenu.getMenu().findItem(R.id.user_manage).setVisible(false);
+//            ImageView profile = findViewById(R.id.nav_view).findViewById(R.id.imageProfile);
+            ImageView profile = navigationView.getHeaderView(0).findViewById(R.id.imageProfile);
+            TextView username = navigationView.getHeaderView(0).findViewById(R.id.text_username);
+//            Log.d("success", loggedInUser.getString(USER_PHOTO, ""));
+            byte[] photo = AnemiUtils.BASE64Decode(loggedInUser.getString(USER_PHOTO, ""));
+            profile.setImageBitmap(AnemiUtils.getBitmapFromBytesArray(photo));
+            profile.setCropToPadding(true);
+            profile.setClipToOutline(true);
+            username.setText(user.getUsername());
+            if(user.getUserRoleId() != ROLE_ADMIN) {
+                bottomMenu.getMenu().findItem(R.id.user_manage).setVisible(false);
+                navigationView.getMenu().findItem(R.id.nav_user_manage).setVisible(false);
+            }
         }
 
 //        invalidateOptionsMenu();
@@ -126,13 +158,37 @@ public class BookDashBoardActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(@NonNull Menu menu) {
 //        MenuInflater inflater = getMenuInflater();
 //        inflater.inflate(R.menu.main_menu, menu);
-        MenuItem item = menu.findItem(R.id.user_manage);
-        item.setVisible(false);
-        menu.removeItem(2);
+//        MenuItem item = menu.findItem(R.id.user_manage);
+//        item.setVisible(false);
+//        menu.removeItem(2);
         return super.onCreateOptionsMenu(menu);
     }
 
     private void replaceFragment(Fragment fragment) {
         getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        if(id == R.id.nav_home) {
+            replaceFragment(homeFragment);
+        } else if (id == R.id.nav_user_manage) {
+            replaceFragment(userManageFragment);
+        } else if (id == R.id.nav_user_profile) {
+            replaceFragment(userProfileFragment);
+        } else if (id == R.id.logout) {
+            SharedPreferences.Editor prefsEditor = loggedInUser.edit();
+            prefsEditor.remove(LOGGED_IN_USER);
+            prefsEditor.apply();
+            drawerLayout.close();
+            Intent intent = new Intent(BookDashBoardActivity.this, login.class);
+            startActivity(intent);
+            return true;
+        }
+        //        drawerLayout.closeDrawer(GravityCompat.START);
+        item.setChecked(true);
+        drawerLayout.close();
+        return true;
     }
 }

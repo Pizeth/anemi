@@ -12,9 +12,12 @@ import java.io.ByteArrayOutputStream;
 public class AnemiUtils {
 
     public static final String LOGGED_IN_USER = "logged_user";
+    public static final int ROLE_ADMIN = 3;
+    public static String USER_PHOTO = "user_photo";
     public static final int ACTION_ADD = 1;
     public static final int ACTION_UPDATE = 2;
     public static final int NEW_ENTRY = 0;
+    public static final int PICK_IMAGE = 1;
     public static final int STARTING_POSITION = -1;
 
     public static byte[] getBitmapAsByteArray(Bitmap bitmap) {

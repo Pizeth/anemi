@@ -10,6 +10,10 @@
 <!--        <item name="android:color">@android:color/transparent</item>-->
         <item name="android:color">#FD5555</item>
     </style>
+    <style name="fab_3_rounded">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
     <style name="anemi" parent="ThemeOverlay.Material3.MaterialAlertDialog">
         <!-- Background Color-->
         <item name="android:backgroundTint">#CDDC39</item>

@@ -1,6 +1,7 @@
 package com.piseth.anemi;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -31,6 +32,7 @@ public class CustomRecyclerUserListAdapter extends RecyclerView.Adapter<CustomRe
     private final DatabaseManageHandler db;
     private DialogUserUpdateFragment.DialogListener dialogListener;
     private OnUserListClickListener onUserListClickListener;
+    private SharedPreferences loggedInUser;
 //    private LayoutInflater inflater;
 
     public CustomRecyclerUserListAdapter(Context context, List<User> users, DialogUserUpdateFragment.DialogListener dialogListener, OnUserListClickListener onUserListClickListener) {

@@ -1,7 +1,10 @@
 package com.piseth.anemi;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,6 +29,7 @@ public class CustomRecyclerBookListAdapter extends RecyclerView.Adapter<CustomRe
     private final DatabaseManageHandler db;
     private DialogUpdateBookFragment.DialogListener dialogListener;
     private CustomRecyclerBookListAdapter.OnBookListClickListener onBookListClickListener;
+    private SharedPreferences loggedInUser;
 
     public CustomRecyclerBookListAdapter(Context context, List<Book> books, DialogUpdateBookFragment.DialogListener dialogListener, CustomRecyclerBookListAdapter.OnBookListClickListener onBookListClickListener) {
         this.context = context;
@@ -40,6 +44,14 @@ public class CustomRecyclerBookListAdapter extends RecyclerView.Adapter<CustomRe
     public BookListViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.book_list, parent, false);
         BookListViewHolder holder = new BookListViewHolder(view, onBookListClickListener, context);
+        loggedInUser = context.getSharedPreferences(AnemiUtils.LOGGED_IN_USER, MODE_PRIVATE);
+        User user = AnemiUtils.getLoggedInUser(loggedInUser);
+        if(user != null) {
+            if(user.getUserRoleId() != AnemiUtils.ROLE_ADMIN) {
+                view.findViewById(R.id.btnUpdateBook).setVisibility(View.INVISIBLE);
+                view.findViewById(R.id.btnDeleteBook).setVisibility(View.INVISIBLE);
+            }
+        }
         return holder;
     }
 

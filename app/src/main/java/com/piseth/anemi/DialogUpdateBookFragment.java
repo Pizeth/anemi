@@ -92,6 +92,7 @@ public class DialogUpdateBookFragment extends DialogFragment {
             int width = (int)(getResources().getDisplayMetrics().widthPixels*0.90);
             dialog.getWindow().setLayout(width, ViewGroup.LayoutParams.WRAP_CONTENT);
             dialog.getWindow().setBackgroundDrawableResource(R.drawable.shape);
+            dialog.setCanceledOnTouchOutside(true);
         }
     }
 
@@ -136,8 +137,10 @@ public class DialogUpdateBookFragment extends DialogFragment {
 
         Button addPhoto = view.findViewById(R.id.btnAddCover);
         Button saveButton = view.findViewById(R.id.btnSaveBook);
+        Button backButton = view.findViewById(R.id.btnBack);
 
         addPhoto.setOnClickListener(view1 -> chooseImage());
+        backButton.setOnClickListener(view1 -> dismiss());
         saveButton.setOnClickListener(view1 -> {
             String title, author, description;
 

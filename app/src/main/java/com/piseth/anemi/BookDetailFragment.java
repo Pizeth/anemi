@@ -2,20 +2,18 @@ package com.piseth.anemi;
 
 import static android.content.Context.MODE_PRIVATE;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import com.google.android.material.appbar.MaterialToolbar;
 
@@ -77,7 +75,7 @@ public class BookDetailFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-        loggedInUser = getContext().getSharedPreferences(LOGGED_IN_USER, MODE_PRIVATE);
+        loggedInUser = getActivity().getSharedPreferences(LOGGED_IN_USER, MODE_PRIVATE);
         db = new DatabaseManageHandler(getActivity());
     }
 
@@ -95,31 +93,15 @@ public class BookDetailFragment extends Fragment {
         txt_author = view.findViewById(R.id.author);
         txt_description = view.findViewById(R.id.description);
         bookCover = view.findViewById(R.id.book_cover);
-        book = db.getBook(getArguments().getInt("book_id"));
-        if(book != null) {
-            txt_title.setText(book.getBookName());
-            txt_author.setText(book.getAuthor());
-            txt_description.setText(book.getDescription());
-            bookCover.setImageBitmap(book.getCover());
-//            profileImage.setCropToPadding(true);
-//            profileImage.setClipToOutline(true);
-            Log.d("USERNAME: ", book.getBookName() + " 's data acquired'");
-        }
-
-        topMenu = view.findViewById(R.id.top_tool_bar);
-        topMenu.setOnMenuItemClickListener(item -> {
-            int itemId = item.getItemId();
-            if (itemId == R.id.add) {
-//                dialogAction(AnemiUtils.NEW_ENTRY, AnemiUtils.STARTING_POSITION, AnemiUtils.ACTION_ADD);
-            } else if (itemId == R.id.logout) {
-                SharedPreferences.Editor prefsEditor = loggedInUser.edit();
-                prefsEditor.remove(LOGGED_IN_USER);
-                prefsEditor.apply();
-                Intent intent = new Intent(getActivity(), login.class);
-                startActivity(intent);
-                return true;
+        if(getArguments() != null) {
+            book = db.getBook(getArguments().getInt("book_id"));
+            if(book != null) {
+                txt_title.setText(book.getBookName());
+                txt_author.setText(book.getAuthor());
+                txt_description.setText(book.getDescription());
+                bookCover.setImageBitmap(book.getCover());
+                Log.d("success!", book.getBookName() + " 's data acquired'");
             }
-            return false;
-        });
+        }
     }
 }

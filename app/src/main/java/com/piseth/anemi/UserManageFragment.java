@@ -2,9 +2,13 @@ package com.piseth.anemi;
 
 import static android.content.Context.MODE_PRIVATE;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,15 +20,8 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Toast;
-
 import com.google.android.material.appbar.MaterialToolbar;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -48,16 +45,9 @@ public class UserManageFragment extends Fragment implements DialogUserUpdateFrag
 
     public static String LOGGED_IN_USER = "logged_user";
     private SharedPreferences loggedInUser;
-    private MaterialToolbar topMenu;
-
-//    private List<User> loadData() {
-//        List<User> users = db.getAllUsers();
-////        users.add(new User(1, "Razeth", "1234567", 1, "0123456789", R.mipmap.cover));
-//        return users;
-//    }
-
+//    private MaterialToolbar topMenu;
     private List<User> loadData;
-    DialogUserUpdateFragment.DialogListener listener;
+//    DialogUserUpdateFragment.DialogListener listener;
 
     public UserManageFragment() {
         // Required empty public constructor
@@ -90,7 +80,9 @@ public class UserManageFragment extends Fragment implements DialogUserUpdateFrag
         }
         db = new DatabaseManageHandler(getActivity());
         loadData = db.getAllUsers();
-        loggedInUser = getContext().getSharedPreferences(LOGGED_IN_USER, MODE_PRIVATE);
+        if(getContext() != null) {
+            loggedInUser = getContext().getSharedPreferences(AnemiUtils.LOGGED_IN_USER, MODE_PRIVATE);
+        }
     }
 
     @Override
@@ -103,28 +95,28 @@ public class UserManageFragment extends Fragment implements DialogUserUpdateFrag
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-//        dataInitialize();
         recyclerView = view.findViewById(R.id.recyclerUserView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setHasFixedSize(true);
         adapter = new CustomRecyclerUserListAdapter(getContext(), loadData, this, this);
         recyclerView.setAdapter(adapter);
+//        adapter.notifyAll();
         adapter.notifyDataSetChanged();
-        topMenu = view.findViewById(R.id.top_tool_bar);
-        topMenu.setOnMenuItemClickListener(item -> {
-            int itemId = item.getItemId();
-            if (itemId == R.id.add) {
+//        topMenu = view.findViewById(R.id.top_tool_bar);
+//        topMenu.setOnMenuItemClickListener(item -> {
+//            int itemId = item.getItemId();
+//            if (itemId == R.id.add) {
 //                dialogAction(AnemiUtils.NEW_ENTRY, AnemiUtils.STARTING_POSITION, AnemiUtils.ACTION_ADD);
-            } else if (itemId == R.id.logout) {
-                SharedPreferences.Editor prefsEditor = loggedInUser.edit();
-                prefsEditor.remove(LOGGED_IN_USER);
-                prefsEditor.apply();
-                Intent intent = new Intent(getActivity(), login.class);
-                startActivity(intent);
-                return true;
-            }
-            return false;
-        });
+//            } else if (itemId == R.id.logout) {
+//                SharedPreferences.Editor prefsEditor = loggedInUser.edit();
+//                prefsEditor.remove(LOGGED_IN_USER);
+//                prefsEditor.apply();
+//                Intent intent = new Intent(getActivity(), login.class);
+//                startActivity(intent);
+//                return true;
+//            }
+//            return false;
+//        });
     }
 
     @Override
@@ -133,9 +125,9 @@ public class UserManageFragment extends Fragment implements DialogUserUpdateFrag
         adapter.notifyItemChanged(position);
     }
 
-    public void setListener(DialogUserUpdateFragment.DialogListener listener) {
-        this.listener = listener;
-    }
+//    public void setListener(DialogUserUpdateFragment.DialogListener listener) {
+//        this.listener = listener;
+//    }
 
     @Override
     public void onUpdate(int p) {
@@ -150,7 +142,6 @@ public class UserManageFragment extends Fragment implements DialogUserUpdateFrag
 
         DialogUserUpdateFragment dialogFragment = new DialogUserUpdateFragment(bundle, this);
         dialogFragment.setTargetFragment(this, 0);
-//                Log.d("Current target: " ,dialogFragment.getTargetFragment().toString());
         dialogFragment.setArguments(bundle);
         FragmentManager fragmentManager = ((FragmentActivity) getContext()).getSupportFragmentManager(); // instantiate your view context
         FragmentTransaction ft = fragmentManager.beginTransaction();
@@ -159,31 +150,23 @@ public class UserManageFragment extends Fragment implements DialogUserUpdateFrag
             ft.remove(prev);
         }
         ft.addToBackStack(null);
-
         dialogFragment.show(ft, "dialog");
     }
 
     @Override
     public void onDelete(int p) {
-// Implement your functionality for onDelete here
-
+        // Implement your functionality for onDelete here
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(getContext());
         alertDialog.setTitle("Remove User");
         alertDialog.setMessage("Delete this user??");
         alertDialog.setPositiveButton("CANCEL", (dialog, which) -> dialog.cancel());
         alertDialog.setNegativeButton("YES", (dialog, which) -> {
-            Log.d("Update: ", "Delete button pressed " + adapter.getItemId(p));
-            Toast.makeText(getContext(), "Delete pressed " + adapter.getItemId(p), Toast.LENGTH_SHORT).show();
             // DO SOMETHING HERE
-            db.deleteUser((int)(adapter.getItemId(p)));
-            Log.d("Update: ", "Delete button pressed " + adapter.getItemId(p));
-            Toast.makeText(getContext(), "Delete pressed " + adapter.getItemId(p), Toast.LENGTH_SHORT).show();
+            db.deleteUser((int) (adapter.getItemId(p)));
+            Log.d("Update: ", "Successfully Delete User" + adapter.getItemId(p));
+            Toast.makeText(getContext(), "Successfully Delete User " + adapter.getItemId(p), Toast.LENGTH_SHORT).show();
             loadData.remove(p);
             adapter.notifyItemRemoved(p);
-//                    notifyDataSetChanged();
-//                    notifyItemRemoved(p);
-//                    notifyDataSetChanged();
-
         });
 
         AlertDialog dialog = alertDialog.create();

@@ -1,9 +1,7 @@
 package com.piseth.anemi;
 
-import static android.app.Activity.RESULT_OK;
 import static android.content.Context.MODE_PRIVATE;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -14,10 +12,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,8 +23,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.appbar.MaterialToolbar;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.textfield.TextInputLayout;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
 
 import java.net.URI;
@@ -38,7 +33,7 @@ import java.net.URI;
  * Use the {@link UserProfileFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class UserProfileFragment extends Fragment implements View.OnClickListener, DialogUserUpdateFragment.DialogListener {
+public class UserProfileFragment extends Fragment implements DialogUserUpdateFragment.DialogListener {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -53,14 +48,12 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-    public static final int PICK_IMAGE = 1;
-    public static final int ROLE_USER = 1;
-    public static final int DUMMY_ID = 99;
     private DatabaseManageHandler db;
     private User user;
     private Bitmap imageToStore;
     private TextView txt_username, txt_role, txt_phone;
     private ImageView profileImage;
+    private FloatingActionButton fabUpdateUser;
     private String selectedImagePath;
     private URI imagePath;
 
@@ -93,30 +86,25 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-        db = new DatabaseManageHandler(getContext());
-        loggedInUser = getContext().getSharedPreferences(LOGGED_IN_USER, MODE_PRIVATE);
+        db = new DatabaseManageHandler(getActivity());
+        loggedInUser = getActivity().getSharedPreferences(LOGGED_IN_USER, MODE_PRIVATE);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-
         return inflater.inflate(R.layout.fragment_user_profile, container, false);
     }
 
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-//        loggedInUser = getContext().getSharedPreferences(LOGGED_IN_USER, MODE_PRIVATE);
-//        txt_username = view.findViewById(R.id.username);
-//        txt_password = view.findViewById(R.id.password);
-//        txt_re_password = view.findViewById(R.id.re_password);
-//        txt_phone = view.findViewById(R.id.phone);
         txt_username = view.findViewById(R.id.username);
         txt_role = view.findViewById(R.id.role);
         txt_phone = view.findViewById(R.id.phone);
         profileImage = view.findViewById(R.id.image_logo);
-        topMenu = view.findViewById(R.id.top_tool_bar);
+        fabUpdateUser = view.findViewById(R.id.floating_edit_user);
+//        topMenu = view.findViewById(R.id.top_tool_bar);
         if (loggedInUser.contains(LOGGED_IN_USER) && loggedInUser.contains(USER_PHOTO)) {
             Gson gson = new Gson();
             String json = loggedInUser.getString(LOGGED_IN_USER, "");
@@ -125,68 +113,74 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
             imageToStore = AnemiUtils.getBitmapFromBytesArray(photo);
             user.setPhoto(imageToStore);
             reloadInfo(user);
-//            if(user != null) {
-//                txt_username.setText(user.getUsername());
-//                txt_role.setText(db.getRole(user.getUserRoleId()));
-//                txt_phone.setText(user.getPhone());
-//                profileImage.setImageBitmap(user.getPhoto());
-////                profileImage.setImageDrawable(new BitmapDrawable(getResources(), AnemiUtils.getBitmapFromBytesArray(photo)));
-//                profileImage.setCropToPadding(true);
-//                profileImage.setClipToOutline(true);
-//
-//                Log.d("USERNAME: ", user.getUsername() + " 's data acquired'");
-//            }
         }
-//        Button addPhoto = view.findViewById(R.id.buttonAddPhoto);
-//        Button saveButton = view.findViewById(R.id.btnSave);
-//        addPhoto.setOnClickListener(this);
-//        saveButton.setOnClickListener(this);
-        topMenu.setOnMenuItemClickListener(item -> {
-            int itemId = item.getItemId();
-            if (itemId == R.id.edit) {
-                Log.d("Update: ", "Update button pressed");
-                Toast.makeText(getContext(), "Update pressed", Toast.LENGTH_SHORT).show();
+        fabUpdateUser.setOnClickListener(view1 -> {
+            Log.d("Update: ", "Update button pressed");
+            int user_id = user.getId();
+            Bundle bundle = new Bundle();
+            bundle.putBoolean("notAlertDialog", true);
+            bundle.putLong("user_id", user_id);
+            bundle.putInt("position", user_id);
 
-                int user_id = user.getId();
-                Bundle bundle = new Bundle();
-                bundle.putBoolean("notAlertDialog", true);
-                bundle.putLong("user_id", user_id);
-                bundle.putInt("position", user_id);
-
-                DialogUserUpdateFragment dialogFragment = new DialogUserUpdateFragment(bundle, this);
-                dialogFragment.setTargetFragment(this, 0);
-//                Log.d("Current target: " ,dialogFragment.getTargetFragment().toString());
-                dialogFragment.setArguments(bundle);
-                FragmentManager fragmentManager = ((FragmentActivity) getContext()).getSupportFragmentManager(); // instantiate your view context
-                FragmentTransaction ft = fragmentManager.beginTransaction();
-                Fragment prev = ((FragmentActivity) getContext()).getSupportFragmentManager().findFragmentByTag("dialog");
-                if (prev != null) {
-                    ft.remove(prev);
-                }
-                ft.addToBackStack(null);
-
-                dialogFragment.show(ft, "dialog");
-            } else if (itemId == R.id.logout) {
-                SharedPreferences.Editor prefsEditor = loggedInUser.edit();
-                prefsEditor.remove(LOGGED_IN_USER);
-                prefsEditor.apply();
-                Intent intent = new Intent(getActivity(), login.class);
-                startActivity(intent);
-                return true;
+            DialogUserUpdateFragment dialogFragment = new DialogUserUpdateFragment(bundle, this);
+            dialogFragment.setTargetFragment(this, 0);
+            dialogFragment.setArguments(bundle);
+            FragmentManager fragmentManager = ((FragmentActivity) getContext()).getSupportFragmentManager(); // instantiate your view context
+            FragmentTransaction ft = fragmentManager.beginTransaction();
+            Fragment prev = ((FragmentActivity) getContext()).getSupportFragmentManager().findFragmentByTag("dialog");
+            if (prev != null) {
+                ft.remove(prev);
             }
-            return false;
+            ft.addToBackStack(null);
+
+            dialogFragment.show(ft, "dialog");
         });
+
+//        topMenu.setOnMenuItemClickListener(item -> {
+//            int itemId = item.getItemId();
+//            if (itemId == R.id.edit) {
+//                Log.d("Update: ", "Update button pressed");
+//                Toast.makeText(getContext(), "Update pressed", Toast.LENGTH_SHORT).show();
+//
+//                int user_id = user.getId();
+//                Bundle bundle = new Bundle();
+//                bundle.putBoolean("notAlertDialog", true);
+//                bundle.putLong("user_id", user_id);
+//                bundle.putInt("position", user_id);
+//
+//                DialogUserUpdateFragment dialogFragment = new DialogUserUpdateFragment(bundle, this);
+//                dialogFragment.setTargetFragment(this, 0);
+//                dialogFragment.setArguments(bundle);
+//                FragmentManager fragmentManager = ((FragmentActivity) getContext()).getSupportFragmentManager(); // instantiate your view context
+//                FragmentTransaction ft = fragmentManager.beginTransaction();
+//                Fragment prev = ((FragmentActivity) getContext()).getSupportFragmentManager().findFragmentByTag("dialog");
+//                if (prev != null) {
+//                    ft.remove(prev);
+//                }
+//                ft.addToBackStack(null);
+//
+//                dialogFragment.show(ft, "dialog");
+//            } else if (itemId == R.id.logout) {
+//                SharedPreferences.Editor prefsEditor = loggedInUser.edit();
+//                prefsEditor.remove(LOGGED_IN_USER);
+//                prefsEditor.apply();
+//                Intent intent = new Intent(getActivity(), login.class);
+//                startActivity(intent);
+//                return true;
+//            }
+//            return false;
+//        });
     }
 
-    @Override
-    public void onClick(View view) {
-        int id = view.getId();
-        if (id == R.id.buttonAddPhoto) {
-            chooseImage();
-            return;
-        } else if (id == R.id.btnSave) {
+//    @Override
+//    public void onClick(View view) {
+//        int id = view.getId();
+//        if (id == R.id.buttonAddPhoto) {
+//            chooseImage();
+//            return;
+//        } else if (id == R.id.btnSave) {
 //            String username, password, re_password, phone;
-
+//
 //            username = (txt_username.getEditText() != null) ? txt_username.getEditText().getText().toString().trim() : "";
 //            password = (txt_password.getEditText() != null) ? txt_password.getEditText().getText().toString().trim() : "";
 //            re_password = (txt_re_password.getEditText() != null) ? txt_re_password.getEditText().getText().toString().trim() : "";
@@ -198,59 +192,8 @@ public class UserProfileFragment extends Fragment implements View.OnClickListene
 //                        Intent intent = new Intent(Register.this, login.class);
 //                        startActivity(intent);
 //            }
-        }
-    }
-
-    public boolean updateUser(String username, String password, String re_password, String phone, Bitmap imageToStore) {
-        boolean checkOperation = false;
-        if(!username.isEmpty() && !username.equals(user.getUsername())) user.setUsername(username);
-        if(!password.isEmpty() && !re_password.isEmpty() && password.equals(re_password)) user.setPassword(password);
-        if(!phone.isEmpty() && !phone.equals(user.getPhone())) user.setPhone(phone);
-        if(imageToStore != null && !imageToStore.sameAs(user.getPhoto())) user.setPhoto(imageToStore);
-        if(db.updateUser(user) > 0) {
-            SharedPreferences.Editor prefsEditor = loggedInUser.edit();
-            byte[] userPhoto = AnemiUtils.getBitmapAsByteArray(user.getPhoto());
-            Gson gson = new Gson();
-            String json = gson.toJson(user);
-            prefsEditor.putString(LOGGED_IN_USER, json);
-            prefsEditor.putString(USER_PHOTO, AnemiUtils.BASE64Encode(userPhoto));
-            prefsEditor.apply();
-            Log.d("Update: ", user.getUsername() + " " + user.getPassword());
-            Toast.makeText(getContext(), user.getUsername() + " " + user.getPassword(), Toast.LENGTH_SHORT).show();
-            checkOperation = true;
-        }
-        return checkOperation;
-    }
-
-    private void chooseImage() {
-        try {
-            Intent getIntent = new Intent(Intent.ACTION_GET_CONTENT);
-            getIntent.setType("image/*");
-//            Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-            Intent pickIntent = new Intent(Intent.ACTION_PICK);
-            pickIntent.setType("image/*");
-
-            Intent chooserIntent = Intent.createChooser(getIntent, "Select Image");
-            chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] {pickIntent});
-
-            startActivityForResult(chooserIntent, PICK_IMAGE);
-        } catch(Exception e) {
-            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        try {
-            super.onActivityResult(requestCode, requestCode, data);
-            if (resultCode == RESULT_OK && requestCode == PICK_IMAGE && data != null && data.getData() != null) {
-                Uri selectedImageUri = data.getData();
-                imageToStore = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), selectedImageUri);
-                profileImage.setImageBitmap(imageToStore);
-            }
-        } catch(Exception e) {
-            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-    }
+//        }
+//    }
 
     /**
      * helper to retrieve the path of an image URI

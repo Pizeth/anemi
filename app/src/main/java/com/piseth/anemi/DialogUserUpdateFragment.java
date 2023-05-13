@@ -49,16 +49,11 @@ public class DialogUserUpdateFragment extends DialogFragment {
             }
         }
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getActivity(), R.style.anemi);
-//        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.anemi);
+
         builder.setTitle("Update User");
         builder.setMessage("Update User's information");
-        int width = (int)(getResources().getDisplayMetrics().widthPixels*0.90);
-//            int height = (int)(getResources().getDisplayMetrics().heightPixels*0.90);
-//        builder.setBackground(AppCompatResources.getDrawable(getContext(), R.drawable.shape));
         builder.setNeutralButton("OK", (dialog, which) -> dismiss());
-
         builder.setPositiveButton("SAVE", (dialog, which) -> dismiss());
-
         builder.setNegativeButton("CANCEL", (dialog, which) -> dismiss());
 
         return builder.create();
@@ -86,16 +81,12 @@ public class DialogUserUpdateFragment extends DialogFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-
-//        final EditText editText = view.findViewById(R.id.inEmail);
-//
-//        if (getArguments() != null && !TextUtils.isEmpty(getArguments().getString("email")))
-//            editText.setText(getArguments().getString("email"));
         txt_username = view.findViewById(R.id.username);
         txt_password = view.findViewById(R.id.password);
         txt_re_password = view.findViewById(R.id.re_password);
         txt_phone = view.findViewById(R.id.phone);
         profileImage = view.findViewById(R.id.image_logo);
+
         if (getArguments() != null) {
             int user_id = (int) getArguments().getLong("user_id");
             if (user_id != -1) {
@@ -103,13 +94,7 @@ public class DialogUserUpdateFragment extends DialogFragment {
                 user = db.getUser((user_id));
             }
         }
-//        if (loggedInUser.contains(LOGGED_IN_USER) && loggedInUser.contains(USER_PHOTO)) {
-//            Gson gson = new Gson();
-//            String json = loggedInUser.getString(LOGGED_IN_USER, "");
-//            user = gson.fromJson(json, User.class);
-//            byte[] photo = AnemiUtils.BASE64Decode(loggedInUser.getString(USER_PHOTO, ""));
-//            imageToStore = AnemiUtils.getBitmapFromBytesArray(photo);
-//            user.setPhoto(imageToStore);
+
         if(user != null) {
             txt_username.getEditText().setText(user.getUsername());
             txt_phone.getEditText().setText(user.getPhone());
@@ -118,13 +103,10 @@ public class DialogUserUpdateFragment extends DialogFragment {
             profileImage.setClipToOutline(true);
             Log.d("USERNAME: ", user.getUsername() + " 's data acquired'");
         }
-//        }
+
         Button addPhoto = view.findViewById(R.id.buttonAddPhoto);
         Button saveButton = view.findViewById(R.id.btnSave);
-//        addPhoto.setOnClickListener(this);
-//        saveButton.setOnClickListener(this);
-//
-//        Button btnUpdate = view.findViewById(R.id.btnSave);
+
         addPhoto.setOnClickListener(view1 -> chooseImage());
 
         saveButton.setOnClickListener(view1 -> {
@@ -169,15 +151,7 @@ public class DialogUserUpdateFragment extends DialogFragment {
         if(!phone.isEmpty() && !phone.equals(user.getPhone())) user.setPhone(phone);
         if(imageToStore != null && !imageToStore.sameAs(user.getPhoto())) user.setPhoto(imageToStore);
         if(db.updateUser(user) > 0) {
-//            SharedPreferences.Editor prefsEditor = loggedInUser.edit();
-//            byte[] userPhoto = AnemiUtils.getBitmapAsByteArray(user.getPhoto());
-//            Gson gson = new Gson();
-//            String json = gson.toJson(user);
-//            prefsEditor.putString(LOGGED_IN_USER, json);
-//            prefsEditor.putString(USER_PHOTO, AnemiUtils.BASE64Encode(userPhoto));
-//            prefsEditor.apply();
-            Log.d("Update: ", user.getUsername() + " " + user.getPassword());
-            Toast.makeText(getContext(), user.getUsername() + " " + user.getPassword(), Toast.LENGTH_SHORT).show();
+            Log.d("success!", "Successfully update username: " + user.getUsername());
             checkOperation = true;
         }
         return checkOperation;
