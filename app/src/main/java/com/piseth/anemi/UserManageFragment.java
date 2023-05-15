@@ -20,8 +20,6 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.appbar.MaterialToolbar;
-
 import java.util.List;
 
 /**
@@ -29,7 +27,7 @@ import java.util.List;
  * Use the {@link UserManageFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class UserManageFragment extends Fragment implements DialogUserUpdateFragment.DialogListener, CustomRecyclerUserListAdapter.OnUserListClickListener {
+public class UserManageFragment extends Fragment implements DialogUpdateUserFragment.DialogListener, CustomRecyclerUserListAdapter.OnUserListClickListener {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -140,7 +138,7 @@ public class UserManageFragment extends Fragment implements DialogUserUpdateFrag
         bundle.putLong("user_id", adapter.getItemId(p));
         bundle.putInt("position", p);
 
-        DialogUserUpdateFragment dialogFragment = new DialogUserUpdateFragment(bundle, this);
+        DialogUpdateUserFragment dialogFragment = new DialogUpdateUserFragment(bundle, this);
         dialogFragment.setTargetFragment(this, 0);
         dialogFragment.setArguments(bundle);
         FragmentManager fragmentManager = ((FragmentActivity) getContext()).getSupportFragmentManager(); // instantiate your view context

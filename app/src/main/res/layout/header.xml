@@ -16,7 +16,7 @@
         android:background="@drawable/circle"
         android:contentDescription="@string/user_profile"
         android:cropToPadding="true"
-        android:scaleType="fitXY"
+        android:scaleType="centerCrop"
         app:srcCompat="@drawable/baseline_person_24" />
 
     <TextView

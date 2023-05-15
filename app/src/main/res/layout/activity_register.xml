@@ -25,6 +25,15 @@
             android:transitionName="logo_image"
             app:srcCompat="@drawable/baseline_person_24" />
 
+        <TextView
+            android:id="@+id/lbl_error"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textColor="@color/error"
+            android:textSize="12sp"
+            android:visibility="gone" />
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonAddPhoto"
             android:layout_width="wrap_content"

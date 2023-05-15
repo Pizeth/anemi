@@ -2,8 +2,16 @@
 <resources>
 <!--    <style name="LoginTextInputLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">-->
     <style name="LoginTextInputLayoutStyle" parent="Widget.Material3.TextInputLayout.OutlinedBox">
-        <item name="boxStrokeColor">#DA0037</item>
-        <item name="boxStrokeWidth">3dp</item>
+        <item name="boxStrokeColor">@color/anemi</item>
+        <item name="boxStrokeWidth">2dp</item>
+        <item name="boxStrokeWidthFocused">3dp</item>
+        <item name="boxStrokeErrorColor">@color/error</item>
+        <item name="errorIconTint">@color/error</item>
+        <item name="errorTextColor">@color/error</item>
+        <item name="counterOverflowTextColor">@color/error</item>
+        <item name="startIconTint">@color/anemi</item>
+        <item name="hintTextColor">@color/anemi</item>
+        <item name="counterTextColor">@color/anemi</item>
 <!--        <item name="android:textColorHint">#DA0037</item>-->
     </style>
     <style name="Anemi.Active.Indicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">

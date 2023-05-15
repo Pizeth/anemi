@@ -25,7 +25,7 @@ import androidx.fragment.app.Fragment;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputLayout;
 
-public class DialogUserUpdateFragment extends DialogFragment {
+public class DialogUpdateUserFragment extends DialogFragment {
 
     public static final int PICK_IMAGE = 1;
     private DatabaseManageHandler db;
@@ -35,7 +35,7 @@ public class DialogUserUpdateFragment extends DialogFragment {
     private ImageView profileImage;
     private DialogListener dialogListener;
 
-    public DialogUserUpdateFragment(Bundle savedInstanceState, DialogListener dialogListener) {
+    public DialogUpdateUserFragment(Bundle savedInstanceState, DialogListener dialogListener) {
         this.dialogListener = dialogListener;
         super.setArguments(savedInstanceState);
     }

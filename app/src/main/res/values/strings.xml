@@ -54,4 +54,5 @@
     <string name="app_info">APP INFO</string>
     <string name="contact_info">CONTACT US</string>
     <string name="fab">FLOATING ACTION BUTTON</string>
+    <string name="error_photo">Please select a Photo!</string>
 </resources>

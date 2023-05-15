@@ -18,12 +18,9 @@ import com.google.gson.Gson;
 
 public class login extends AppCompatActivity {
 
-//    private static int SPLASH_SCREEN = 10;
-    public static String LOGGED_IN_USER = "logged_user";
-    public static String USER_PHOTO = "user_photo";
     private ImageView image;
-    private TextInputLayout username,  password;
-//    private Button signIn, signAdmin;
+    private TextInputLayout username, password;
+    //    private Button signIn, signAdmin;
     private DatabaseManageHandler db;
     private User user;
     private SharedPreferences loggedInUser;
@@ -33,15 +30,13 @@ public class login extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_login);
-        loggedInUser = getSharedPreferences(LOGGED_IN_USER, MODE_PRIVATE);
+        loggedInUser = getSharedPreferences(AnemiUtils.LOGGED_IN_USER, MODE_PRIVATE);
         image = findViewById(R.id.image_logo);
         username = findViewById(R.id.username);
         password = findViewById(R.id.password);
-//        signIn = findViewById(R.id.btnSignIn);
-//        signAdmin = findViewById(R.id.btnSignAdmin);
         db = new DatabaseManageHandler(this);
 
-        if (loggedInUser.contains(LOGGED_IN_USER)) {
+        if (loggedInUser.contains(AnemiUtils.LOGGED_IN_USER)) {
             Intent intent = new Intent(login.this, BookDashBoardActivity.class);
             startActivity(intent);
         }
@@ -59,15 +54,18 @@ public class login extends AppCompatActivity {
     }
 
     public void btnSignInOnClick(View view) {
-        if(this.username.getEditText() != null && this.password.getEditText() != null) {
+        if (this.username.getEditText() != null && this.password.getEditText() != null) {
             String username = this.username.getEditText().getText().toString();
             String password = this.password.getEditText().getText().toString();
-            if(!isValidUsername() || !isValidPassword()) return;
+            if (!isValidUsername(username) | !isValidPassword(password)) {
+                return;
+            }
             if (checkExistedUser(username, password)) {
                 Toast.makeText(this, "Login Successfully! Welcome back " + username + "!!!", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(login.this, BookDashBoardActivity.class);
                 startActivity(intent);
-            } else Toast.makeText(this, "Login failed! Incorrect Credential!!!", Toast.LENGTH_SHORT).show();
+            } else
+                Toast.makeText(this, "Login failed! Incorrect Credential!!!", Toast.LENGTH_SHORT).show();
         }
     }
 //    public void btnSignAsAdminOnClick(View view) {
@@ -85,15 +83,15 @@ public class login extends AppCompatActivity {
 
     public boolean checkExistedUser(String username, String password) {
         boolean isExisted = false;
-        if(!username.isEmpty() && !password.isEmpty()) user = db.getUser(username);
-        if(user != null) {
-            if(password.equals(user.getPassword())) {
+        if (!username.isEmpty() && !password.isEmpty()) user = db.getUser(username);
+        if (user != null) {
+            if (password.equals(user.getPassword())) {
                 SharedPreferences.Editor prefsEditor = loggedInUser.edit();
                 byte[] userPhoto = AnemiUtils.getBitmapAsByteArray(user.getPhoto());
                 Gson gson = new Gson();
                 String json = gson.toJson(user);
-                prefsEditor.putString(LOGGED_IN_USER, json);
-                prefsEditor.putString(USER_PHOTO, AnemiUtils.BASE64Encode(userPhoto));
+                prefsEditor.putString(AnemiUtils.LOGGED_IN_USER, json);
+                prefsEditor.putString(AnemiUtils.USER_PHOTO, AnemiUtils.BASE64Encode(userPhoto));
                 prefsEditor.apply();
 //                Toast.makeText(getApplicationContext(), "Successfully Logged in Username " + username, Toast.LENGTH_SHORT).show();
                 Log.d("USERNAME: ", username + " was found");
@@ -103,14 +101,11 @@ public class login extends AppCompatActivity {
         return isExisted;
     }
 
-    private boolean isValidUsername() {
-        String val = (username.getEditText() != null) ? username.getEditText().getText().toString().trim() : "";
-//        String noWhiteSpace = "(?\\s+$)";
-        String noWhiteSpace = "\\A\\w{4,20}\\z";
-        if(val.isEmpty()) {
+    private boolean isValidUsername(String text_username) {
+        if (text_username.isEmpty()) {
             username.setError("Username cannot be empty!");
             return false;
-        } else if (!val.matches(noWhiteSpace)) {
+        } else if (!text_username.matches(AnemiUtils.NO_WHITE_SPACE)) {
             username.setError("White space is not allow!");
             return false;
         } else {
@@ -119,10 +114,10 @@ public class login extends AppCompatActivity {
             return true;
         }
     }
-    private boolean isValidPassword() {
-        String val = (password.getEditText() != null) ? password.getEditText().getText().toString().trim() : "";
-        if(val.isEmpty()) {
-            password.setError("Username cannot be empty!");
+
+    private boolean isValidPassword(String text_password) {
+        if (text_password.isEmpty()) {
+            password.setError("password cannot be empty!");
             return false;
         } else {
             password.setError(null);

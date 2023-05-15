@@ -33,7 +33,7 @@ import java.net.URI;
  * Use the {@link UserProfileFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class UserProfileFragment extends Fragment implements DialogUserUpdateFragment.DialogListener {
+public class UserProfileFragment extends Fragment implements DialogUpdateUserFragment.DialogListener {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -122,7 +122,7 @@ public class UserProfileFragment extends Fragment implements DialogUserUpdateFra
             bundle.putLong("user_id", user_id);
             bundle.putInt("position", user_id);
 
-            DialogUserUpdateFragment dialogFragment = new DialogUserUpdateFragment(bundle, this);
+            DialogUpdateUserFragment dialogFragment = new DialogUpdateUserFragment(bundle, this);
             dialogFragment.setTargetFragment(this, 0);
             dialogFragment.setArguments(bundle);
             FragmentManager fragmentManager = ((FragmentActivity) getContext()).getSupportFragmentManager(); // instantiate your view context
