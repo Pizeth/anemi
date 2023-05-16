@@ -156,7 +156,7 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
     }
 
     public void initializeUserAdmin() {
-        User admin = new User(ADMIN_ID, "admin", "123", 3, "0123456789", BitmapFactory.decodeResource(context.getResources(), R.mipmap.ehhh));
+        User admin = new User(ADMIN_ID, "admin", "123", 3, "0123456789", BitmapFactory.decodeResource(context.getResources(), R.mipmap.exia));
         addUser(admin);
     }
 
