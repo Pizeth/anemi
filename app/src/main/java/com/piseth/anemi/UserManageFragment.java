@@ -20,6 +20,8 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.piseth.anemi.utils.model.User;
+
 import java.util.List;
 
 /**

@@ -24,6 +24,7 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputLayout;
+import com.piseth.anemi.utils.model.User;
 
 public class DialogUpdateUserFragment extends DialogFragment {
 

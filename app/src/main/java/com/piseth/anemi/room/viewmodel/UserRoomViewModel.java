@@ -1,0 +1,29 @@
+package com.piseth.anemi.room.viewmodel;
+
+import android.app.Application;
+
+import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.LiveData;
+
+import com.piseth.anemi.room.repo.UserRoomRepo;
+import com.piseth.anemi.utils.model.User;
+
+import java.util.List;
+
+public class UserRoomViewModel extends AndroidViewModel {
+    private UserRoomRepo userRoomRepo;
+
+    public UserRoomViewModel(@NonNull Application application) {
+        super(application);
+        userRoomRepo = new UserRoomRepo(application);
+    }
+
+    public void insertPage(User user) {
+        userRoomRepo.insertUser(user);
+    }
+
+    public LiveData<List<User>> getAllUsersLiveData() {
+        return userRoomRepo.getUserListLiveData();
+    }
+}

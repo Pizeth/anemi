@@ -3,7 +3,6 @@ package com.piseth.anemi;
 import static android.app.Activity.RESULT_OK;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -22,7 +21,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.gson.Gson;
+import com.piseth.anemi.utils.model.Book;
 
 /**
  * A simple {@link Fragment} subclass.

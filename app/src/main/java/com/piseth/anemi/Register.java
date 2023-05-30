@@ -15,7 +15,9 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
+import com.piseth.anemi.utils.model.User;
 
 public class Register extends AppCompatActivity {
 
@@ -25,6 +27,8 @@ public class Register extends AppCompatActivity {
     private TextInputLayout txt_username, txt_password, txt_re_password, txt_phone;
     private ImageView profileImage;
     private TextView errorLabel;
+
+    private FirebaseFirestore firestoreDb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +41,7 @@ public class Register extends AppCompatActivity {
         profileImage = findViewById(R.id.image_logo);
         errorLabel = findViewById(R.id.lbl_error);
         db = new DatabaseManageHandler(this);
+        firestoreDb = FirebaseFirestore.getInstance();
         loggedInUser = getSharedPreferences(AnemiUtils.LOGGED_IN_USER, MODE_PRIVATE);
     }
 

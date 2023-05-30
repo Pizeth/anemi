@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "609558573471",
+    "project_id": "razeth-anemi",
+    "storage_bucket": "razeth-anemi.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:609558573471:android:6267cc2d3fbb29de3fcdaa",
+        "android_client_info": {
+          "package_name": "com.piseth.anemi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAUMM90IgCXCR7HqEp2FelV2OsAD5Fr3xc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

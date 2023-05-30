@@ -1,4 +1,4 @@
-package com.piseth.anemi;
+package com.piseth.anemi.utils.model;
 
 import android.graphics.Bitmap;
 

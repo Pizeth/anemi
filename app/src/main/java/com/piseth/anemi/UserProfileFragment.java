@@ -25,6 +25,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
+import com.piseth.anemi.utils.model.User;
 
 import java.net.URI;
 

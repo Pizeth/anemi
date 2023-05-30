@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
+import com.piseth.anemi.utils.model.User;
 
 import org.jetbrains.annotations.NotNull;
 

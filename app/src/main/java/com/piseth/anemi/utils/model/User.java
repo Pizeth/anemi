@@ -1,8 +1,14 @@
-package com.piseth.anemi;
+package com.piseth.anemi.utils.model;
 
 import android.graphics.Bitmap;
 
+import androidx.room.Entity;
+
+import com.google.firebase.firestore.Exclude;
+
+@Entity(tableName = "table_user")
 public class User {
+    @Exclude
     private int id;
     private String username;
     private String password;
@@ -20,6 +26,7 @@ public class User {
         this.photo = photo;
     }
 
+    @Exclude
     public int getId() {
         return id;
     }

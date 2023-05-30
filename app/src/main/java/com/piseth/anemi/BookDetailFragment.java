@@ -16,6 +16,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.piseth.anemi.utils.model.Book;
 
 /**
  * A simple {@link Fragment} subclass.

@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.util.Base64;
 
 import com.google.gson.Gson;
+import com.piseth.anemi.utils.model.User;
 
 import java.io.ByteArrayOutputStream;
 

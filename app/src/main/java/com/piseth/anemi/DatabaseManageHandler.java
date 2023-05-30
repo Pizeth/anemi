@@ -10,7 +10,10 @@ import android.graphics.BitmapFactory;
 
 import androidx.annotation.Nullable;
 
-import java.io.ByteArrayOutputStream;
+import com.piseth.anemi.utils.model.Book;
+import com.piseth.anemi.utils.model.User;
+import com.piseth.anemi.utils.model.UserRole;
+
 import java.util.ArrayList;
 import java.util.List;
 
