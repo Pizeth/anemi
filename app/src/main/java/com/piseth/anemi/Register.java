@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
+import com.piseth.anemi.room.viewmodel.UserRoomViewModel;
 import com.piseth.anemi.utils.model.User;
 
 public class Register extends AppCompatActivity {
@@ -27,7 +28,7 @@ public class Register extends AppCompatActivity {
     private TextInputLayout txt_username, txt_password, txt_re_password, txt_phone;
     private ImageView profileImage;
     private TextView errorLabel;
-
+    private UserRoomViewModel userRoomViewModel;
     private FirebaseFirestore firestoreDb;
 
     @Override

@@ -7,6 +7,7 @@ import androidx.lifecycle.LiveData;
 import com.piseth.anemi.room.dao.PageDao;
 import com.piseth.anemi.room.database.AnemiDatabase;
 import com.piseth.anemi.utils.model.Page;
+import com.piseth.anemi.utils.model.User;
 
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -27,12 +28,19 @@ public class PageRoomRepo {
         pageListLiveData = pageDao.getAllPages();
     }
 
-    public void insertPage(Page page) {
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                pageDao.insertPage(page);
-            }
-        });
+//    public long insertPage(Page page) {
+//        executor.execute(new Runnable() {
+//            @Override
+//            public void run() {
+//                pageDao.insertPage(page);
+//
+//            }
+//        });
+//    }
+
+    public long insertPage(Page page) {
+        final long[] id = new long[1];
+        executor.execute(() -> id[0] = pageDao.insertPage(page));
+        return id[0];
     }
 }

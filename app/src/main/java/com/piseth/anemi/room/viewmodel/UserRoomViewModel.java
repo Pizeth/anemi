@@ -19,10 +19,25 @@ public class UserRoomViewModel extends AndroidViewModel {
         userRoomRepo = new UserRoomRepo(application);
     }
 
-    public void insertPage(User user) {
-        userRoomRepo.insertUser(user);
+    public long insertUser(User user) {
+        return userRoomRepo.insertUser(user);
     }
 
+    public int updateUser(User user) {
+        return userRoomRepo.updateUser(user);
+    }
+
+    public int deleteUser(long id) {
+        return userRoomRepo.deleteUser(id);
+    }
+
+    public User getUser(long id) {
+        return userRoomRepo.getUser(id);
+    }
+
+    public User getUser(String username) {
+        return userRoomRepo.getUser(username);
+    }
     public LiveData<List<User>> getAllUsersLiveData() {
         return userRoomRepo.getUserListLiveData();
     }

@@ -19,8 +19,8 @@ public class PageRoomViewModel extends AndroidViewModel {
         pageRoomRepo = new PageRoomRepo(application);
     }
 
-    public void insertPage(Page page) {
-        pageRoomRepo.insertPage(page);
+    public long insertPage(Page page) {
+        return pageRoomRepo.insertPage(page);
     }
 
     public LiveData<List<Page>> getAllPagesLiveData() {

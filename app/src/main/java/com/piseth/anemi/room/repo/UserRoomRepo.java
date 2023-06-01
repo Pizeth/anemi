@@ -21,13 +21,35 @@ public class UserRoomRepo {
         return userListLiveData;
     }
 
+    public User getUser(long id) {
+        return userDao.getUser(id);
+    }
+
+    public User getUser(String username) {
+        return  userDao.getUser(username);
+    }
+
     public UserRoomRepo(Application application) {
         AnemiDatabase anemiDatabase = AnemiDatabase.getmInstance(application);
-        userDao = anemiDatabase.uSerDao();
+        userDao = anemiDatabase.userDao();
         userListLiveData = userDao.getAllUsers();
     }
 
-    public void insertUser(User user) {
-        executor.execute(() -> userDao.insertPage(user));
+    public long insertUser(User user) {
+        final long[] id = new long[1];
+        executor.execute(() -> id[0] = userDao.insertUser(user));
+        return id[0];
+    }
+
+    public int updateUser(User user) {
+        final int[] row = new int[1];
+        executor.execute(() -> row[0] = userDao.upDateUser(user));
+        return row[0];
+    }
+
+    public int deleteUser(long id) {
+        final int[] row = new int[1];
+        executor.execute(() -> row[0] = userDao.deleteUser(id));
+        return row[0];
     }
 }

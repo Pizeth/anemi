@@ -1,12 +1,14 @@
 package com.piseth.anemi.utils.model;
 
 import androidx.room.Entity;
+import androidx.room.PrimaryKey;
 
 import com.google.firebase.firestore.Exclude;
 
-@Entity(tableName = "book_detail")
+@Entity(tableName = "table_book_detail")
 public class Page {
     @Exclude
+    @PrimaryKey
     private int id;
     private int book_id;
     private String imageURL;
