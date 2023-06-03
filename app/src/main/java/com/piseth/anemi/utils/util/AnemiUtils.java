@@ -1,4 +1,4 @@
-package com.piseth.anemi;
+package com.piseth.anemi.utils.util;
 
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;

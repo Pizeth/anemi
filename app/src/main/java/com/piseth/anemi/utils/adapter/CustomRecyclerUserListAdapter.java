@@ -1,8 +1,6 @@
-package com.piseth.anemi;
+package com.piseth.anemi.utils.adapter;
 
-import android.content.Context;
 import android.content.SharedPreferences;
-import android.provider.ContactsContract;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,21 +9,19 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
-import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.material.button.MaterialButton;
+import com.piseth.anemi.R;
+import com.piseth.anemi.ui.fragments.dialog.DialogUpdateUserFragment;
 import com.piseth.anemi.utils.model.User;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-
 import de.danielbechler.diff.ObjectDifferBuilder;
-import de.danielbechler.diff.node.DiffNode;
 
 //public class CustomRecyclerUserListAdapter extends ListAdapter<User, CustomRecyclerUserListAdapter.UserListViewHolder> {
 public class CustomRecyclerUserListAdapter extends FirebaseRecyclerAdapter<User, CustomRecyclerUserListAdapter.UserListViewHolder> {

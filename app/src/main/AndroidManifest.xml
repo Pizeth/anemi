@@ -19,22 +19,22 @@
             android:name=".AddBookActivity"
             android:exported="false" />
         <activity
-            android:name=".BookDashBoardActivity"
+            android:name=".ui.activities.BookDashBoardActivity"
             android:exported="false" />
         <activity
             android:name=".Admin_Login"
             android:exported="false" />
         <activity
-            android:name=".Register"
+            android:name=".ui.activities.Register"
             android:exported="false" />
         <activity
-            android:name=".login"
+            android:name=".ui.activities.login"
             android:exported="false" /> <!-- <activity -->
         <!-- android:name=".ui.login.LoginActivity" -->
         <!-- android:exported="false" -->
         <!-- android:label="@string/title_activity_login" /> -->
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.activities.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

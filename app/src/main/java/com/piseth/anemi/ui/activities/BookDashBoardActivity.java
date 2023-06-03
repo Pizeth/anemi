@@ -1,4 +1,4 @@
-package com.piseth.anemi;
+package com.piseth.anemi.ui.activities;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -18,7 +18,13 @@ import androidx.fragment.app.Fragment;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
+import com.piseth.anemi.R;
+import com.piseth.anemi.ui.fragments.dialog.AddBookFragment;
+import com.piseth.anemi.ui.fragments.fragment.HomeFragment;
+import com.piseth.anemi.ui.fragments.fragment.UserManageFragment;
+import com.piseth.anemi.ui.fragments.fragment.UserProfileFragment;
 import com.piseth.anemi.utils.model.User;
+import com.piseth.anemi.utils.util.AnemiUtils;
 
 public class BookDashBoardActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 

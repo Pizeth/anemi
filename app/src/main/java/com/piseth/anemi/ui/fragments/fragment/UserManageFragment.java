@@ -1,4 +1,4 @@
-package com.piseth.anemi;
+package com.piseth.anemi.ui.fragments.fragment;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -17,12 +17,16 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.piseth.anemi.utils.util.AnemiUtils;
+import com.piseth.anemi.utils.adapter.CustomRecyclerUserListAdapter;
+import com.piseth.anemi.utils.util.DatabaseManageHandler;
+import com.piseth.anemi.ui.fragments.dialog.DialogUpdateUserFragment;
+import com.piseth.anemi.R;
 import com.piseth.anemi.room.viewmodel.UserRoomViewModel;
 import com.piseth.anemi.utils.model.User;
 

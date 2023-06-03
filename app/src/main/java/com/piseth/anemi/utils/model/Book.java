@@ -2,12 +2,22 @@ package com.piseth.anemi.utils.model;
 
 import android.graphics.Bitmap;
 
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
+import com.google.firebase.firestore.Exclude;
+
+@Entity(tableName = "table_book")
 public class Book {
+    @Exclude
+    @PrimaryKey
     private int bookId;
     private String bookName;
     private String description;
     private String author;
     private Bitmap cover;
+    @ColumnInfo(defaultValue = "0")
     private int isDeleted;
 
     public Book(int bookId, String bookName, String description, String author, Bitmap cover) {

@@ -1,4 +1,4 @@
-package com.piseth.anemi;
+package com.piseth.anemi.ui.activities;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -17,8 +17,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
+import com.piseth.anemi.R;
 import com.piseth.anemi.room.viewmodel.UserRoomViewModel;
 import com.piseth.anemi.utils.model.User;
+import com.piseth.anemi.utils.util.AnemiUtils;
+import com.piseth.anemi.utils.util.DatabaseManageHandler;
 
 public class Register extends AppCompatActivity {
 
@@ -81,16 +84,17 @@ public class Register extends AppCompatActivity {
             return checkOperation;
         }
         if (password.equals(re_password)) {
-            User user = new User(AnemiUtils.DUMMY_ID, username, password, AnemiUtils.ROLE_USER, phone, imageToStore);
+//            User user = new User(AnemiUtils.DUMMY_ID, username, password, AnemiUtils.ROLE_USER, phone, imageToStore);
+            User user = new User(AnemiUtils.DUMMY_ID, username, password, AnemiUtils.ROLE_USER, phone, "imageToStore");
             SharedPreferences.Editor prefsEditor = loggedInUser.edit();
-            byte[] userPhoto = AnemiUtils.getBitmapAsByteArray(user.getPhoto());
+//            byte[] userPhoto = AnemiUtils.getBitmapAsByteArray(user.getPhoto());
             Gson gson = new Gson();
             int user_id = (int) db.addUser(user);
             checkOperation = user_id != -1;
             user.setId(user_id);
             String json = gson.toJson(user);
             prefsEditor.putString(AnemiUtils.LOGGED_IN_USER, json);
-            prefsEditor.putString(AnemiUtils.USER_PHOTO, AnemiUtils.BASE64Encode(userPhoto));
+//            prefsEditor.putString(AnemiUtils.USER_PHOTO, AnemiUtils.BASE64Encode(userPhoto));
             prefsEditor.apply();
             Log.d("Insert: ", "UserID: " + user.getId() + " Username: " + user.getUsername() + " Password" + user.getPassword());
         }

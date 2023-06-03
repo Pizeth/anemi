@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:layout_gravity="center_vertical|center_horizontal"
     android:orientation="vertical"
-    tools:context=".UserProfileFragment">
+    tools:context=".ui.fragments.fragment.UserProfileFragment">
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/floating_edit_user"

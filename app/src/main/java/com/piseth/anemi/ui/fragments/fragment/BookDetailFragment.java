@@ -1,4 +1,4 @@
-package com.piseth.anemi;
+package com.piseth.anemi.ui.fragments.fragment;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -16,6 +16,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.piseth.anemi.utils.util.DatabaseManageHandler;
+import com.piseth.anemi.R;
 import com.piseth.anemi.utils.model.Book;
 
 /**
