@@ -1,4 +1,4 @@
-package com.piseth.anemi;
+package com.piseth.anemi.utils.util;
 
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.util.Base64;
 
 import com.google.gson.Gson;
+import com.piseth.anemi.utils.model.User;
 
 import java.io.ByteArrayOutputStream;
 

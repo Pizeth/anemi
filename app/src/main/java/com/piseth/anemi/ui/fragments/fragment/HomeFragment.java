@@ -1,19 +1,14 @@
-package com.piseth.anemi;
+package com.piseth.anemi.ui.fragments.fragment;
 
 import static android.content.Context.MODE_PRIVATE;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -24,19 +19,22 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
+import com.piseth.anemi.utils.util.AnemiUtils;
+import com.piseth.anemi.utils.adapter.CustomRecyclerBookListAdapter;
+import com.piseth.anemi.utils.util.DatabaseManageHandler;
+import com.piseth.anemi.ui.fragments.dialog.DialogUpdateBookFragment;
+import com.piseth.anemi.R;
+import com.piseth.anemi.utils.model.Book;
+import com.piseth.anemi.utils.model.User;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**

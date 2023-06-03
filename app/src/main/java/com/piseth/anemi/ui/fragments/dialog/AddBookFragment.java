@@ -1,9 +1,8 @@
-package com.piseth.anemi;
+package com.piseth.anemi.ui.fragments.dialog;
 
 import static android.app.Activity.RESULT_OK;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -22,7 +21,10 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.gson.Gson;
+import com.piseth.anemi.utils.util.DatabaseManageHandler;
+import com.piseth.anemi.R;
+import com.piseth.anemi.ui.fragments.fragment.HomeFragment;
+import com.piseth.anemi.utils.model.Book;
 
 /**
  * A simple {@link Fragment} subclass.

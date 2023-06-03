@@ -1,6 +1,5 @@
-package com.piseth.anemi;
+package com.piseth.anemi.utils.adapter;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,36 +8,70 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.material.button.MaterialButton;
+import com.piseth.anemi.R;
+import com.piseth.anemi.ui.fragments.dialog.DialogUpdateUserFragment;
+import com.piseth.anemi.utils.model.User;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
+import de.danielbechler.diff.ObjectDifferBuilder;
 
-public class CustomRecyclerUserListAdapter extends RecyclerView.Adapter<CustomRecyclerUserListAdapter.UserListViewHolder> {
+//public class CustomRecyclerUserListAdapter extends ListAdapter<User, CustomRecyclerUserListAdapter.UserListViewHolder> {
+public class CustomRecyclerUserListAdapter extends FirebaseRecyclerAdapter<User, CustomRecyclerUserListAdapter.UserListViewHolder> {
 
-    private final Context context;
-    private List<User> users;
-    private final DatabaseManageHandler db;
+//    private final Context context;
+//    private List<User> users;
+//    private final DatabaseManageHandler db;
     private DialogUpdateUserFragment.DialogListener dialogListener;
     private OnUserListClickListener onUserListClickListener;
     private SharedPreferences loggedInUser;
 //    private LayoutInflater inflater;
 
-    public CustomRecyclerUserListAdapter(Context context, List<User> users, DialogUpdateUserFragment.DialogListener dialogListener, OnUserListClickListener onUserListClickListener) {
-        this.context = context;
-        this.users = users;
+//    public CustomRecyclerUserListAdapter(Context context, DialogUpdateUserFragment.DialogListener dialogListener, OnUserListClickListener onUserListClickListener) {
+//        super(DIFF_CALLBACK);
+//        this.context = context;
+////        this.users = users;
+//        this.dialogListener = dialogListener;
+//        this.onUserListClickListener = onUserListClickListener;
+//        db = new DatabaseManageHandler(context);
+//    }
+    /**
+     * Initialize a {@link RecyclerView.Adapter} that listens to a Firebase query. See
+     * {@link FirebaseRecyclerOptions} for configuration options.
+     *
+     * @param options
+     */
+    public CustomRecyclerUserListAdapter(@NonNull FirebaseRecyclerOptions<User> options, DialogUpdateUserFragment.DialogListener dialogListener, OnUserListClickListener onUserListClickListener) {
+        super(options);
         this.dialogListener = dialogListener;
         this.onUserListClickListener = onUserListClickListener;
-        db = new DatabaseManageHandler(context);
+//        db = new DatabaseManageHandler(context);
     }
+
+
+    private static final DiffUtil.ItemCallback<User> DIFF_CALLBACK = new DiffUtil.ItemCallback<User>() {
+        @Override
+        public boolean areItemsTheSame(@NonNull User oldItem, @NonNull User newItem) {
+            return oldItem.getId() == newItem.getId();
+        }
+
+        @Override
+        public boolean areContentsTheSame(@NonNull User oldItem, @NonNull User newItem) {
+            return ObjectDifferBuilder.buildDefault().compare(oldItem, newItem).hasChanges();
+        }
+    };
 
     @NonNull
     @Override
     public UserListViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.user_list, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.user_list, parent, false);
         UserListViewHolder holder = new UserListViewHolder(view, onUserListClickListener);
 //        UserListViewHolder holder = new UserListViewHolder(view, new OnUserListClickListener() {
 //            @Override
@@ -100,8 +133,9 @@ public class CustomRecyclerUserListAdapter extends RecyclerView.Adapter<CustomRe
 
     @Override
     public void onBindViewHolder(@NonNull UserListViewHolder holder, int position) {
-        User user = users.get(position);
-        holder.picture.setImageBitmap(user.getPhoto());
+        User user = getItem(position);
+//        holder.picture.setImageBitmap(user.getPhoto());
+        Glide.with(holder.picture.getContext()).load(user.getPhoto()).into(holder.picture);
         holder.username.setText(user.getUsername());
         holder.phone.setText(user.getPhone());
 //        final long itemId = user.getId();
@@ -115,13 +149,27 @@ public class CustomRecyclerUserListAdapter extends RecyclerView.Adapter<CustomRe
     }
 
     @Override
-    public int getItemCount() {
-        return users.size();
+    protected void onBindViewHolder(@NonNull UserListViewHolder holder, int position, @NonNull User model) {
+
     }
+
+//    @Override
+//    public int getItemCount() {
+//        return users.size();
+//    }
 
     @Override
     public long getItemId(int position) {
-        return users.get(position).getId();
+        return getItem(position).getId();
+    }
+
+//    public void setUsers(List<User> users) {
+//        this.users = users;
+//        notifyDataSetChanged();
+//    }
+
+    public User getUserAt(int position) {
+        return getItem(position);
     }
 
 //    @Override

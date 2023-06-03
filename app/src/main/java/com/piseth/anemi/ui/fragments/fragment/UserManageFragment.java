@@ -1,4 +1,4 @@
-package com.piseth.anemi;
+package com.piseth.anemi.ui.fragments.fragment;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -17,8 +17,18 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.piseth.anemi.utils.util.AnemiUtils;
+import com.piseth.anemi.utils.adapter.CustomRecyclerUserListAdapter;
+import com.piseth.anemi.utils.util.DatabaseManageHandler;
+import com.piseth.anemi.ui.fragments.dialog.DialogUpdateUserFragment;
+import com.piseth.anemi.R;
+import com.piseth.anemi.room.viewmodel.UserRoomViewModel;
+import com.piseth.anemi.utils.model.User;
 
 import java.util.List;
 
@@ -45,6 +55,7 @@ public class UserManageFragment extends Fragment implements DialogUpdateUserFrag
     private SharedPreferences loggedInUser;
 //    private MaterialToolbar topMenu;
     private List<User> loadData;
+    private UserRoomViewModel userRoomViewModel;
 //    DialogUserUpdateFragment.DialogListener listener;
 
     public UserManageFragment() {
@@ -96,10 +107,32 @@ public class UserManageFragment extends Fragment implements DialogUpdateUserFrag
         recyclerView = view.findViewById(R.id.recyclerUserView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setHasFixedSize(true);
-        adapter = new CustomRecyclerUserListAdapter(getContext(), loadData, this, this);
+//        adapter = new CustomRecyclerUserListAdapter(getContext(), this, this);
         recyclerView.setAdapter(adapter);
+        userRoomViewModel = new ViewModelProvider(getActivity()).get(UserRoomViewModel.class);
+//        userRoomViewModel.getAllUsersLiveData().observe(getViewLifecycleOwner(), new Observer<List<User>>() {
+//            @Override
+//            public void onChanged(List<User> users) {
+//                adapter.submitList(users);
+//            }
+//        });
+
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
+                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                userRoomViewModel.deleteUser(adapter.getItemId(viewHolder.getAdapterPosition()));
+                deleteUserDialog(viewHolder.getAdapterPosition());
+            }
+        }).attachToRecyclerView(recyclerView);
 //        adapter.notifyAll();
-        adapter.notifyDataSetChanged();
+//        adapter.notifyDataSetChanged();
+
 //        topMenu = view.findViewById(R.id.top_tool_bar);
 //        topMenu.setOnMenuItemClickListener(item -> {
 //            int itemId = item.getItemId();
@@ -154,6 +187,10 @@ public class UserManageFragment extends Fragment implements DialogUpdateUserFrag
     @Override
     public void onDelete(int p) {
         // Implement your functionality for onDelete here
+        deleteUserDialog(p);
+    }
+
+    public void deleteUserDialog(int p) {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(getContext());
         alertDialog.setTitle("Remove User");
         alertDialog.setMessage("Delete this user??");

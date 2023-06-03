@@ -1,4 +1,4 @@
-package com.piseth.anemi;
+package com.piseth.anemi.ui.fragments.dialog;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -22,8 +22,12 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputLayout;
+import com.piseth.anemi.utils.util.DatabaseManageHandler;
+import com.piseth.anemi.R;
+import com.piseth.anemi.utils.model.User;
 
 public class DialogUpdateUserFragment extends DialogFragment {
 
@@ -98,7 +102,8 @@ public class DialogUpdateUserFragment extends DialogFragment {
         if(user != null) {
             txt_username.getEditText().setText(user.getUsername());
             txt_phone.getEditText().setText(user.getPhone());
-            profileImage.setImageBitmap(user.getPhoto());
+//            profileImage.setImageBitmap(user.getPhoto());
+            Glide.with(profileImage.getContext()).load(user.getPhoto()).into(profileImage);
             profileImage.setCropToPadding(true);
             profileImage.setClipToOutline(true);
             Log.d("USERNAME: ", user.getUsername() + " 's data acquired'");
@@ -149,7 +154,7 @@ public class DialogUpdateUserFragment extends DialogFragment {
         if(!username.isEmpty() && !username.equals(user.getUsername())) user.setUsername(username);
         if(!password.isEmpty() && !re_password.isEmpty() && password.equals(re_password)) user.setPassword(password);
         if(!phone.isEmpty() && !phone.equals(user.getPhone())) user.setPhone(phone);
-        if(imageToStore != null && !imageToStore.sameAs(user.getPhoto())) user.setPhoto(imageToStore);
+//        if(imageToStore != null && !imageToStore.sameAs(user.getPhoto())) user.setPhoto(imageToStore);
         if(db.updateUser(user) > 0) {
             Log.d("success!", "Successfully update username: " + user.getUsername());
             checkOperation = true;

@@ -1,17 +1,36 @@
-package com.piseth.anemi;
+package com.piseth.anemi.utils.model;
 
 import android.graphics.Bitmap;
 
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
+import com.google.firebase.firestore.Exclude;
+
+@Entity(tableName = "table_user")
 public class User {
+    @Exclude
+    @PrimaryKey
     private int id;
     private String username;
     private String password;
     private int userRoleId;
     private String phone;
-    private Bitmap photo;
+    private String photo;
+    @ColumnInfo(defaultValue = "0")
     private int isDeleted;
 
-    public User(int id, String username, String password, int userRoleId, String phone, Bitmap photo) {
+//    public User(int id, String username, String password, int userRoleId, String phone, Bitmap photo) {
+//        this.id = id;
+//        this.username = username;
+//        this.password = password;
+//        this.userRoleId = userRoleId;
+//        this.phone = phone;
+//        this.photo = photo;
+//    }
+
+    public User(int id, String username, String password, int userRoleId, String phone, String photo) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -20,6 +39,7 @@ public class User {
         this.photo = photo;
     }
 
+    @Exclude
     public int getId() {
         return id;
     }
@@ -60,11 +80,19 @@ public class User {
         this.phone = phone;
     }
 
-    public Bitmap getPhoto() {
+//    public Bitmap getPhoto() {
+//        return photo;
+//    }
+//
+//    public void setPhoto(Bitmap photo) {
+//        this.photo = photo;
+//    }
+
+    public String getPhoto() {
         return photo;
     }
 
-    public void setPhoto(Bitmap photo) {
+    public void setPhoto(String photo) {
         this.photo = photo;
     }
 

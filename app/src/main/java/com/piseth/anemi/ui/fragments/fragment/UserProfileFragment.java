@@ -1,4 +1,4 @@
-package com.piseth.anemi;
+package com.piseth.anemi.ui.fragments.fragment;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -22,9 +22,15 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
+import com.piseth.anemi.utils.util.AnemiUtils;
+import com.piseth.anemi.utils.util.DatabaseManageHandler;
+import com.piseth.anemi.ui.fragments.dialog.DialogUpdateUserFragment;
+import com.piseth.anemi.R;
+import com.piseth.anemi.utils.model.User;
 
 import java.net.URI;
 
@@ -111,7 +117,7 @@ public class UserProfileFragment extends Fragment implements DialogUpdateUserFra
             user = gson.fromJson(json, User.class);
             byte[] photo = AnemiUtils.BASE64Decode(loggedInUser.getString(USER_PHOTO, ""));
             imageToStore = AnemiUtils.getBitmapFromBytesArray(photo);
-            user.setPhoto(imageToStore);
+//            user.setPhoto(imageToStore);
             reloadInfo(user);
         }
         fabUpdateUser.setOnClickListener(view1 -> {
@@ -224,11 +230,11 @@ public class UserProfileFragment extends Fragment implements DialogUpdateUserFra
     public void onFinishUpdateDialog(int position, User user) {
         //TO DO after update user profile
         SharedPreferences.Editor prefsEditor = loggedInUser.edit();
-        byte[] userPhoto = AnemiUtils.getBitmapAsByteArray(user.getPhoto());
+//        byte[] userPhoto = AnemiUtils.getBitmapAsByteArray(user.getPhoto());
         Gson gson = new Gson();
         String json = gson.toJson(user);
         prefsEditor.putString(LOGGED_IN_USER, json);
-        prefsEditor.putString(USER_PHOTO, AnemiUtils.BASE64Encode(userPhoto));
+//        prefsEditor.putString(USER_PHOTO, AnemiUtils.BASE64Encode(userPhoto));
         prefsEditor.apply();
         reloadInfo(user);
     }
@@ -238,7 +244,8 @@ public class UserProfileFragment extends Fragment implements DialogUpdateUserFra
             txt_username.setText(user.getUsername());
             txt_role.setText(db.getRole(user.getUserRoleId()));
             txt_phone.setText(user.getPhone());
-            profileImage.setImageBitmap(user.getPhoto());
+//            profileImage.setImageBitmap(user.getPhoto());
+            Glide.with(profileImage.getContext()).load(user.getPhoto()).into(profileImage);
             profileImage.setCropToPadding(true);
             profileImage.setClipToOutline(true);
             Log.d("USERNAME: ", user.getUsername() + " 's data acquired'");

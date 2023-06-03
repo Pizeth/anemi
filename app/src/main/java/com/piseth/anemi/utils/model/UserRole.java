@@ -1,4 +1,4 @@
-package com.piseth.anemi;
+package com.piseth.anemi.utils.model;
 
 public class UserRole {
     private int userRoleId;

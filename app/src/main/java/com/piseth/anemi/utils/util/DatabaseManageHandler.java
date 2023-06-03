@@ -1,4 +1,4 @@
-package com.piseth.anemi;
+package com.piseth.anemi.utils.util;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -10,7 +10,11 @@ import android.graphics.BitmapFactory;
 
 import androidx.annotation.Nullable;
 
-import java.io.ByteArrayOutputStream;
+import com.piseth.anemi.R;
+import com.piseth.anemi.utils.model.Book;
+import com.piseth.anemi.utils.model.User;
+import com.piseth.anemi.utils.model.UserRole;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -87,7 +91,7 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
     }
 
     // Getting single user
-    User getUser(int id) {
+    public User getUser(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
         int user_id, role_id;
         String username, password, phone;
@@ -104,11 +108,12 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
             photo = AnemiUtils.getBitmapFromBytesArray(cursor.getBlob(5));
             cursor.close();
             // return user
-            return new User(user_id, username, password, role_id, phone, photo);
+//            return new User(user_id, username, password, role_id, phone, photo);
+            return new User(user_id, username, password, role_id, phone, "photo");
         } else return null;
     }
 
-    User getUser(String userName) {
+    public User getUser(String userName) {
         SQLiteDatabase db = this.getReadableDatabase();
         int user_id, role_id;
         String username, password, phone;
@@ -125,7 +130,8 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
             photo = AnemiUtils.getBitmapFromBytesArray(cursor.getBlob(5));
             cursor.close();
             // return user
-            return new User(user_id, username, password, role_id, phone, photo);
+//            return new User(user_id, username, password, role_id, phone, photo);
+            return new User(user_id, username, password, role_id, phone, "photo");
         } else return null;
     }
 
@@ -144,7 +150,8 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
                 User user = new User(Integer.parseInt(cursor.getString(0)),
                                 cursor.getString(1), cursor.getString(2),
                                 Integer.parseInt(cursor.getString(3)), cursor.getString(4),
-                                AnemiUtils.getBitmapFromBytesArray(cursor.getBlob(5)));
+//                                AnemiUtils.getBitmapFromBytesArray(cursor.getBlob(5)));
+                                AnemiUtils.getBitmapFromBytesArray(cursor.getBlob(5)).toString());
                 // Adding user to list
                 userList.add(user);
             } while (cursor.moveToNext());
@@ -156,7 +163,8 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
     }
 
     public void initializeUserAdmin() {
-        User admin = new User(ADMIN_ID, "admin", "123", 3, "0123456789", BitmapFactory.decodeResource(context.getResources(), R.mipmap.ehhh));
+//        User admin = new User(ADMIN_ID, "admin", "123", 3, "0123456789", BitmapFactory.decodeResource(context.getResources(), R.mipmap.exia));
+        User admin = new User(ADMIN_ID, "admin", "123", 3, "0123456789", BitmapFactory.decodeResource(context.getResources(), R.mipmap.exia).toString());
         addUser(admin);
     }
 
@@ -180,7 +188,7 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
         value.put(PASSWORD, user.getPassword());
         value.put(ROLE_ID, user.getUserRoleId());
         value.put(PHONE, user.getPhone());
-        value.put(PHOTO, AnemiUtils.getBitmapAsByteArray(user.getPhoto()));
+//        value.put(PHOTO, AnemiUtils.getBitmapAsByteArray(user.getPhoto()));
         return currentDB.insert(TABLE_USER, null, value);
 //        return (result == -1) ? false : true;
     }
@@ -192,7 +200,7 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
         value.put(PASSWORD, user.getPassword());
         value.put(ROLE_ID, user.getUserRoleId());
         value.put(PHONE, user.getPhone());
-        value.put(PHOTO, AnemiUtils.getBitmapAsByteArray(user.getPhoto()));
+//        value.put(PHOTO, AnemiUtils.getBitmapAsByteArray(user.getPhoto()));
         return db.update(TABLE_USER, value, _ID + " = " + user.getId(), null);
     }
 
@@ -203,7 +211,7 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
         return db.update(TABLE_USER, values, _ID + " = " + id, null);
     }
 
-    UserRole getUserRole(int id) {
+    public UserRole getUserRole(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.query(TABLE_USER_ROLE, new String[] { ROLE_ID,
@@ -216,7 +224,7 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
         return userRole;
     }
 
-    String getRole(int id) {
+    public String getRole(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.query(TABLE_USER_ROLE, new String[] {USER_ROLE }, ROLE_ID + "=?",
@@ -250,7 +258,7 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
     }
 
     // Getting single book
-    Book getBook(int id) {
+    public Book getBook(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.query(TABLE_BOOK, new String[] { BOOK_ID,
