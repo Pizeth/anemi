@@ -49,7 +49,7 @@ public class FirestoreRecyclerUserListAdapter extends FirebaseRecyclerAdapter<Us
         TextView title;
         TextView author;
         MaterialButton btnUpdate, btnDelete, btnView;
-        FirestoreRecyclerBookListAdapter.OnUserListClickListener onUserListClickListener;
+        FirestoreRecyclerUserListAdapter.OnUserListClickListener onUserListClickListener;
         public UserListViewHolder(@NotNull View viewItem, FirestoreRecyclerUserListAdapter.OnUserListClickListener listener) {
             super(viewItem);
             cover = viewItem.findViewById(R.id.book_cover);
@@ -69,11 +69,11 @@ public class FirestoreRecyclerUserListAdapter extends FirebaseRecyclerAdapter<Us
         public void onClick(View view) {
             int id = view.getId();
             if (id == R.id.btnUpdateBook) {
-                onBookListClickListener.onUpdate(this.getLayoutPosition());
+                onUserListClickListener.onUpdate(this.getLayoutPosition());
             } else if (id == R.id.btnDeleteBook) {
-                onBookListClickListener.onDelete(this.getLayoutPosition());
+                onUserListClickListener.onDelete(this.getLayoutPosition());
             } else if (id == R.id.btnView) {
-                onBookListClickListener.onView(this.getLayoutPosition());
+                onUserListClickListener.onView(this.getLayoutPosition());
             }
         }
     }

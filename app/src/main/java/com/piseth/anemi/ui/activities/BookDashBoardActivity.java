@@ -184,7 +184,7 @@ public class BookDashBoardActivity extends AppCompatActivity implements Navigati
             prefsEditor.remove(LOGGED_IN_USER);
             prefsEditor.apply();
             drawerLayout.close();
-            Intent intent = new Intent(BookDashBoardActivity.this, login.class);
+            Intent intent = new Intent(BookDashBoardActivity.this, Login.class);
             startActivity(intent);
             return true;
         }

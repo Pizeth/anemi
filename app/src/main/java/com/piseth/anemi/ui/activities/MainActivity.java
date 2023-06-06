@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
         image.setAnimation(topAnim);
 
         new Handler().postDelayed(() -> {
-            Intent intent = new Intent(MainActivity.this, login.class);
+            Intent intent = new Intent(MainActivity.this, Login.class);
             Pair pairs[] = new Pair[1];
             pairs[0] = new Pair<View, String>(image, "logo_image");
             ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(MainActivity.this, pairs);

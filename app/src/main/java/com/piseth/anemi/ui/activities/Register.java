@@ -12,9 +12,18 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContract;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
 import com.piseth.anemi.R;
@@ -23,16 +32,20 @@ import com.piseth.anemi.utils.model.User;
 import com.piseth.anemi.utils.util.AnemiUtils;
 import com.piseth.anemi.utils.util.DatabaseManageHandler;
 
+import java.net.URI;
+
 public class Register extends AppCompatActivity {
 
     private DatabaseManageHandler db;
     private SharedPreferences loggedInUser;
-    private Bitmap imageToStore;
+//    private Bitmap imageToStore;
+    private Uri imageToStore;
     private TextInputLayout txt_username, txt_password, txt_re_password, txt_phone;
     private ImageView profileImage;
     private TextView errorLabel;
     private UserRoomViewModel userRoomViewModel;
     private FirebaseFirestore firestoreDb;
+    private FirebaseAuth auth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,10 +60,12 @@ public class Register extends AppCompatActivity {
         db = new DatabaseManageHandler(this);
         firestoreDb = FirebaseFirestore.getInstance();
         loggedInUser = getSharedPreferences(AnemiUtils.LOGGED_IN_USER, MODE_PRIVATE);
+        auth = FirebaseAuth.getInstance();
     }
 
     public void btnAddPhotoOnClickListener(View view) {
-        chooseImage();
+//        chooseImage();
+        pickImage.launch("image/*");
     }
 
     public void btnSignUpOnClickListener(View view) {
@@ -62,18 +77,59 @@ public class Register extends AppCompatActivity {
             re_password = txt_re_password.getEditText().getText().toString().trim();
             phone = txt_phone.getEditText().getText().toString().trim();
             Log.d("Insert: ", username + " " + password + " " + phone);
-            boolean result = addUser(username, password, re_password, phone, imageToStore);
-            if (result) {
-                Toast.makeText(getApplicationContext(), "Successfully added new User", Toast.LENGTH_SHORT).show();
-                Log.d("Successful: ", "Back to Login Screen");
-                Intent intent = new Intent(Register.this, login.class);
-                startActivity(intent);
-            }
+//            boolean result = addUser(username, password, re_password, phone, imageToStore);
+//            if (result) {
+//                Toast.makeText(getApplicationContext(), "Successfully added new User", Toast.LENGTH_SHORT).show();
+//                Log.d("Successful: ", "Back to Login Screen");
+//                Intent intent = new Intent(Register.this, Login.class);
+//                startActivity(intent);
+//            }
+            createUser(username, password, re_password, phone, );
         }
     }
 
+    uploadImageBtn.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            progressBar.setVisibility(View.VISIBLE);
+            firebaseViewModel.uploadImagesToFirebase(mImageURI , photoRoomViewModel);
+            firebaseViewModel.getTaskMutableLiveData().observe(MainActivity.this, new Observer<Task<DocumentReference>>() {
+                @Override
+                public void onChanged(Task<DocumentReference> documentReferenceTask) {
+                    if (documentReferenceTask.isSuccessful()){
+                        mImageView.setImageResource(R.drawable.upload_icon);
+                        Toast.makeText(MainActivity.this, "Image Uploaded Successfully !!", Toast.LENGTH_SHORT).show();
+                    }else{
+                        Toast.makeText(MainActivity.this, documentReferenceTask.getException().toString() , Toast.LENGTH_SHORT).show();
+                    }
+                    progressBar.setVisibility(View.INVISIBLE);
+                }
+            });
+        }
+    });
+
+    private void createUser(String username, String password, String re_password, String phone) {
+        if (!isValidUsername(username) | !isValidPassword(password) |
+            !isValidRePassword(re_password, password) | !isValidPhoneNo(phone) |
+            !isValidPhoto(imageToStore)) {
+            return;
+        }
+        Log.d("Insert: ", username + " " + password + " " + phone);
+        auth.createUserWithEmailAndPassword(username, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if (task.isSuccessful()) {
+                    Toast.makeText(Register.this, "Successfully Register new User", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(Register.this, Login.class));
+                } else {
+                    Toast.makeText(Register.this, "Registration failed", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
     public void btnBackToSignInOnClick(View view) {
-        Intent intent = new Intent(Register.this, login.class);
+        Intent intent = new Intent(Register.this, Login.class);
         startActivity(intent);
     }
 
@@ -112,26 +168,36 @@ public class Register extends AppCompatActivity {
 
             Intent chooserIntent = Intent.createChooser(getIntent, "Select Image");
             chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{pickIntent});
-
             startActivityForResult(chooserIntent, AnemiUtils.PICK_IMAGE);
         } catch (Exception e) {
             Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        try {
-            super.onActivityResult(requestCode, requestCode, data);
-            if (resultCode == RESULT_OK && requestCode == AnemiUtils.PICK_IMAGE && data != null && data.getData() != null) {
-                Uri selectedImageUri = data.getData();
-                imageToStore = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImageUri);
-                profileImage.setImageBitmap(imageToStore);
-                profileImage.setClipToOutline(true);
+    ActivityResultLauncher pickImage = registerForActivityResult(new ActivityResultContracts.GetContent(),
+        new ActivityResultCallback<Uri>() {
+            @Override
+            public void onActivityResult(Uri result) {
+                if (result != null){
+                    imageToStore = result;
+                    profileImage.setImageURI(result);
+                }
             }
-        } catch (Exception e) {
-            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-    }
+        });
+
+//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        try {
+//            super.onActivityResult(requestCode, requestCode, data);
+//            if (resultCode == RESULT_OK && requestCode == AnemiUtils.PICK_IMAGE && data != null && data.getData() != null) {
+//                Uri selectedImageUri = data.getData();
+//                imageToStore = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImageUri);
+//                profileImage.setImageBitmap(imageToStore);
+//                profileImage.setClipToOutline(true);
+//            }
+//        } catch (Exception e) {
+//            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+//        }
+//    }
 
     private boolean isValidUsername(String text_username) {
         if (text_username.isEmpty()) {
