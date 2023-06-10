@@ -18,6 +18,7 @@ import androidx.activity.result.contract.ActivityResultContract;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -27,6 +28,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
 import com.piseth.anemi.R;
+import com.piseth.anemi.firebase.viewmodel.FirebaseUserViewModel;
 import com.piseth.anemi.room.viewmodel.UserRoomViewModel;
 import com.piseth.anemi.utils.model.User;
 import com.piseth.anemi.utils.util.AnemiUtils;
@@ -44,6 +46,7 @@ public class Register extends AppCompatActivity {
     private ImageView profileImage;
     private TextView errorLabel;
     private UserRoomViewModel userRoomViewModel;
+    private FirebaseUserViewModel firebaseUserViewModel;
     private FirebaseFirestore firestoreDb;
     private FirebaseAuth auth;
 
@@ -61,6 +64,7 @@ public class Register extends AppCompatActivity {
         firestoreDb = FirebaseFirestore.getInstance();
         loggedInUser = getSharedPreferences(AnemiUtils.LOGGED_IN_USER, MODE_PRIVATE);
         auth = FirebaseAuth.getInstance();
+        userRoomViewModel = new ViewModelProvider(this).get(UserRoomViewModel.class);
     }
 
     public void btnAddPhotoOnClickListener(View view) {
@@ -84,31 +88,31 @@ public class Register extends AppCompatActivity {
 //                Intent intent = new Intent(Register.this, Login.class);
 //                startActivity(intent);
 //            }
-            createUser(username, password, re_password, phone, );
+//            createUser(username, password, re_password, phone, );
         }
     }
 
-    uploadImageBtn.setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            progressBar.setVisibility(View.VISIBLE);
-            firebaseViewModel.uploadImagesToFirebase(mImageURI , photoRoomViewModel);
-            firebaseViewModel.getTaskMutableLiveData().observe(MainActivity.this, new Observer<Task<DocumentReference>>() {
-                @Override
-                public void onChanged(Task<DocumentReference> documentReferenceTask) {
-                    if (documentReferenceTask.isSuccessful()){
-                        mImageView.setImageResource(R.drawable.upload_icon);
-                        Toast.makeText(MainActivity.this, "Image Uploaded Successfully !!", Toast.LENGTH_SHORT).show();
-                    }else{
-                        Toast.makeText(MainActivity.this, documentReferenceTask.getException().toString() , Toast.LENGTH_SHORT).show();
-                    }
-                    progressBar.setVisibility(View.INVISIBLE);
-                }
-            });
-        }
-    });
+//    uploadImageBtn.setOnClickListener(new View.OnClickListener() {
+//        @Override
+//        public void onClick(View view) {
+//            progressBar.setVisibility(View.VISIBLE);
+//            firebaseViewModel.uploadImagesToFirebase(mImageURI , photoRoomViewModel);
+//            firebaseViewModel.getTaskMutableLiveData().observe(MainActivity.this, new Observer<Task<DocumentReference>>() {
+//                @Override
+//                public void onChanged(Task<DocumentReference> documentReferenceTask) {
+//                    if (documentReferenceTask.isSuccessful()){
+//                        mImageView.setImageResource(R.drawable.upload_icon);
+//                        Toast.makeText(MainActivity.this, "Image Uploaded Successfully !!", Toast.LENGTH_SHORT).show();
+//                    }else{
+//                        Toast.makeText(MainActivity.this, documentReferenceTask.getException().toString() , Toast.LENGTH_SHORT).show();
+//                    }
+//                    progressBar.setVisibility(View.INVISIBLE);
+//                }
+//            });
+//        }
+//    });
 
-    private void createUser(String username, String password, String re_password, String phone) {
+    private void createUser(String username, String email, String password, String re_password, String phone) {
         if (!isValidUsername(username) | !isValidPassword(password) |
             !isValidRePassword(re_password, password) | !isValidPhoneNo(phone) |
             !isValidPhoto(imageToStore)) {
@@ -119,6 +123,8 @@ public class Register extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
+                    User user = new User(username, email, password, AnemiUtils.ROLE_USER, phone);
+                    String id = FirebaseAuth.getInstance().getCurrentUser().getUid();
                     Toast.makeText(Register.this, "Successfully Register new User", Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(Register.this, Login.class));
                 } else {
@@ -133,7 +139,7 @@ public class Register extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public boolean addUser(String username, String password, String re_password, String phone, Bitmap imageToStore) {
+    public boolean addUser(String username, String password, String re_password, String phone, Uri imageToStore) {
         boolean checkOperation = false;
 //        if(!username.isEmpty() && !password.isEmpty() && !re_password.isEmpty() && !phone.isEmpty() && imageToStore != null) {
         if (!isValidUsername(username) | !isValidPassword(password) | !isValidRePassword(re_password, password) | !isValidPhoneNo(phone) | !isValidPhoto(imageToStore)) {
@@ -259,7 +265,7 @@ public class Register extends AppCompatActivity {
         }
     }
 
-    private Boolean isValidPhoto(Bitmap photo) {
+    private Boolean isValidPhoto(Uri photo) {
         if (photo == null) {
             errorLabel.setText(R.string.error_photo);
             errorLabel.setVisibility(View.VISIBLE);
