@@ -4,11 +4,14 @@ import android.net.Uri;
 
 import androidx.lifecycle.ViewModel;
 
+import com.google.firebase.firestore.Query;
 import com.piseth.anemi.firebase.repo.FirebasePageRepo;
 import com.piseth.anemi.firebase.repo.FirebaseUserRepo;
 import com.piseth.anemi.room.viewmodel.PageRoomViewModel;
 import com.piseth.anemi.room.viewmodel.UserRoomViewModel;
 import com.piseth.anemi.utils.model.User;
+
+import java.util.List;
 
 public class FirebaseUserViewModel extends ViewModel {
     private FirebaseUserRepo firebaseUserRepo;
@@ -17,8 +20,28 @@ public class FirebaseUserViewModel extends ViewModel {
         firebaseUserRepo = new FirebaseUserRepo();
     }
 
-    public void uploadPageToFirebase(Uri uri, UserRoomViewModel userRoomViewModel, User user, String id) {
+    public void addNewUser(Uri uri, UserRoomViewModel userRoomViewModel, User user, String id) {
         firebaseUserRepo.addNewUser(uri, userRoomViewModel, user, id);
+    }
+
+    public void updateUser(Uri uri, UserRoomViewModel userRoomViewModel, User user, String id) {
+        firebaseUserRepo.updateUser(uri, userRoomViewModel, user, id);
+    }
+
+    public void deleteUser(String id) {
+        firebaseUserRepo.deleteUser(id);
+    }
+
+    public List<User> getAllUsers() {
+        return firebaseUserRepo.getAllUsers();
+    }
+
+    public User getUser(String id) {
+        return firebaseUserRepo.getUser(id);
+    }
+
+    public Query getAllUsersQuery() {
+        return firebaseUserRepo.getAllUsersQuery();
     }
 //
 //    public void getPagesFromFirebase(PageRoomViewModel pageRoomViewModel) {

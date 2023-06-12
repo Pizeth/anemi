@@ -16,6 +16,8 @@ public class UserRoomRepo {
     private UserDao userDao;
     private LiveData<List<User>> userListLiveData;
     private Executor executor = Executors.newSingleThreadExecutor();
+    private Long id;
+    private int row;
 
     public LiveData<List<User>> getUserListLiveData() {
         return userListLiveData;
@@ -36,20 +38,18 @@ public class UserRoomRepo {
     }
 
     public long insertUser(User user) {
-        final long[] id = new long[1];
-        executor.execute(() -> id[0] = userDao.insertUser(user));
-        return id[0];
+        executor.execute(() -> id = userDao.insertUser(user));
+        return id;
     }
 
     public int updateUser(User user) {
-        final int[] row = new int[1];
-        executor.execute(() -> row[0] = userDao.upDateUser(user));
-        return row[0];
+        executor.execute(() -> row = userDao.upDateUser(user));
+        return row;
     }
 
     public int deleteUser(long id) {
-        final int[] row = new int[1];
-        executor.execute(() -> row[0] = userDao.deleteUser(id));
-        return row[0];
+
+        executor.execute(() -> row = userDao.deleteUser(id));
+        return row;
     }
 }

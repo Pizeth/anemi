@@ -18,6 +18,8 @@ import androidx.fragment.app.Fragment;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.piseth.anemi.R;
 import com.piseth.anemi.ui.fragments.dialog.AddBookFragment;
 import com.piseth.anemi.ui.fragments.fragment.HomeFragment;
@@ -41,6 +43,8 @@ public class BookDashBoardActivity extends AppCompatActivity implements Navigati
     private SharedPreferences loggedInUser;
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
+    private FirebaseAuth auth;
+    private FirebaseUser user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,7 +73,9 @@ public class BookDashBoardActivity extends AppCompatActivity implements Navigati
         userManageFragment =  new UserManageFragment();
         userProfileFragment = new UserProfileFragment();
         addBookFragment = new AddBookFragment();
-        User user = AnemiUtils.getLoggedInUser(loggedInUser);
+        auth = FirebaseAuth.getInstance();
+//        User user = AnemiUtils.getLoggedInUser(loggedInUser);
+
 
 //        getSupportFragmentManager().beginTransaction().replace(R.id.container, homeFragment).commit();
         if (savedInstanceState == null) {
@@ -85,15 +91,17 @@ public class BookDashBoardActivity extends AppCompatActivity implements Navigati
             TextView username = navigationView.getHeaderView(0).findViewById(R.id.text_username);
 //            Log.d("success", loggedInUser.getString(USER_PHOTO, ""));
             byte[] photo = AnemiUtils.BASE64Decode(loggedInUser.getString(USER_PHOTO, ""));
-            profile.setImageBitmap(AnemiUtils.getBitmapFromBytesArray(photo));
+//            profile.setImageBitmap(AnemiUtils.getBitmapFromBytesArray(photo));
+            profile.setImageURI(user.getPhotoUrl());
             profile.setCropToPadding(true);
             profile.setClipToOutline(true);
-            username.setText(user.getUsername());
-            if(user.getUserRoleId() != ROLE_ADMIN) {
-                bottomMenu.getMenu().findItem(R.id.user_manage).setVisible(false);
-                navigationView.getMenu().findItem(R.id.nav_user_manage).setVisible(false);
-            }
+            username.setText(user.getDisplayName());
+//            if(user.getUserRoleId() != ROLE_ADMIN) {
+//                bottomMenu.getMenu().findItem(R.id.user_manage).setVisible(false);
+//                navigationView.getMenu().findItem(R.id.nav_user_manage).setVisible(false);
+//            }
         }
+
 
 //        invalidateOptionsMenu();
 //        bottomMenu.getMenu().findItem(R.id.user_manage).setIcon(new ColorDrawable(getResources().getColor(R.color.anemi)));
@@ -156,6 +164,13 @@ public class BookDashBoardActivity extends AppCompatActivity implements Navigati
 //        return true;
 //    }
 
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        user = auth.getCurrentUser();
+    }
+
     @Override
     public boolean onCreateOptionsMenu(@NonNull Menu menu) {
 //        MenuInflater inflater = getMenuInflater();
@@ -184,6 +199,7 @@ public class BookDashBoardActivity extends AppCompatActivity implements Navigati
             prefsEditor.remove(LOGGED_IN_USER);
             prefsEditor.apply();
             drawerLayout.close();
+            FirebaseAuth.getInstance().signOut();
             Intent intent = new Intent(BookDashBoardActivity.this, Login.class);
             startActivity(intent);
             return true;

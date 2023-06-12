@@ -89,13 +89,13 @@ public class Login extends AppCompatActivity {
         }
     }
 
-    private void login(String username, String password) {
-        if (!isValidUsername(username) | !isValidPassword(password)) return;
-        auth.signInWithEmailAndPassword(username, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+    private void login(String email, String password) {
+//        if (!isValidUsername(email) | !isValidPassword(password)) return;
+        auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if(task.isSuccessful()) {
-                    Toast.makeText(Login.this, "Login Successfully! Welcome back " + username + "!!!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Login.this, "Login Successfully! Welcome back " + email + "!!!", Toast.LENGTH_SHORT).show();
                      startActivity(new Intent(Login.this, BookDashBoardActivity.class));
                 } else {
                     Toast.makeText(Login.this, "Login failed! Incorrect Credential!!!", Toast.LENGTH_SHORT).show();

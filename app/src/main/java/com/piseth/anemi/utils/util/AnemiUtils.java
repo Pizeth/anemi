@@ -16,6 +16,7 @@ public class AnemiUtils {
     public static final String USER_PHOTO = "user_photo";
     public static final int ROLE_ADMIN = 3;
     public static final int ROLE_USER = 1;
+    public static final String USERNAME = "username";
     public static final int ACTION_ADD = 1;
     public static final int ACTION_UPDATE = 2;
     public static final int NEW_ENTRY = 0;

@@ -25,6 +25,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
 import com.piseth.anemi.R;
@@ -42,7 +44,7 @@ public class Register extends AppCompatActivity {
     private SharedPreferences loggedInUser;
 //    private Bitmap imageToStore;
     private Uri imageToStore;
-    private TextInputLayout txt_username, txt_password, txt_re_password, txt_phone;
+    private TextInputLayout txt_username, txt_email, txt_password, txt_re_password, txt_phone;
     private ImageView profileImage;
     private TextView errorLabel;
     private UserRoomViewModel userRoomViewModel;
@@ -55,6 +57,7 @@ public class Register extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
         txt_username = findViewById(R.id.username);
+        txt_email = findViewById(R.id.email);
         txt_password = findViewById(R.id.password);
         txt_re_password = findViewById(R.id.re_password);
         txt_phone = findViewById(R.id.phone);
@@ -65,6 +68,7 @@ public class Register extends AppCompatActivity {
         loggedInUser = getSharedPreferences(AnemiUtils.LOGGED_IN_USER, MODE_PRIVATE);
         auth = FirebaseAuth.getInstance();
         userRoomViewModel = new ViewModelProvider(this).get(UserRoomViewModel.class);
+        firebaseUserViewModel = new ViewModelProvider(this).get(FirebaseUserViewModel.class);
     }
 
     public void btnAddPhotoOnClickListener(View view) {
@@ -73,10 +77,13 @@ public class Register extends AppCompatActivity {
     }
 
     public void btnSignUpOnClickListener(View view) {
-        String username, password, re_password, phone;
+        String username, email, password, re_password, phone;
 
-        if (txt_username.getEditText() != null && txt_password.getEditText() != null && txt_re_password.getEditText() != null && txt_phone.getEditText() != null && profileImage != null) {
+        if (txt_username.getEditText() != null && txt_email.getEditText() != null
+            && txt_password.getEditText() != null && txt_re_password.getEditText() != null
+            && txt_phone.getEditText() != null && profileImage != null) {
             username = txt_username.getEditText().getText().toString().trim();
+            email = txt_email.getEditText().getText().toString().trim();
             password = txt_password.getEditText().getText().toString().trim();
             re_password = txt_re_password.getEditText().getText().toString().trim();
             phone = txt_phone.getEditText().getText().toString().trim();
@@ -88,7 +95,7 @@ public class Register extends AppCompatActivity {
 //                Intent intent = new Intent(Register.this, Login.class);
 //                startActivity(intent);
 //            }
-//            createUser(username, password, re_password, phone, );
+            createUser(username, email, password, re_password, phone, imageToStore);
         }
     }
 
@@ -112,19 +119,20 @@ public class Register extends AppCompatActivity {
 //        }
 //    });
 
-    private void createUser(String username, String email, String password, String re_password, String phone) {
+    private void createUser(String username, String email, String password, String re_password, String phone, Uri photo) {
         if (!isValidUsername(username) | !isValidPassword(password) |
             !isValidRePassword(re_password, password) | !isValidPhoneNo(phone) |
             !isValidPhoto(imageToStore)) {
             return;
         }
         Log.d("Insert: ", username + " " + password + " " + phone);
-        auth.createUserWithEmailAndPassword(username, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+        auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
                     User user = new User(username, email, password, AnemiUtils.ROLE_USER, phone);
                     String id = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                    firebaseUserViewModel.addNewUser(imageToStore, userRoomViewModel, user, id);
                     Toast.makeText(Register.this, "Successfully Register new User", Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(Register.this, Login.class));
                 } else {
