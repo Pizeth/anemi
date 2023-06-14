@@ -80,12 +80,12 @@ public class FirebaseUserRepo {
                 if (task.isSuccessful()) {
                     if (task.isComplete()) {
                         profileImageRef.getDownloadUrl().addOnSuccessListener(uri1 -> user.setPhoto(uri1.toString()));
-                        Log.d("SUCCESS", "Image Uri " + user.getPhoto());
                     }
                 }
             });
         }
         Log.d("SUCCESS", "THE ID IS " + id);
+        Log.d("SUCCESS", "Image Uri " + user.getPhoto());
 
         userRef.document(id).set(user, SetOptions.merge()).addOnCompleteListener(task -> {
             if (task.isComplete()) {
