@@ -215,16 +215,16 @@ public class UserManageFragment extends Fragment {
         fireAdapter.startListening();
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        fireAdapter.startListening();
-    }
+//    @Override
+//    public void onResume() {
+//        super.onResume();
+//        fireAdapter.startListening();
+//    }
 
     @Override
     public void onStop() {
         super.onStop();
-        fireAdapter.stopListening();
+//        fireAdapter.stopListening();
     }
 
 //    @Override

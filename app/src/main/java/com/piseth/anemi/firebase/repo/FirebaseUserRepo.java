@@ -42,7 +42,7 @@ public class FirebaseUserRepo {
 
 
     public void addNewUser(Uri uri, UserRoomViewModel userRoomViewModel, User user, String id) {
-        StorageReference profileImageRef = storageReference.child(user.getUsername() + System.currentTimeMillis());
+        StorageReference profileImageRef = storageReference.child(user.getUsername());
         profileImageRef.putFile(uri).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 if (task.isComplete()) {
@@ -52,10 +52,9 @@ public class FirebaseUserRepo {
                             if (task12.isComplete()) {
                                 userRoomViewModel.insertUser(user);
                                 FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-
                                 UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
                                         .setDisplayName(user.getUsername())
-                                        .setPhotoUri(uri1)
+                                        .setPhotoUri(Uri.parse(user.getPhoto()))
                                         .build();
                                 if (firebaseUser != null) {
                                     firebaseUser.updateProfile(profileUpdates).addOnCompleteListener(task1 -> {
@@ -79,33 +78,35 @@ public class FirebaseUserRepo {
             profileImageRef.putFile(uri).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     if (task.isComplete()) {
-                        profileImageRef.getDownloadUrl().addOnSuccessListener(uri1 -> user.setPhoto(uri1.toString()));
+                        profileImageRef.getDownloadUrl().addOnSuccessListener(uri1 -> {
+                            user.setPhoto(uri1.toString());
+                            userRef.document(id).set(user, SetOptions.merge()).addOnCompleteListener(task12 -> {
+                                if (task12.isComplete()) {
+                                    Log.d("SUCCESS", "THE ID IS " + id);
+                                    Log.d("SUCCESS", "THE email IS " + user.getEmail());
+                                    Log.d("SUCCESS", "THE username IS " + user.getUsername());
+                                    Log.d("SUCCESS", "THE password IS " + user.getPassword());
+                                    Log.d("SUCCESS", "Image Uri " + user.getPhoto());
+                                    userRoomViewModel.updateUser(user);
+                                    FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+                                    UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                                            .setDisplayName(user.getUsername())
+                                            .setPhotoUri(uri)
+                                            .build();
+                                    if (firebaseUser != null) {
+                                        firebaseUser.updateProfile(profileUpdates).addOnCompleteListener(task1 -> {
+                                            if (task1.isSuccessful()) {
+                                                Log.d("UPDATE USER", "User profile updated.");
+                                            }
+                                        });
+                                    }
+                                }
+                            });
+                        });
                     }
                 }
             });
         }
-        Log.d("SUCCESS", "THE ID IS " + id);
-        Log.d("SUCCESS", "Image Uri " + user.getPhoto());
-
-        userRef.document(id).set(user, SetOptions.merge()).addOnCompleteListener(task -> {
-            if (task.isComplete()) {
-                userRoomViewModel.updateUser(user);
-                FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-
-                UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
-                        .setDisplayName(user.getUsername())
-                        .setPhotoUri(uri)
-                        .build();
-                if (firebaseUser != null) {
-                    firebaseUser.updateProfile(profileUpdates).addOnCompleteListener(task1 -> {
-                        if (task1.isSuccessful()) {
-                            Log.d("UPDATE USER", "User profile updated.");
-                        }
-                    });
-                }
-            }
-        });
-
     }
 
     public void deleteUser(String id) {

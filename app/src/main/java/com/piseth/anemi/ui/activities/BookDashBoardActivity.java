@@ -1,8 +1,11 @@
 package com.piseth.anemi.ui.activities;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
@@ -15,11 +18,17 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.piseth.anemi.R;
 import com.piseth.anemi.ui.fragments.dialog.AddBookFragment;
 import com.piseth.anemi.ui.fragments.fragment.HomeFragment;
@@ -40,11 +49,13 @@ public class BookDashBoardActivity extends AppCompatActivity implements Navigati
     private UserManageFragment userManageFragment;
     private UserProfileFragment userProfileFragment;
     private AddBookFragment addBookFragment;
-    private SharedPreferences loggedInUser;
+//    private SharedPreferences loggedInUser;
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private FirebaseAuth auth;
-    private FirebaseUser user;
+    private FirebaseUser loggedInUseruser;
+    private FirebaseFirestore firebaseFirestore;
+    private CollectionReference userRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,12 +79,16 @@ public class BookDashBoardActivity extends AppCompatActivity implements Navigati
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
 
-        loggedInUser = getSharedPreferences(LOGGED_IN_USER, MODE_PRIVATE);
+//        loggedInUser = getSharedPreferences(LOGGED_IN_USER, MODE_PRIVATE);
+
+        firebaseFirestore = FirebaseFirestore.getInstance();
+        userRef = firebaseFirestore.collection("Users");
         homeFragment = new HomeFragment();
         userManageFragment =  new UserManageFragment();
         userProfileFragment = new UserProfileFragment();
         addBookFragment = new AddBookFragment();
         auth = FirebaseAuth.getInstance();
+        loggedInUseruser = auth.getCurrentUser();
 //        User user = AnemiUtils.getLoggedInUser(loggedInUser);
 
 
@@ -85,21 +100,38 @@ public class BookDashBoardActivity extends AppCompatActivity implements Navigati
 //        bottomMenu.getMenu().findItem(R.id.user_manage).setEnabled(false);
 //        bottomMenu.getMenu().findItem(R.id.user_manage).setCheckable(false);
 
-        if(user != null) {
-//            ImageView profile = findViewById(R.id.nav_view).findViewById(R.id.imageProfile);
-            ImageView profile = navigationView.getHeaderView(0).findViewById(R.id.imageProfile);
-            TextView username = navigationView.getHeaderView(0).findViewById(R.id.text_username);
-//            Log.d("success", loggedInUser.getString(USER_PHOTO, ""));
-            byte[] photo = AnemiUtils.BASE64Decode(loggedInUser.getString(USER_PHOTO, ""));
-//            profile.setImageBitmap(AnemiUtils.getBitmapFromBytesArray(photo));
-            profile.setImageURI(user.getPhotoUrl());
-            profile.setCropToPadding(true);
-            profile.setClipToOutline(true);
-            username.setText(user.getDisplayName());
-//            if(user.getUserRoleId() != ROLE_ADMIN) {
-//                bottomMenu.getMenu().findItem(R.id.user_manage).setVisible(false);
-//                navigationView.getMenu().findItem(R.id.nav_user_manage).setVisible(false);
-//            }
+        if(loggedInUseruser != null) {
+            userRef.document(loggedInUseruser.getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            User user = document.toObject(User.class);
+                            ImageView profile = navigationView.getHeaderView(0).findViewById(R.id.imageProfile);
+                            TextView username = navigationView.getHeaderView(0).findViewById(R.id.text_username);
+//                          Log.d("success", loggedInUser.getString(USER_PHOTO, ""));
+//                          byte[] photo = AnemiUtils.BASE64Decode(loggedInUser.getString(USER_PHOTO, ""));
+//                          profile.setImageBitmap(AnemiUtils.getBitmapFromBytesArray(photo));
+//                          profile.setImageURI(user.getPhoto());
+                            Log.d(TAG, "User profile " + loggedInUseruser.getPhotoUrl());
+                            Log.d(TAG, "User profile " + loggedInUseruser.getDisplayName());
+                            Glide.with(profile.getContext()).load(user.getPhoto()).into(profile);
+                            profile.setCropToPadding(true);
+                            profile.setClipToOutline(true);
+                            username.setText(user.getUsername());
+                            if(user.getUserRoleId() != ROLE_ADMIN) {
+                                bottomMenu.getMenu().findItem(R.id.user_manage).setVisible(false);
+                                navigationView.getMenu().findItem(R.id.nav_user_manage).setVisible(false);
+                            }
+                        } else {
+                            Log.d(TAG, "No such document");
+                        }
+                    } else {
+                        Log.d(TAG, "get failed with ", task.getException());
+                    }
+                }
+            });
         }
 
 
@@ -168,7 +200,7 @@ public class BookDashBoardActivity extends AppCompatActivity implements Navigati
     @Override
     protected void onStart() {
         super.onStart();
-        user = auth.getCurrentUser();
+        loggedInUseruser = auth.getCurrentUser();
     }
 
     @Override
@@ -195,9 +227,9 @@ public class BookDashBoardActivity extends AppCompatActivity implements Navigati
         } else if (id == R.id.nav_user_profile) {
             replaceFragment(userProfileFragment);
         } else if (id == R.id.logout) {
-            SharedPreferences.Editor prefsEditor = loggedInUser.edit();
-            prefsEditor.remove(LOGGED_IN_USER);
-            prefsEditor.apply();
+//            SharedPreferences.Editor prefsEditor = loggedInUser.edit();
+//            prefsEditor.remove(LOGGED_IN_USER);
+//            prefsEditor.apply();
             drawerLayout.close();
             FirebaseAuth.getInstance().signOut();
             Intent intent = new Intent(BookDashBoardActivity.this, Login.class);

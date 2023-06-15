@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -20,6 +21,15 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.Filter;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
 import com.piseth.anemi.R;
 import com.piseth.anemi.utils.model.User;
@@ -34,24 +44,28 @@ public class Login extends AppCompatActivity {
     private DatabaseManageHandler db;
     private User user;
     private SharedPreferences loggedInUser;
-    FirebaseAuth auth;
+    private FirebaseAuth auth;
+    private FirebaseFirestore firebaseFirestore;
+    private CollectionReference userRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_login);
-        loggedInUser = getSharedPreferences(AnemiUtils.LOGGED_IN_USER, MODE_PRIVATE);
+//        loggedInUser = getSharedPreferences(AnemiUtils.LOGGED_IN_USER, MODE_PRIVATE);
         image = findViewById(R.id.image_logo);
         username = findViewById(R.id.username);
         password = findViewById(R.id.password);
-        db = new DatabaseManageHandler(this);
+//        db = new DatabaseManageHandler(this);
         auth = FirebaseAuth.getInstance();
+        firebaseFirestore = FirebaseFirestore.getInstance();
+        userRef = firebaseFirestore.collection("Users");
 
-        if (loggedInUser.contains(AnemiUtils.LOGGED_IN_USER)) {
-            Intent intent = new Intent(Login.this, BookDashBoardActivity.class);
-            startActivity(intent);
-        }
+//        if (loggedInUser.contains(AnemiUtils.LOGGED_IN_USER)) {
+//            Intent intent = new Intent(Login.this, BookDashBoardActivity.class);
+//            startActivity(intent);
+//        }
     }
 
     @Override
@@ -78,7 +92,29 @@ public class Login extends AppCompatActivity {
         if (this.username.getEditText() != null && this.password.getEditText() != null) {
             String username = this.username.getEditText().getText().toString();
             String password = this.password.getEditText().getText().toString();
-            login(username, password);
+//            login(username, password);
+            if(android.util.Patterns.EMAIL_ADDRESS.matcher(username).matches())                 {
+                login(username,password);
+            }else{
+                //get the emailId associated with the username
+                userRef.whereEqualTo("username", username).limit(1).addSnapshotListener(new EventListener<QuerySnapshot>() {
+                            @Override
+                            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                                if (error != null) {
+                                    return;
+                                }
+                                if (value != null) {
+                                    for (QueryDocumentSnapshot documentSnapshot : value) {
+                                        User user = documentSnapshot.toObject(User.class);
+                                        Log.d("LOGIN", "User " + user.getUsername() + " is found");
+                                        if(user.getUsername().equals(username)) {
+                                            login(user.getEmail(), password);
+                                        }
+                                    }
+                                }
+                            }
+                        });
+            }
 
 //            if (checkExistedUser(username, password)) {
 //                Toast.makeText(this, "Login Successfully! Welcome back " + username + "!!!", Toast.LENGTH_SHORT).show();
