@@ -1,7 +1,5 @@
 package com.piseth.anemi.ui.activities;
 
-import static android.content.ContentValues.TAG;
-
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -19,18 +17,13 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.piseth.anemi.R;
 import com.piseth.anemi.ui.fragments.dialog.AddBookFragment;
+import com.piseth.anemi.ui.fragments.fragment.BookManagementFragment;
 import com.piseth.anemi.ui.fragments.fragment.HomeFragment;
 import com.piseth.anemi.ui.fragments.fragment.UserManageFragment;
 import com.piseth.anemi.ui.fragments.fragment.UserProfileFragment;
@@ -49,13 +42,14 @@ public class BookDashBoardActivity extends AppCompatActivity implements Navigati
     private UserManageFragment userManageFragment;
     private UserProfileFragment userProfileFragment;
     private AddBookFragment addBookFragment;
-//    private SharedPreferences loggedInUser;
+    private BookManagementFragment bookManagementFragment;
+    private SharedPreferences loggedInUser;
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private FirebaseAuth auth;
-    private FirebaseUser loggedInUseruser;
-    private FirebaseFirestore firebaseFirestore;
-    private CollectionReference userRef;
+//    private FirebaseUser loggedInUser;
+//    private FirebaseFirestore firebaseFirestore;
+//    private CollectionReference userRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,60 +73,73 @@ public class BookDashBoardActivity extends AppCompatActivity implements Navigati
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
 
-//        loggedInUser = getSharedPreferences(LOGGED_IN_USER, MODE_PRIVATE);
+        loggedInUser = getSharedPreferences(AnemiUtils.LOGGED_IN_USER, MODE_PRIVATE);
 
-        firebaseFirestore = FirebaseFirestore.getInstance();
-        userRef = firebaseFirestore.collection("Users");
+//        firebaseFirestore = FirebaseFirestore.getInstance();
+//        userRef = firebaseFirestore.collection("Users");
         homeFragment = new HomeFragment();
         userManageFragment =  new UserManageFragment();
         userProfileFragment = new UserProfileFragment();
+        bookManagementFragment = new BookManagementFragment();
         addBookFragment = new AddBookFragment();
-        auth = FirebaseAuth.getInstance();
-        loggedInUseruser = auth.getCurrentUser();
-//        User user = AnemiUtils.getLoggedInUser(loggedInUser);
+//        auth = FirebaseAuth.getInstance();
+//        loggedInUser = auth.getCurrentUser();
+        User user = AnemiUtils.getLoggedInUser(loggedInUser);
 
-
-//        getSupportFragmentManager().beginTransaction().replace(R.id.container, homeFragment).commit();
+        //        getSupportFragmentManager().beginTransaction().replace(R.id.container, homeFragment).commit();
         if (savedInstanceState == null) {
             replaceFragment(homeFragment);
         }
 
+        if(user != null) {
+            ImageView profile = navigationView.getHeaderView(0).findViewById(R.id.imageProfile);
+            TextView username = navigationView.getHeaderView(0).findViewById(R.id.text_username);
+//            Log.d("success", loggedInUser.getString(USER_PHOTO, ""));
+//            byte[] photo = AnemiUtils.BASE64Decode(loggedInUser.getString(USER_PHOTO, ""));
+//            profile.setImageBitmap(AnemiUtils.getBitmapFromBytesArray(photo));
+//            profile.setImageURI(user.getPhoto());
+            Glide.with(profile.getContext()).load(user.getPhoto()).into(profile);
+            profile.setCropToPadding(true);
+            profile.setClipToOutline(true);
+            username.setText(user.getUsername());
+            Log.i("ddfd", "Current role is " + user.getUserRoleId());
+            if(user.getUserRoleId() != AnemiUtils.ROLE_ADMIN) {
+                bottomMenu.getMenu().findItem(R.id.book_manage).setVisible(false);
+                navigationView.getMenu().findItem(R.id.nav_book_manage).setVisible(false);
+                bottomMenu.getMenu().findItem(R.id.user_manage).setVisible(false);
+                navigationView.getMenu().findItem(R.id.nav_user_manage).setVisible(false);
+            }
+        }
 //        bottomMenu.getMenu().findItem(R.id.user_manage).setEnabled(false);
 //        bottomMenu.getMenu().findItem(R.id.user_manage).setCheckable(false);
 
-        if(loggedInUseruser != null) {
-            userRef.document(loggedInUseruser.getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (document.exists()) {
-                            User user = document.toObject(User.class);
-                            ImageView profile = navigationView.getHeaderView(0).findViewById(R.id.imageProfile);
-                            TextView username = navigationView.getHeaderView(0).findViewById(R.id.text_username);
-//                          Log.d("success", loggedInUser.getString(USER_PHOTO, ""));
-//                          byte[] photo = AnemiUtils.BASE64Decode(loggedInUser.getString(USER_PHOTO, ""));
-//                          profile.setImageBitmap(AnemiUtils.getBitmapFromBytesArray(photo));
-//                          profile.setImageURI(user.getPhoto());
-                            Log.d(TAG, "User profile " + loggedInUseruser.getPhotoUrl());
-                            Log.d(TAG, "User profile " + loggedInUseruser.getDisplayName());
-                            Glide.with(profile.getContext()).load(user.getPhoto()).into(profile);
-                            profile.setCropToPadding(true);
-                            profile.setClipToOutline(true);
-                            username.setText(user.getUsername());
-                            if(user.getUserRoleId() != ROLE_ADMIN) {
-                                bottomMenu.getMenu().findItem(R.id.user_manage).setVisible(false);
-                                navigationView.getMenu().findItem(R.id.nav_user_manage).setVisible(false);
-                            }
-                        } else {
-                            Log.d(TAG, "No such document");
-                        }
-                    } else {
-                        Log.d(TAG, "get failed with ", task.getException());
-                    }
-                }
-            });
-        }
+//        if(loggedInUser != null) {
+//            userRef.document(loggedInUser.getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//                @Override
+//                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//                    if (task.isSuccessful()) {
+//                        DocumentSnapshot document = task.getResult();
+//                        if (document.exists()) {
+//                            User user = document.toObject(User.class);
+//                            ImageView profile = navigationView.getHeaderView(0).findViewById(R.id.imageProfile);
+//                            TextView username = navigationView.getHeaderView(0).findViewById(R.id.text_username);
+//                            Glide.with(profile.getContext()).load(user.getPhoto()).into(profile);
+//                            profile.setCropToPadding(true);
+//                            profile.setClipToOutline(true);
+//                            username.setText(user.getUsername());
+//                            if(user.getUserRoleId() != AnemiUtils.ROLE_ADMIN) {
+//                                bottomMenu.getMenu().findItem(R.id.user_manage).setVisible(false);
+//                                navigationView.getMenu().findItem(R.id.nav_user_manage).setVisible(false);
+//                            }
+//                        } else {
+//                            Log.d(TAG, "No such document");
+//                        }
+//                    } else {
+//                        Log.d(TAG, "get failed with ", task.getException());
+//                    }
+//                }
+//            });
+//        }
 
 
 //        invalidateOptionsMenu();
@@ -148,6 +155,9 @@ public class BookDashBoardActivity extends AppCompatActivity implements Navigati
             int itemId = item.getItemId();
             if (itemId == R.id.home) {
                 replaceFragment(homeFragment);
+                return true;
+            } else if (itemId == R.id.book_manage) {
+                replaceFragment(bookManagementFragment);
                 return true;
             } else if (itemId == R.id.user_manage) {
                 replaceFragment(userManageFragment);
@@ -200,7 +210,7 @@ public class BookDashBoardActivity extends AppCompatActivity implements Navigati
     @Override
     protected void onStart() {
         super.onStart();
-        loggedInUseruser = auth.getCurrentUser();
+//        loggedInUser = auth.getCurrentUser();
     }
 
     @Override
@@ -222,6 +232,8 @@ public class BookDashBoardActivity extends AppCompatActivity implements Navigati
         int id = item.getItemId();
         if(id == R.id.nav_home) {
             replaceFragment(homeFragment);
+        } else if (id == R.id.nav_book_manage) {
+            replaceFragment(bookManagementFragment);
         } else if (id == R.id.nav_user_manage) {
             replaceFragment(userManageFragment);
         } else if (id == R.id.nav_user_profile) {

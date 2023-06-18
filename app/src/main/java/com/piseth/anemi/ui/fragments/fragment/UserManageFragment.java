@@ -19,12 +19,12 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.piseth.anemi.R;
 import com.piseth.anemi.firebase.viewmodel.FirebaseUserViewModel;
@@ -99,7 +99,7 @@ public class UserManageFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-        db = new DatabaseManageHandler(getActivity());
+//        db = new DatabaseManageHandler(getActivity());
 //        loadData = db.getAllUsers();
         if(getContext() != null) {
             loggedInUser = getContext().getSharedPreferences(AnemiUtils.LOGGED_IN_USER, MODE_PRIVATE);
@@ -128,7 +128,6 @@ public class UserManageFragment extends Fragment {
         recyclerView.setLayoutManager(new WrapContentLinearLayoutManager(getContext()));
         recyclerView.setHasFixedSize(true);
 //        adapter = new CustomRecyclerUserListAdapter(getContext(), this, this);
-//        adapter = new CustomRecyclerUserListAdapter(getContext(), this, this);
         recyclerView.setAdapter(fireAdapter);
 
 //        userRoomViewModel.getAllUsersLiveData().observe(getViewLifecycleOwner(), new Observer<List<User>>() {
@@ -154,14 +153,10 @@ public class UserManageFragment extends Fragment {
         fireAdapter.setOnUserListClickListener(new FirestoreRecyclerUserListAdapter.OnUserListClickListener() {
             @Override
             public void onUpdate(int p) {
-                Log.d("Update: ", "Update button pressed " + fireAdapter.getItemId(p));
-                Toast.makeText(getContext(), "Update pressed " + fireAdapter.getItemId(p), Toast.LENGTH_SHORT).show();
-
+                String docId = fireAdapter.getDocumentId(p);
                 Bundle bundle = new Bundle();
                 bundle.putBoolean("notAlertDialog", true);
-//                bundle.putLong("user_id", fireAdapter.getItemId(p));
-                bundle.putString("user_id", fireAdapter.getDocumentId(p));
-                Log.d("Manage User", "Document ID" + fireAdapter.getDocumentId(p));
+                bundle.putString("user_id", docId);
                 bundle.putInt("position", p);
 
                 DialogUpdateUserFragment dialogFragment = new DialogUpdateUserFragment(bundle);
@@ -175,10 +170,14 @@ public class UserManageFragment extends Fragment {
                 }
                 ft.addToBackStack(null);
                 dialogFragment.show(ft, "dialog");
-                dialogFragment.setOnUpdateDialogListener(new DialogUpdateUserFragment.OnUpdateDialogListener() {
+                dialogFragment.setOnUpdateCompletedDialogListener(new DialogUpdateUserFragment.OnUpdateCompletedDialogListener() {
                     @Override
-                    public void onFinishUpdateDialog(int position, User user) {
+                    public void onFinishUpdateDialog(User user) {
                         Log.d("Manage User", "Finish update ID" + fireAdapter.getDocumentId(p));
+                        FirebaseUser fireUser = FirebaseAuth.getInstance().getCurrentUser();
+                        if(fireUser != null && fireUser.getUid().equals(docId)) {
+                            AnemiUtils.setUserPreference(loggedInUser, user);
+                        }
                     }
                 });
             }

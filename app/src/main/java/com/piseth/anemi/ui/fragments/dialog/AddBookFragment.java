@@ -47,7 +47,7 @@ public class AddBookFragment extends Fragment implements View.OnClickListener {
 
     private DatabaseManageHandler db;
     private Book book;
-    private Bitmap imageToStore;
+    private Uri imageToStore;
     private TextInputLayout txt_title, txt_author, txt_description;
     private ImageView bookCover;
     private HomeFragment homeFragment;
@@ -139,7 +139,7 @@ public class AddBookFragment extends Fragment implements View.OnClickListener {
                 author = txt_author.getEditText().getText().toString().trim();
                 description = txt_description.getEditText().getText().toString().trim();
                 Log.d("Insert Book: ", title + " " + author + " " + description);
-                boolean result = addBook(title, description, author, imageToStore);
+                boolean result = addBook(title, description, author, imageToStore.toString());
                 if (result) {
                     Toast.makeText(getContext(), "Successfully added new Book", Toast.LENGTH_SHORT).show();
                     Log.d("Successful: ", "Back to Book Dashboard");
@@ -150,7 +150,7 @@ public class AddBookFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-    public boolean addBook(String title, String description, String author, Bitmap imageToStore) {
+    public boolean addBook(String title, String description, String author, String imageToStore) {
         boolean checkOperation = false;
         if(!title.isEmpty() && !author.isEmpty() && !description.isEmpty() && imageToStore != null) {
 
@@ -194,8 +194,8 @@ public class AddBookFragment extends Fragment implements View.OnClickListener {
             super.onActivityResult(requestCode, requestCode, data);
             if (resultCode == RESULT_OK && requestCode == PICK_IMAGE && data != null && data.getData() != null) {
                 Uri selectedImageUri = data.getData();
-                imageToStore = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), selectedImageUri);
-                bookCover.setImageBitmap(imageToStore);
+//                imageToStore = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), selectedImageUri);
+//                bookCover.setImageBitmap(imageToStore);
             }
         } catch(Exception e) {
             Toast.makeText(getContext(), "Can't pick image " + e.getMessage(), Toast.LENGTH_SHORT).show();

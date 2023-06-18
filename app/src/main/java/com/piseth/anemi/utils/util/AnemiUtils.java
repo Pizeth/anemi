@@ -17,9 +17,12 @@ public class AnemiUtils {
     public static final int ROLE_ADMIN = 3;
     public static final int ROLE_USER = 1;
     public static final String USERNAME = "username";
+    public static final String ADMIN = "ADMIN";
+    public static final String USER = "USER";
     public static final int ACTION_ADD = 1;
     public static final int ACTION_UPDATE = 2;
     public static final int NEW_ENTRY = 0;
+    public static final String NEW_BOOK_ENTRY = "NO_ID";
     public static final int PICK_IMAGE = 1;
     public static final int DUMMY_ID = 99;
     public static final int STARTING_POSITION = -1;
@@ -53,8 +56,8 @@ public class AnemiUtils {
     }
 
     public static User getLoggedInUser(SharedPreferences loggedInUser) {
-        Gson gson = new Gson();
         if (loggedInUser.contains(LOGGED_IN_USER)) {
+            Gson gson = new Gson();
             String json = loggedInUser.getString(LOGGED_IN_USER, "");
             return gson.fromJson(json, User.class);
 //            byte[] photo = AnemiUtils.BASE64Decode(loggedInUser.getString(USER_PHOTO, ""));
@@ -62,5 +65,13 @@ public class AnemiUtils {
 //            user.setPhoto(imageToStore);
         }
         return null;
+    }
+
+    public static void setUserPreference(SharedPreferences loggedInUser, User user){
+        SharedPreferences.Editor prefsEditor = loggedInUser.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(user);
+        prefsEditor.putString(AnemiUtils.LOGGED_IN_USER, json);
+        prefsEditor.apply();
     }
 }

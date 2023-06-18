@@ -1,26 +1,23 @@
 package com.piseth.anemi.room.database;
 
 import android.content.Context;
-import android.os.AsyncTask;
 
 import androidx.annotation.NonNull;
 import androidx.room.Database;
-import androidx.room.DatabaseConfiguration;
-import androidx.room.InvalidationTracker;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.sqlite.db.SupportSQLiteDatabase;
-import androidx.sqlite.db.SupportSQLiteOpenHelper;
 
 import com.piseth.anemi.room.dao.PageDao;
 import com.piseth.anemi.room.dao.UserDao;
+import com.piseth.anemi.utils.model.Book;
 import com.piseth.anemi.utils.model.Page;
 import com.piseth.anemi.utils.model.User;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-@Database(entities = {Page.class, User.class}, version = 1, exportSchema = false)
+@Database(entities = {Page.class, User.class, Book.class}, version = 1, exportSchema = false)
 public abstract class AnemiDatabase extends RoomDatabase {
     private static AnemiDatabase mInstance;
     public abstract PageDao pageDao();

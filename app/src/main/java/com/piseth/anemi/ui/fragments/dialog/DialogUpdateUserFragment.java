@@ -25,11 +25,10 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -50,7 +49,7 @@ public class DialogUpdateUserFragment extends DialogFragment {
     private Button addPhoto, saveButton;
     private TextView errorLabel;
     private ImageView profileImage;
-    private OnUpdateDialogListener listener;
+    private OnUpdateCompletedDialogListener listener;
     private UserRoomViewModel userRoomViewModel;
     private FirebaseUserViewModel firebaseUserViewModel;
     private FirebaseFirestore firebaseFirestore;
@@ -118,32 +117,72 @@ public class DialogUpdateUserFragment extends DialogFragment {
 
         if (getArguments() != null) {
 //            int user_id = (int) getArguments().getLong("user_id");
-             id = getArguments().getString("user_id");
+            id = getArguments().getString("user_id");
             if (!id.isEmpty()) {
                 Log.d("Successful: ", "user_id to update is " + id);
 //                user = db.getUser((user_id));
-                userRef.document(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            DocumentSnapshot document = task.getResult();
-                            if (document.exists()) {
-                                User user = document.toObject(User.class);
-
-                                txt_username.getEditText().setText(user.getUsername());
-                                txt_email.getEditText().setText(user.getEmail());
-                                txt_phone.getEditText().setText(user.getPhone());
-                                Glide.with(profileImage.getContext()).load(user.getPhoto()).into(profileImage);
-                                profileImage.setCropToPadding(true);
-                                profileImage.setClipToOutline(true);
-                                Log.d("USERNAME: ", user.getUsername() + " 's data acquired'");
-                            } else {
-                                Log.d(TAG, "No such document");
+                userRef.document(id).get().addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            User user = document.toObject(User.class);
+                            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+                            txt_username.getEditText().setText(user.getUsername());
+                            txt_email.getEditText().setText(user.getEmail());
+                            txt_phone.getEditText().setText(user.getPhone());
+                            Glide.with(profileImage.getContext()).load(user.getPhoto()).into(profileImage);
+                            profileImage.setCropToPadding(true);
+                            profileImage.setClipToOutline(true);
+                            if(!currentUser.getUid().equals(id)) {
+                                txt_email.getEditText().setEnabled(false);
+                                txt_password.getEditText().setEnabled(false);
+                                txt_re_password.getEditText().setEnabled(false);
                             }
+                            Log.d("USERNAME: ", user.getUsername() + " 's data acquired'");
+
                             addPhoto.setOnClickListener(view1 -> pickImage.launch("image/*"));
+                            saveButton.setOnClickListener(view1 -> {
+                                String doc_id, username, email, password, re_password, phone, current_password = user.getPassword();
+                                boolean isUpdateEmail = false, isUpdatePassword = false;
+
+                                doc_id = getArguments().getString("user_id");
+                                username = (txt_username.getEditText() != null) ? txt_username.getEditText().getText().toString().trim() : "";
+                                email = (txt_email.getEditText() != null) ? txt_email.getEditText().getText().toString().trim() : "";
+                                password = (txt_password.getEditText() != null) ? txt_password.getEditText().getText().toString().trim() : "";
+                                re_password = (txt_re_password.getEditText() != null) ? txt_re_password.getEditText().getText().toString().trim() : "";
+                                phone = (txt_phone.getEditText() != null) ? txt_phone.getEditText().getText().toString().trim() : "";
+
+//                            if (!isValidUsername(username) | !isValidPassword(password) |
+//                                !isValidRePassword(re_password, password) | !isValidPhoneNo(phone) |
+//                                !isValidPhoto(photo)) {
+//                                return;
+//                            }
+                                if (!username.isEmpty() && !username.equals(user.getUsername())) user.setUsername(username);
+                                if (!email.isEmpty() && !email.equals(user.getEmail())) {
+                                    isUpdateEmail = true;
+                                    user.setEmail(email);
+                                }
+                                if (!password.isEmpty() && !re_password.isEmpty() && password.equals(re_password)) {
+                                    Log.d("hhh", "password " + password);
+                                    Log.d("hhh", "re password " + re_password);
+                                    isUpdatePassword = true;
+                                    current_password = user.getPassword();
+                                    user.setPassword(password);
+                                }
+                                if (!phone.isEmpty() && !phone.equals(user.getPhone())) user.setPhone(phone);
+                                updateUser(doc_id, user, imageToStore, isUpdateEmail, isUpdatePassword, current_password);
+                                Log.d("Successful: ", "Back to manage user Screen");
+                                if (listener != null) {
+                                    listener.onFinishUpdateDialog(user);
+                                    Log.d("Update: ", " Position " + getArguments().getInt("position"));
+                                }
+                                dismiss();
+                            });
                         } else {
-                            Log.d(TAG, "get failed with ", task.getException());
+                            Log.d(TAG, "No such document");
                         }
+                    } else {
+                        Log.d(TAG, "get failed with ", task.getException());
                     }
                 });
             }
@@ -158,38 +197,6 @@ public class DialogUpdateUserFragment extends DialogFragment {
 //            profileImage.setClipToOutline(true);
 //            Log.d("USERNAME: ", user.getUsername() + " 's data acquired'");
 //        }
-
-
-
-
-
-        saveButton.setOnClickListener(view1 -> {
-            String doc_id, username, email, password, re_password, phone;
-
-            doc_id = getArguments().getString("user_id");
-            username = (txt_username.getEditText() != null) ? txt_username.getEditText().getText().toString().trim() : "";
-            email = (txt_email.getEditText() != null) ? txt_email.getEditText().getText().toString().trim() : "";
-            password = (txt_password.getEditText() != null) ? txt_password.getEditText().getText().toString().trim() : "";
-            re_password = (txt_re_password.getEditText() != null) ? txt_re_password.getEditText().getText().toString().trim() : "";
-            phone = (txt_phone.getEditText() != null) ? txt_phone.getEditText().getText().toString().trim() : "";
-//            boolean result = updateUser(username, email, password, re_password, phone, imageToStore);
-            updateUser(doc_id, username, email, password, re_password, phone, imageToStore);
-//            if (result) {
-
-            Log.d("Successful: ", "Back to manage user Screen");
-            if (listener != null) {
-//                listener.onFinishUpdateDialog(getArguments().getInt("position"), user);
-                Log.d("Update: ", " Position " + getArguments().getInt("position"));
-            }
-            dismiss();
-//            }
-        });
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
     }
 
     @Override
@@ -199,7 +206,7 @@ public class DialogUpdateUserFragment extends DialogFragment {
         Log.d("API123", "onCreate");
     }
 
-    private void updateUser(String doc_Id, String username, String email, String password, String re_password, String phone, Uri photo) {
+    private void updateUser(String doc_Id, User user, Uri photo, boolean isUpdateEmail, boolean isUpdatePassword, String current_password) {
 //        if (!isValidUsername(username) | !isValidPassword(password) |
 //                !isValidRePassword(re_password, password) | !isValidPhoneNo(phone) |
 //                !isValidPhoto(photo)) {
@@ -210,9 +217,9 @@ public class DialogUpdateUserFragment extends DialogFragment {
 //        if (!password.isEmpty() && !re_password.isEmpty() && password.equals(re_password))
 //            user.setPassword(password);
 //        if (!phone.isEmpty() && !phone.equals(user.getPhone())) user.setPhone(phone);
-        Log.d("Insert: ", username + " " + password + " " + phone);
-        User user = new User(username, email, password, AnemiUtils.ROLE_USER, phone);
-        firebaseUserViewModel.updateUser(imageToStore, userRoomViewModel, user, doc_Id);
+        Log.d("Insert: ", user.getUsername() + " " + user.getPassword() + " " + user.getPhone());
+        firebaseUserViewModel.updateUser(photo, user, doc_Id, isUpdateEmail, isUpdatePassword, current_password);
+        Toast.makeText(getContext(), user.getUsername() + "'s has been succesfully updated", Toast.LENGTH_LONG).show();
     }
 
 //    public boolean updateUser(String username, String email, String password, String re_password, String phone, Uri imageToStore) {
@@ -270,16 +277,16 @@ public class DialogUpdateUserFragment extends DialogFragment {
                 }
             });
 
-    private OnUpdateDialogListener getListener() {
-        OnUpdateDialogListener listener;
+    private OnUpdateCompletedDialogListener getListener() {
+        OnUpdateCompletedDialogListener listener;
         try {
             Fragment onInputSelected_Fragment = getTargetFragment();
             if (onInputSelected_Fragment != null) {
-                listener = (OnUpdateDialogListener) onInputSelected_Fragment;
+                listener = (OnUpdateCompletedDialogListener) onInputSelected_Fragment;
                 Log.d("success cast: ", "dialog " + getTargetFragment());
             } else {
                 Activity onInputSelected_Activity = getActivity();
-                listener = (OnUpdateDialogListener) onInputSelected_Activity;
+                listener = (OnUpdateCompletedDialogListener) onInputSelected_Activity;
                 Log.d("success cast: ", "activity");
             }
             return listener;
@@ -289,11 +296,11 @@ public class DialogUpdateUserFragment extends DialogFragment {
         return null;
     }
 
-    public interface OnUpdateDialogListener {
-        void onFinishUpdateDialog(int position, User user);
+    public interface OnUpdateCompletedDialogListener {
+        void onFinishUpdateDialog(User user);
     }
 
-    public void setOnUpdateDialogListener(OnUpdateDialogListener listener) {
+    public void setOnUpdateCompletedDialogListener(OnUpdateCompletedDialogListener listener) {
         this.listener = listener;
     }
 

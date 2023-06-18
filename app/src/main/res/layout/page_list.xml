@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/list_border">
+
+    <ImageView
+        android:id="@+id/page"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/baseline_newspaper_24"
+        tools:srcCompat="@drawable/baseline_newspaper_24" />
+
+    <TextView
+        android:id="@+id/txtPage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:text="@string/page_number"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@+id/pageNumber"
+        app:layout_constraintStart_toEndOf="@+id/page"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/pageNumber"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:text="TextView"
+        android:textSize="24sp"
+        android:textStyle="italic"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/page"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!--    style="@style/Widget.Material3.Button.Icon"-->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnViewPage"
+
+        style="@style/Widget.Material3.Button.IconButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:textColor="#DA0037"
+        android:textStyle="bold"
+        app:backgroundTint="#00DA0037"
+        app:cornerRadius="25dp"
+        app:icon="@drawable/baseline_remove_red_eye_24"
+        app:iconSize="22dp"
+        app:iconTint="#4CAF50"
+        app:layout_constraintStart_toEndOf="@+id/page"
+        app:layout_constraintTop_toBottomOf="@+id/pageNumber">
+
+    </com.google.android.material.button.MaterialButton>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnUpdatePage"
+
+        style="@style/Widget.Material3.Button.IconButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:textColor="#DA0037"
+        android:textStyle="bold"
+        app:backgroundTint="#00DA0037"
+        app:cornerRadius="25dp"
+        app:icon="@drawable/baseline_edit_24"
+        app:iconSize="22dp"
+        app:iconTint="#FF9800"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/pageNumber">
+
+    </com.google.android.material.button.MaterialButton>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnDeletePage"
+        style="@style/Widget.Material3.Button.IconButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:textColor="#DA0037"
+        android:textStyle="bold"
+        app:backgroundTint="#00DA0037"
+        app:cornerRadius="25dp"
+        app:icon="@drawable/baseline_delete_24"
+        app:iconSize="22dp"
+        app:iconTint="#DA0037"
+        app:layout_constraintEnd_toStartOf="@+id/btnUpdatePage"
+        app:layout_constraintTop_toBottomOf="@+id/pageNumber">
+
+    </com.google.android.material.button.MaterialButton>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

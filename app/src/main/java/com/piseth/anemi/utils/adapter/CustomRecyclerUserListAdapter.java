@@ -29,7 +29,7 @@ public class CustomRecyclerUserListAdapter extends FirebaseRecyclerAdapter<User,
 //    private final Context context;
 //    private List<User> users;
 //    private final DatabaseManageHandler db;
-    private DialogUpdateUserFragment.OnUpdateDialogListener dialogListener;
+    private DialogUpdateUserFragment.OnUpdateCompletedDialogListener dialogListener;
     private OnUserListClickListener onUserListClickListener;
     private SharedPreferences loggedInUser;
 //    private LayoutInflater inflater;
@@ -48,7 +48,7 @@ public class CustomRecyclerUserListAdapter extends FirebaseRecyclerAdapter<User,
      *
      * @param options
      */
-    public CustomRecyclerUserListAdapter(@NonNull FirebaseRecyclerOptions<User> options, DialogUpdateUserFragment.OnUpdateDialogListener dialogListener, OnUserListClickListener onUserListClickListener) {
+    public CustomRecyclerUserListAdapter(@NonNull FirebaseRecyclerOptions<User> options, DialogUpdateUserFragment.OnUpdateCompletedDialogListener dialogListener, OnUserListClickListener onUserListClickListener) {
         super(options);
         this.dialogListener = dialogListener;
         this.onUserListClickListener = onUserListClickListener;

@@ -2,10 +2,8 @@ package com.piseth.anemi.ui.activities;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -14,7 +12,6 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContract;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,8 +22,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
 import com.piseth.anemi.R;
@@ -35,8 +30,6 @@ import com.piseth.anemi.room.viewmodel.UserRoomViewModel;
 import com.piseth.anemi.utils.model.User;
 import com.piseth.anemi.utils.util.AnemiUtils;
 import com.piseth.anemi.utils.util.DatabaseManageHandler;
-
-import java.net.URI;
 
 public class Register extends AppCompatActivity {
 
@@ -132,7 +125,7 @@ public class Register extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     User user = new User(username, email, password, AnemiUtils.ROLE_USER, phone);
                     String id = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                    firebaseUserViewModel.addNewUser(imageToStore, userRoomViewModel, user, id);
+                    firebaseUserViewModel.addNewUser(imageToStore, user, id);
                     Toast.makeText(Register.this, "Successfully Register new User", Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(Register.this, Login.class));
                 } else {

@@ -268,7 +268,7 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
 
         Book book = new Book(Integer.parseInt(cursor.getString(0)),
                     cursor.getString(1), cursor.getString(2),
-                    cursor.getString(3), AnemiUtils.getBitmapFromBytesArray(cursor.getBlob(4)));
+                    cursor.getString(3), AnemiUtils.getBitmapFromBytesArray(cursor.getBlob(4)).toString());
         // return contact
         return book;
     }
@@ -287,7 +287,7 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
             do {
                 Book book = new Book(Integer.parseInt(cursor.getString(0)),
                             cursor.getString(1), cursor.getString(2),
-                            cursor.getString(3), AnemiUtils.getBitmapFromBytesArray(cursor.getBlob(4)));
+                            cursor.getString(3), AnemiUtils.getBitmapFromBytesArray(cursor.getBlob(4)).toString());
                 // Adding user to list
                 bookList.add(book);
             } while (cursor.moveToNext());
@@ -304,7 +304,7 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
         value.put(BOOK_NAME, book.getBookName());
         value.put(DESCRIPTION, book.getDescription());
         value.put(AUTHOR, book.getAuthor());
-        value.put(COVER, AnemiUtils.getBitmapAsByteArray(book.getCover()));
+//        value.put(COVER, AnemiUtils.getBitmapAsByteArray(book.getCover()));
         return db.insert(TABLE_BOOK, null, value);
     }
 
@@ -314,7 +314,7 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
         value.put(BOOK_NAME, book.getBookName());
         value.put(DESCRIPTION, book.getDescription());
         value.put(AUTHOR, book.getAuthor());
-        value.put(COVER, AnemiUtils.getBitmapAsByteArray(book.getCover()));
+//        value.put(COVER, AnemiUtils.getBitmapAsByteArray(book.getCover()));
         return db.update(TABLE_BOOK, value, BOOK_ID + " = " + book.getBookId(), null);
     }
 

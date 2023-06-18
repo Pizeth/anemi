@@ -30,11 +30,16 @@ public class CustomRecyclerBookListAdapter extends RecyclerView.Adapter<CustomRe
     Context context;
     private List<Book> books;
     private final DatabaseManageHandler db;
-    private DialogUpdateBookFragment.DialogListener dialogListener;
+    private DialogUpdateBookFragment.OnCompletedDialogListener dialogListener;
     private CustomRecyclerBookListAdapter.OnBookListClickListener onBookListClickListener;
     private SharedPreferences loggedInUser;
 
-    public CustomRecyclerBookListAdapter(Context context, List<Book> books, DialogUpdateBookFragment.DialogListener dialogListener, CustomRecyclerBookListAdapter.OnBookListClickListener onBookListClickListener) {
+    public CustomRecyclerBookListAdapter(Context context, List<Book> books) {
+        this.context = context;
+        this.books = books;
+        db = new DatabaseManageHandler(context);
+    }
+    public CustomRecyclerBookListAdapter(Context context, List<Book> books, DialogUpdateBookFragment.OnCompletedDialogListener dialogListener, CustomRecyclerBookListAdapter.OnBookListClickListener onBookListClickListener) {
         this.context = context;
         this.books = books;
         this.dialogListener = dialogListener;
@@ -62,7 +67,7 @@ public class CustomRecyclerBookListAdapter extends RecyclerView.Adapter<CustomRe
     public void onBindViewHolder(@NonNull BookListViewHolder holder, int position) {
         Book book = books.get(position);
         if(book != null) {
-            holder.cover.setImageBitmap(book.getCover());
+//            holder.cover.setImageBitmap(book.getCover());
             holder.title.setText(book.getBookName());
             holder.author.setText(book.getAuthor());
         }

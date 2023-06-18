@@ -11,25 +11,15 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.Filter;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
 import com.piseth.anemi.R;
 import com.piseth.anemi.utils.model.User;
@@ -53,7 +43,7 @@ public class Login extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_login);
-//        loggedInUser = getSharedPreferences(AnemiUtils.LOGGED_IN_USER, MODE_PRIVATE);
+        loggedInUser = getSharedPreferences(AnemiUtils.LOGGED_IN_USER, MODE_PRIVATE);
         image = findViewById(R.id.image_logo);
         username = findViewById(R.id.username);
         password = findViewById(R.id.password);
@@ -71,9 +61,9 @@ public class Login extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        FirebaseUser user = auth.getCurrentUser();
-        if(user != null) {
-            startActivity(new Intent(Login.this, BookDashBoardActivity.class));
+        FirebaseUser currentUser = auth.getCurrentUser();
+        if(currentUser != null) {
+            saveCurrentUserToPreference(currentUser);
         }
     }
 
@@ -92,28 +82,27 @@ public class Login extends AppCompatActivity {
         if (this.username.getEditText() != null && this.password.getEditText() != null) {
             String username = this.username.getEditText().getText().toString();
             String password = this.password.getEditText().getText().toString();
-//            login(username, password);
-            if(android.util.Patterns.EMAIL_ADDRESS.matcher(username).matches())                 {
+            if(android.util.Patterns.EMAIL_ADDRESS.matcher(username).matches()) {
                 login(username,password);
-            }else{
-                //get the emailId associated with the username
-                userRef.whereEqualTo("username", username).limit(1).addSnapshotListener(new EventListener<QuerySnapshot>() {
-                            @Override
-                            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                                if (error != null) {
-                                    return;
-                                }
-                                if (value != null) {
-                                    for (QueryDocumentSnapshot documentSnapshot : value) {
-                                        User user = documentSnapshot.toObject(User.class);
-                                        Log.d("LOGIN", "User " + user.getUsername() + " is found");
-                                        if(user.getUsername().equals(username)) {
-                                            login(user.getEmail(), password);
-                                        }
-                                    }
-                                }
+            } else {
+                //get the email associated with the username
+                userRef.whereEqualTo("username", username).limit(1).addSnapshotListener((value, error) -> {
+                    if (error != null) {
+                        Log.d("Error", error.getMessage());
+                        return;
+                    }
+                    if (!value.isEmpty()) {
+                        for (QueryDocumentSnapshot documentSnapshot : value) {
+                            User user = documentSnapshot.toObject(User.class);
+                            Log.d("LOGIN", "User " + user.getUsername() + " is found");
+                            if(user.getUsername().equals(username)) {
+                                login(user.getEmail(), password);
                             }
-                        });
+                        }
+                    } else {
+                        Toast.makeText(Login.this, "Login failed! Incorrect Credential!!!", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
 
 //            if (checkExistedUser(username, password)) {
@@ -127,14 +116,26 @@ public class Login extends AppCompatActivity {
 
     private void login(String email, String password) {
 //        if (!isValidUsername(email) | !isValidPassword(password)) return;
-        auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                if(task.isSuccessful()) {
-                    Toast.makeText(Login.this, "Login Successfully! Welcome back " + email + "!!!", Toast.LENGTH_SHORT).show();
-                     startActivity(new Intent(Login.this, BookDashBoardActivity.class));
-                } else {
-                    Toast.makeText(Login.this, "Login failed! Incorrect Credential!!!", Toast.LENGTH_SHORT).show();
+        auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
+            if(task.isSuccessful()) {
+                Toast.makeText(Login.this, "Login Successfully! Welcome back " + email + "!!!", Toast.LENGTH_SHORT).show();
+                FirebaseUser currentUser = auth.getCurrentUser();
+                if(currentUser != null) {
+                    saveCurrentUserToPreference(auth.getCurrentUser());
+                }
+            } else {
+                Toast.makeText(Login.this, "Login failed! Incorrect Credential!!!", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+    private void saveCurrentUserToPreference(FirebaseUser currentUser) {
+        userRef.document(currentUser.getUid()).get().addOnCompleteListener(task1 -> {
+            if (task1.isSuccessful()) {
+                DocumentSnapshot document = task1.getResult();
+                if (document.exists()) {
+                    User user = document.toObject(User.class);
+                    AnemiUtils.setUserPreference(loggedInUser, user);
+                    startActivity(new Intent(Login.this, BookDashBoardActivity.class));
                 }
             }
         });

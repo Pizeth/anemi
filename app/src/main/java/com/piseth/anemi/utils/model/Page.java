@@ -10,7 +10,8 @@ public class Page {
     @Exclude
     @PrimaryKey
     private int id;
-    private int book_id;
+    private String book_id;
+    private int pageNumber;
     private String imageURL;
 
     public Page(){}
@@ -24,12 +25,20 @@ public class Page {
         this.id = id;
     }
 
-    public int getBook_id() {
+    public String getBook_id() {
         return book_id;
     }
 
-    public void setBook_id(int book_id) {
+    public void setBook_id(String book_id) {
         this.book_id = book_id;
+    }
+
+    public int getPageNumber() {
+        return pageNumber;
+    }
+
+    public void setPageNumber(int pageNumber) {
+        this.pageNumber = pageNumber;
     }
 
     public String getImageURL() {

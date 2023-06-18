@@ -1,77 +1,53 @@
 package com.piseth.anemi.firebase.repo;
 
-import static android.content.ContentValues.TAG;
-
 import android.net.Uri;
 import android.util.Log;
+import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.SuccessContinuation;
-import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.piseth.anemi.room.viewmodel.UserRoomViewModel;
 import com.piseth.anemi.utils.model.User;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class FirebaseUserRepo {
-    private FirebaseFirestore firebaseFirestore;
-    private CollectionReference userRef;
-    private StorageReference storageReference;
+    private final CollectionReference userRef;
+    private final StorageReference storageReference;
 
-    private User user;
+//    private User user;
 
     public FirebaseUserRepo() {
-        firebaseFirestore = FirebaseFirestore.getInstance();
+        FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
         userRef = firebaseFirestore.collection("Users");
         storageReference = FirebaseStorage.getInstance().getReference().child("profileImages");
     }
 
-
-    public void addNewUser(Uri uri, UserRoomViewModel userRoomViewModel, User user, String id) {
+    public void addNewUser(Uri uri, User user, String id) {
         StorageReference profileImageRef = storageReference.child(user.getUsername());
         profileImageRef.putFile(uri).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 if (task.isComplete()) {
                     profileImageRef.getDownloadUrl().addOnSuccessListener(uri1 -> {
                         user.setPhoto(uri1.toString());
-                        userRef.document(id).set(user).addOnCompleteListener(task12 -> {
-                            if (task12.isComplete()) {
-                                userRoomViewModel.insertUser(user);
-                                FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-                                UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
-                                        .setDisplayName(user.getUsername())
-                                        .setPhotoUri(Uri.parse(user.getPhoto()))
-                                        .build();
-                                if (firebaseUser != null) {
-                                    firebaseUser.updateProfile(profileUpdates).addOnCompleteListener(task1 -> {
-                                        if (task1.isSuccessful()) {
-                                            Log.d("ADD NEW USER", "User profile updated.");
-                                        }
-                                    });
-                                }
-                            }
-                        });
+                        setUser(id, user);
                     });
                 }
             }
         });
     }
 
-    public void updateUser(Uri uri, UserRoomViewModel userRoomViewModel, User user, String id) {
+    public void updateUser(Uri uri, User user, String id, boolean isUpdateEmail, boolean isUpdatePassword, String current_password) {
         StorageReference profileImageRef = storageReference.child(user.getUsername() + System.currentTimeMillis());
         if (uri != null) {
             Log.d("SUCCESS", "Change profile picture to " + uri);
@@ -80,33 +56,67 @@ public class FirebaseUserRepo {
                     if (task.isComplete()) {
                         profileImageRef.getDownloadUrl().addOnSuccessListener(uri1 -> {
                             user.setPhoto(uri1.toString());
-                            userRef.document(id).set(user, SetOptions.merge()).addOnCompleteListener(task12 -> {
-                                if (task12.isComplete()) {
-                                    Log.d("SUCCESS", "THE ID IS " + id);
-                                    Log.d("SUCCESS", "THE email IS " + user.getEmail());
-                                    Log.d("SUCCESS", "THE username IS " + user.getUsername());
-                                    Log.d("SUCCESS", "THE password IS " + user.getPassword());
-                                    Log.d("SUCCESS", "Image Uri " + user.getPhoto());
-                                    userRoomViewModel.updateUser(user);
-                                    FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-                                    UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
-                                            .setDisplayName(user.getUsername())
-                                            .setPhotoUri(uri)
-                                            .build();
-                                    if (firebaseUser != null) {
-                                        firebaseUser.updateProfile(profileUpdates).addOnCompleteListener(task1 -> {
-                                            if (task1.isSuccessful()) {
-                                                Log.d("UPDATE USER", "User profile updated.");
-                                            }
-                                        });
-                                    }
-                                }
-                            });
+                            setUser(id, user);
                         });
                     }
                 }
             });
+        } else {
+            setUser(id, user);
         }
+        if(FirebaseAuth.getInstance().getCurrentUser().getUid().equals(id)) {
+            updateAuthenticateUser(user.getEmail(), user.getPassword(), isUpdateEmail, isUpdatePassword, current_password);
+        }
+    }
+
+    private void setUser(String id, User user) {
+        userRef.document(id).set(user, SetOptions.merge()).addOnCompleteListener(task12 -> {
+            if (task12.isComplete()) {
+                FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+                UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                        .setDisplayName(user.getUsername())
+                        .setPhotoUri(Uri.parse(user.getPhoto()))
+                        .build();
+                if (firebaseUser != null) {
+                    firebaseUser.updateProfile(profileUpdates).addOnCompleteListener(task1 -> {
+                        if (task1.isSuccessful()) {
+                            Log.d("UPDATE USER", "User profile updated.");
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    private void updateAuthenticateUser(String email, String password, boolean isUpdateEmail, boolean isUpdatePassword, String current_password) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        // Get auth credentials from the user for re-authentication.
+        AuthCredential credential = EmailAuthProvider.getCredential(user.getEmail(), current_password);
+        // Prompt the user to re-provide their sign-in credentials
+        user.reauthenticate(credential).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                if(isUpdateEmail) {
+                    user.updateEmail(email).addOnCompleteListener(task1 -> {
+                        if (task1.isSuccessful()) {
+                            Log.d("Update Credential", "Email updated");
+                        } else {
+                            Log.d("Update Credential", "Error email not updated");
+                        }
+                    });
+                }
+                if(isUpdatePassword) {
+                    user.updatePassword(password).addOnCompleteListener(task12 -> {
+                        if (task12.isSuccessful()) {
+                            Log.d("Update Credential", "Password updated");
+                        } else {
+                            Log.d("Update Credential", "Error password not updated");
+                        }
+                    });
+                }
+            } else {
+                Log.d("Update Credential", "Error auth failed");
+            }
+        });
     }
 
     public void deleteUser(String id) {
@@ -131,24 +141,5 @@ public class FirebaseUserRepo {
 
     public Query getAllUsersQuery() {
         return userRef.whereEqualTo("isDeleted", 0);
-    }
-
-    public User getUser(String id) {
-        userRef.document(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        user = document.toObject(User.class);
-                    } else {
-                        Log.d(TAG, "No such document");
-                    }
-                } else {
-                    Log.d(TAG, "get failed with ", task.getException());
-                }
-            }
-        });
-        return  user;
     }
 }

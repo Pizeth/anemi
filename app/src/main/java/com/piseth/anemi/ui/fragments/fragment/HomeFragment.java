@@ -5,36 +5,46 @@ import static android.content.Context.MODE_PRIVATE;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AutoCompleteTextView;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Toast;
-
-import com.google.android.material.appbar.MaterialToolbar;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.navigation.NavigationView;
-import com.piseth.anemi.utils.util.AnemiUtils;
-import com.piseth.anemi.utils.adapter.CustomRecyclerBookListAdapter;
-import com.piseth.anemi.utils.util.DatabaseManageHandler;
-import com.piseth.anemi.ui.fragments.dialog.DialogUpdateBookFragment;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.piseth.anemi.R;
+import com.piseth.anemi.common.Common;
+import com.piseth.anemi.firebase.viewmodel.FirebaseBookViewModel;
+import com.piseth.anemi.service.IBookLoadDone;
+import com.piseth.anemi.utils.adapter.FirestoreRecyclerBookListAdapter;
+import com.piseth.anemi.utils.adapter.FirestoreRecyclerHomeViewAdapter;
 import com.piseth.anemi.utils.model.Book;
-import com.piseth.anemi.utils.model.User;
+import com.piseth.anemi.utils.util.AnemiUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -42,29 +52,22 @@ import java.util.List;
  * Use the {@link HomeFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class HomeFragment extends Fragment implements DialogUpdateBookFragment.DialogListener, CustomRecyclerBookListAdapter.OnBookListClickListener, NavigationView.OnNavigationItemSelectedListener {
+public class HomeFragment extends Fragment implements IBookLoadDone {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-    private Context context;
     private RecyclerView recyclerView;
-    private DatabaseManageHandler db;
-    private CustomRecyclerBookListAdapter adapter;
-    public static String LOGGED_IN_USER = "logged_user";
     private SharedPreferences loggedInUser;
-    private MaterialToolbar topMenu;
-    private List<Book> loadData;
-    private BookDetailFragment bookDetailFragment;
-    private FloatingActionButton fabAddBook;
-    private DrawerLayout drawerLayout;
-    private NavigationView navigationView;
-
+    private FirebaseBookViewModel firebaseBookViewModel;
+    private FirestoreRecyclerHomeViewAdapter fireAdapter;
+    private IBookLoadDone listener;
+    private CollectionReference bookRef;
+    private ViewBookContentFragment viewBookContentFragment;
+    private FilterSearchFragment filterSearchFragment;
+    private BottomNavigationView bottomMenu;
     public HomeFragment() {
         // Required empty public constructor
     }
@@ -90,14 +93,18 @@ public class HomeFragment extends Fragment implements DialogUpdateBookFragment.D
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        context = getActivity().getApplicationContext();
+        Context context = getActivity().getApplicationContext();
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            // TODO: Rename and change types of parameters
+            String mParam1 = getArguments().getString(ARG_PARAM1);
+            String mParam2 = getArguments().getString(ARG_PARAM2);
         }
-        db = new DatabaseManageHandler(getActivity());
-        loadData = db.getAllBooks();
-        loggedInUser = getContext().getSharedPreferences(LOGGED_IN_USER, MODE_PRIVATE);
+
+        if(getContext() != null) {
+            loggedInUser = getContext().getSharedPreferences(AnemiUtils.LOGGED_IN_USER, MODE_PRIVATE);
+        }
+        listener = this;
+        bookRef = FirebaseFirestore.getInstance().collection("Books");
     }
 
     @Override
@@ -110,98 +117,84 @@ public class HomeFragment extends Fragment implements DialogUpdateBookFragment.D
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        firebaseBookViewModel = new ViewModelProvider(getActivity()).get(FirebaseBookViewModel.class);
+         FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
+                .setQuery(firebaseBookViewModel.getAllBooksQuery(), Book.class)
+                .build();
+        fireAdapter = new FirestoreRecyclerHomeViewAdapter(options);
         recyclerView = view.findViewById(R.id.recyclerBookView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
         recyclerView.setHasFixedSize(true);
-        adapter = new CustomRecyclerBookListAdapter(getContext(), loadData, this, this);
-        recyclerView.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
-        fabAddBook = view.findViewById(R.id.floating_add_book);
-        fabAddBook.setOnClickListener(view1 -> dialogAction(AnemiUtils.NEW_ENTRY, AnemiUtils.STARTING_POSITION, AnemiUtils.ACTION_ADD));
-        User user = AnemiUtils.getLoggedInUser(loggedInUser);
-        if(user != null) {
-            if(user.getUserRoleId() != AnemiUtils.ROLE_ADMIN) {
-                fabAddBook.setVisibility(View.INVISIBLE);
-            }
-        }
-        //Hook
-//        drawerLayout = view.findViewById(R.id.home_drawer_layout);
-//        navigationView = view.findViewById(R.id.home_nav_view);
-//        topMenu = view.findViewById(R.id.top_tool_bar);
-//        //Toolbar
-//        ((AppCompatActivity)getActivity()).setSupportActionBar(topMenu);
-//        //Navigation Drawer Menu
-//        navigationView.bringToFront();
-//        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(getActivity(), drawerLayout, topMenu, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-//        drawerLayout.addDrawerListener(toggle);
-//        toggle.syncState();
-//        navigationView.setNavigationItemSelectedListener(this);
-//        topMenu.setOnMenuItemClickListener(item -> {
+        recyclerView.setAdapter(fireAdapter);
+
+//        bottomMenu = view.findViewById(R.id.bottom_search_menu);
+//        bottomMenu.setOnItemSelectedListener(item -> {
 //            int itemId = item.getItemId();
-//            if (itemId == R.id.add) {
-////                Bundle bundle = new Bundle();
-////                bundle.putBoolean("notAlertDialog", true);
-////                bundle.putLong("book_id", AnemiUtils.NEW_ENTRY);
-////                bundle.putInt("position", AnemiUtils.NEW_ENTRY);
-////
-////                DialogUpdateBookFragment dialogFragment = new DialogUpdateBookFragment(bundle, AnemiUtils.ACTION_ADD, this);
-////                dialogFragment.setTargetFragment(this, 0);
-////                dialogFragment.setArguments(bundle);
-////                FragmentManager fragmentManager = ((FragmentActivity) getContext()).getSupportFragmentManager(); // instantiate your view context
-////                FragmentTransaction ft = fragmentManager.beginTransaction();
-////                Fragment prev = ((FragmentActivity) getContext()).getSupportFragmentManager().findFragmentByTag("dialog");
-////                if (prev != null) {
-////                    ft.remove(prev);
-////                }
-////                ft.addToBackStack(null);
-////                dialogFragment.show(ft, "dialog");
-//                dialogAction(AnemiUtils.NEW_ENTRY, AnemiUtils.STARTING_POSITION, AnemiUtils.ACTION_ADD);
-//            } else if (itemId == R.id.logout) {
-//                SharedPreferences.Editor prefsEditor = loggedInUser.edit();
-//                prefsEditor.remove(LOGGED_IN_USER);
-//                prefsEditor.apply();
-//                Intent intent = new Intent(getActivity(), login.class);
-//                startActivity(intent);
+//            if (itemId == R.id.search) {
+//                showSearchDialog();
+//                return true;
+//            } else if (itemId == R.id.filter) {
+//                showFilterDialog();
 //                return true;
 //            }
 //            return false;
 //        });
+
+//        buttonFilterSearch = view.findViewById(R.id.btnFilterSearch);
+//        buttonFilterSearch.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                filterSearchFragment = new FilterSearchFragment();
+//                getParentFragmentManager().beginTransaction().replace(R.id.container, filterSearchFragment).commit();
+//            }
+//        });
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
+                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                deleteBookDialog(viewHolder.getAbsoluteAdapterPosition());
+            }
+        }).attachToRecyclerView(recyclerView);
+
+        recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), new LinearLayoutManager(getContext()).getOrientation()));
+        fireAdapter.setOnBookItemClickListener((view1, p) -> {
+            Bundle book_id = new Bundle();
+            book_id.putString("book_id", fireAdapter.getDocumentId(p));
+            book_id.putString("book_title", fireAdapter.getItem(p).getBookName());
+            viewBookContentFragment = new ViewBookContentFragment(book_id);
+            getParentFragmentManager().beginTransaction().replace(R.id.container, viewBookContentFragment).commit();
+        });
     }
 
     @Override
-    public void onUpdate(int p) {
-//        Bundle bundle = new Bundle();
-//        bundle.putBoolean("notAlertDialog", true);
-//        bundle.putLong("book_id", adapter.getItemId(p));
-//        bundle.putInt("position", p);
-//
-//        DialogUpdateBookFragment dialogFragment = new DialogUpdateBookFragment(bundle, AnemiUtils.ACTION_UPDATE, this);
-//        dialogFragment.setTargetFragment(this, 0);
-//        dialogFragment.setArguments(bundle);
-//        FragmentManager fragmentManager = ((FragmentActivity) getContext()).getSupportFragmentManager(); // instantiate your view context
-//        FragmentTransaction ft = fragmentManager.beginTransaction();
-//        Fragment prev = ((FragmentActivity) getContext()).getSupportFragmentManager().findFragmentByTag("dialog");
-//        if (prev != null) {
-//            ft.remove(prev);
-//        }
-//        ft.addToBackStack(null);
-//        dialogFragment.show(ft, "dialog");
-        dialogAction(adapter.getItemId(p), p, AnemiUtils.ACTION_UPDATE);
+    public void onStart() {
+        super.onStart();
+        recyclerView.getRecycledViewPool().clear();
+        fireAdapter.startListening();
     }
 
     @Override
-    public void onDelete(int p) {
+    public void onStop() {
+        super.onStop();
+        fireAdapter.stopListening();
+    }
+
+    public void deleteBookDialog(int p) {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(getContext());
-        alertDialog.setTitle("Delete Book");
-        alertDialog.setMessage("Delete this book?");
+        alertDialog.setTitle("Remove Book");
+        alertDialog.setMessage("Delete this book??");
         alertDialog.setPositiveButton("CANCEL", (dialog, which) -> dialog.cancel());
         alertDialog.setNegativeButton("YES", (dialog, which) -> {
             // DO SOMETHING HERE
-            db.deleteBook((int)(adapter.getItemId(p)));
-            Log.d("success", "Successfully delete book");
-            Toast.makeText(getContext(), "Successfully delete book", Toast.LENGTH_SHORT).show();
-            loadData.remove(p);
-            adapter.notifyItemRemoved(p);
+            firebaseBookViewModel.deleteBook(fireAdapter.getDocumentId(p));
+//            bookRoomViewModel.deleteUser(fireAdapter.getItemId(p));
+            Log.d("BookManagement", "Successfully Delete book" + fireAdapter.getItem(p).getBookName());
+            Toast.makeText(getContext(), "Successfully Delete Book name " + fireAdapter.getItem(p).getBookName(), Toast.LENGTH_SHORT).show();
         });
 
         AlertDialog dialog = alertDialog.create();
@@ -209,60 +202,51 @@ public class HomeFragment extends Fragment implements DialogUpdateBookFragment.D
     }
 
     @Override
-    public void onView(int p) {
-        Bundle book_id = new Bundle();
-        book_id.putInt("book_id", (int) adapter.getItemId(p));
-        bookDetailFragment = new BookDetailFragment(book_id);
-        getParentFragmentManager().beginTransaction().replace(R.id.container, bookDetailFragment).commit();
+    public void onBookLoadDoneListener(List<Book> books) {
+        Common.books = books;
+//        recyclerView
     }
 
-    @Override
-    public void onFinishUpdateDialog(int position, Book book) {
-        Log.d("success!", "Total Available Book:"  + loadData.size());
-        if(loadData.size() > 0) {
-            if(position != -1) {
-                loadData.set(position, book);
-                adapter.notifyItemChanged(position);
-                Log.d("success!", "Adding new book"  + book.getBookName());
-            } else {
-                Log.d("success!", "Adding new book"  + book.getBookName());
-                reloadData(book);
+    private void showSearchDialog() {
+        android.app.AlertDialog.Builder alertDialog = new android.app.AlertDialog.Builder(getContext());
+        alertDialog.setTitle("Search");
+        LayoutInflater inflater = this.getLayoutInflater();
+        View search_layout = inflater.inflate(R.layout.dialog_search, null);
+        TextInputLayout search_box = search_layout.findViewById(R.id.edit_search);
+        ChipGroup chipGroup = search_layout.findViewById(R.id.chipGroup);
+        alertDialog.setView(search_layout);
+        alertDialog.setNegativeButton("CANCEL", (dialog, which) -> dialog.cancel());
+        alertDialog.setPositiveButton("SEARCH", (dialog, which) -> {
+            FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
+                    .setQuery(firebaseBookViewModel.getSearchBookQuery(search_box.getEditText().getText().toString()), Book.class)
+                    .build();
+            fireAdapter = new FirestoreRecyclerHomeViewAdapter(options);
+        });
+        alertDialog.show();
+    }
+
+    private void showFilterDialog() {
+        android.app.AlertDialog.Builder alerDialog = new android.app.AlertDialog.Builder(getContext());
+        alerDialog.setTitle("Search");
+        LayoutInflater inflater = this.getLayoutInflater();
+        View view = inflater.inflate(R.layout.dialog_option, null);
+        AutoCompleteTextView autoCompleteTextView = view.findViewById(R.id.txt_search);
+        ChipGroup chipGroup = view.findViewById(R.id.chipGroup);
+    }
+
+    public void loadBooks() {
+        bookRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            List<Book> books = new ArrayList<>();
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                if(value != null) {
+                    for(QueryDocumentSnapshot snapshot: value) {
+                        Book book = snapshot.toObject(Book.class);
+                        books.add(book);
+                    }
+                }
+                listener.onBookLoadDoneListener(books);
             }
-        } else {
-            Log.d("success!", "Adding new book"  + book.getBookName() + " empty list");
-            reloadData(book);
-        }
-    }
-
-    public void dialogAction(long book_id, int list_position, int action) {
-        Bundle bundle = new Bundle();
-        bundle.putBoolean("notAlertDialog", true);
-        bundle.putLong("book_id", book_id);
-        bundle.putInt("position", list_position);
-
-        DialogUpdateBookFragment dialogFragment = new DialogUpdateBookFragment(bundle, action, this);
-        dialogFragment.setTargetFragment(this, 0);
-        dialogFragment.setArguments(bundle);
-        FragmentManager fragmentManager = ((FragmentActivity) getContext()).getSupportFragmentManager(); // instantiate your view context
-        FragmentTransaction ft = fragmentManager.beginTransaction();
-        Fragment prev = ((FragmentActivity) getContext()).getSupportFragmentManager().findFragmentByTag("dialog");
-        if (prev != null) {
-            ft.remove(prev);
-        }
-        ft.addToBackStack(null);
-        dialogFragment.show(ft, "dialog");
-    }
-
-    public void reloadData(Book book) {
-        loadData.add(book);
-        adapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-//        drawerLayout.closeDrawer(GravityCompat.START);
-        item.setChecked(true);
-        drawerLayout.close();
-        return true;
+        });
     }
 }

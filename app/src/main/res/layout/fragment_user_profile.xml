@@ -68,6 +68,28 @@
                 android:textStyle="italic" />
 
             <TextView
+                android:id="@+id/email_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="25dp"
+                android:text="@string/email_label_long"
+                android:textAlignment="viewStart"
+                android:textColor="#D90037"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/email"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/label_border"
+                android:textAlignment="viewStart"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp"
+                android:textStyle="italic" />
+
+            <TextView
                 android:id="@+id/role_label"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

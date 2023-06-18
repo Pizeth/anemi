@@ -16,11 +16,18 @@ public class Book {
     private String bookName;
     private String description;
     private String author;
-    private Bitmap cover;
+    private String cover;
     @ColumnInfo(defaultValue = "0")
     private int isDeleted;
 
-    public Book(int bookId, String bookName, String description, String author, Bitmap cover) {
+    public Book() {}
+
+    public Book(String bookName, String description, String author) {
+        this.bookName = bookName;
+        this.description = description;
+        this.author = author;
+    }
+    public Book(int bookId, String bookName, String description, String author, String cover) {
         this.bookId = bookId;
         this.bookName = bookName;
         this.description = description;
@@ -28,6 +35,7 @@ public class Book {
         this.cover = cover;
     }
 
+    @Exclude
     public int getBookId() {
         return bookId;
     }
@@ -60,11 +68,18 @@ public class Book {
         this.author = author;
     }
 
-    public Bitmap getCover() {
+//    public Bitmap getCover() {
+//        return cover;
+//    }
+//
+//    public void setCover(Bitmap cover) {
+//        this.cover = cover;
+//    }
+    public String getCover() {
         return cover;
     }
 
-    public void setCover(Bitmap cover) {
+    public void setCover(String cover) {
         this.cover = cover;
     }
 

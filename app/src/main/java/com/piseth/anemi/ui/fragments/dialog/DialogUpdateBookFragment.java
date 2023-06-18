@@ -1,20 +1,10 @@
 package com.piseth.anemi.ui.fragments.dialog;
 
-import static android.app.Activity.RESULT_OK;
+import static android.content.ContentValues.TAG;
 
-import android.app.Activity;
 import android.app.Dialog;
-import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.Fragment;
-
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,19 +13,28 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
+import androidx.lifecycle.ViewModelProvider;
+
+import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.piseth.anemi.R;
+import com.piseth.anemi.firebase.viewmodel.FirebaseBookViewModel;
+import com.piseth.anemi.utils.model.Book;
 import com.piseth.anemi.utils.util.AnemiUtils;
 import com.piseth.anemi.utils.util.DatabaseManageHandler;
-import com.piseth.anemi.R;
-import com.piseth.anemi.ui.fragments.fragment.HomeFragment;
-import com.piseth.anemi.utils.model.Book;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link DialogUpdateBookFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class DialogUpdateBookFragment extends DialogFragment {
 
     // TODO: Rename parameter arguments, choose names that match
@@ -47,24 +46,18 @@ public class DialogUpdateBookFragment extends DialogFragment {
     private int action;
     private DatabaseManageHandler db;
     private Book book;
-    private Bitmap imageToStore;
+    private Uri imageToStore;
     private TextInputLayout txt_title, txt_author, txt_description;
     private ImageView bookCover;
-    private DialogUpdateBookFragment.DialogListener dialogListener;
+    private Button addPhoto, saveButton, backButton;
+    private FirebaseBookViewModel firebaseBookViewModel;
+    private FirebaseFirestore firebaseFirestore;
+    private CollectionReference bookRef;
+    private OnCompletedDialogListener listener;
 
-    public DialogUpdateBookFragment(Bundle savedInstanceState, int action, DialogUpdateBookFragment.DialogListener dialogListener) {
+    public DialogUpdateBookFragment(Bundle savedInstanceState, int action) {
         super.setArguments(savedInstanceState);
         this.action = action;
-        this.dialogListener = dialogListener;
-    }
-
-    public static HomeFragment newInstance(String param1, String param2) {
-        HomeFragment fragment = new HomeFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
     }
 
     @NonNull
@@ -86,6 +79,7 @@ public class DialogUpdateBookFragment extends DialogFragment {
         builder.setNeutralButton("OK", (dialog, which) -> dismiss());
         builder.setPositiveButton("SAVE", (dialog, which) -> dismiss());
         builder.setNegativeButton("CANCEL", (dialog, which) -> dismiss());
+
         return builder.create();
     }
 
@@ -122,132 +116,137 @@ public class DialogUpdateBookFragment extends DialogFragment {
         txt_author = view.findViewById(R.id.author);
         txt_description = view.findViewById(R.id.description);
         bookCover = view.findViewById(R.id.book_cover);
+        addPhoto = view.findViewById(R.id.btnAddCover);
+        saveButton = view.findViewById(R.id.btnSaveBook);
+        backButton = view.findViewById(R.id.btnBack);
+        firebaseFirestore = FirebaseFirestore.getInstance();
+        bookRef = firebaseFirestore.collection("Books");
+        firebaseBookViewModel = new ViewModelProvider(getActivity()).get(FirebaseBookViewModel.class);
+        bookCover.setCropToPadding(true);
+        bookCover.setClipToOutline(true);
+        String id;
+
         if (getArguments() != null) {
-            int book_id = (int) getArguments().getLong("book_id");
-            if (book_id != 0) {
-                Log.d("Successful: ", "book_id to update is " + book_id);
-                book = db.getBook((book_id));
+            id = getArguments().getString("book_id");
+            if (!id.isEmpty()) {
+                Log.d("Successful: ", "book_id to update is " + id);
+//                book = db.getBook((book_id));
+                bookRef.document(id).get().addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            Book book = document.toObject(Book.class);
+
+                            txt_title.getEditText().setText(book.getBookName());
+                            txt_author.getEditText().setText(book.getAuthor());
+                            txt_description.getEditText().setText(book.getDescription());
+                            Glide.with(bookCover.getContext()).load(book.getCover()).into(bookCover);
+
+                            Log.d("SUCCESS", book.getBookName() + " 's data acquired'");
+                        } else {
+                            Log.d(TAG, "No such document");
+                        }
+                        addPhoto.setOnClickListener(view1 -> pickImage.launch("image/*"));
+                        backButton.setOnClickListener(view1 -> dismiss());
+                        saveButton.setOnClickListener(view1 -> {
+                            String doc_id, title, author, description;
+
+                            doc_id = getArguments().getString("book_id");
+                            title = (txt_title.getEditText() != null) ? txt_title.getEditText().getText().toString().trim() : "";
+                            author = (txt_author.getEditText() != null) ? txt_author.getEditText().getText().toString().trim() : "";
+                            description = (txt_description.getEditText() != null) ? txt_description.getEditText().getText().toString().trim() : "";
+                            boolean result = false;
+                            if(action == AnemiUtils.ACTION_ADD) {
+                                Log.d("success", "Add new book action");
+                                addBook(title, description, author, imageToStore);
+                            } else if (action == AnemiUtils.ACTION_UPDATE) {
+                                Log.d("success", "Update book action");
+                                updateBook(doc_id, title, description, author, imageToStore);
+                            }
+                            if (result) {
+                                Toast.makeText(getContext(), "Successfully " + (action == AnemiUtils.ACTION_ADD ? "add new " : "update ") + " book", Toast.LENGTH_SHORT).show();
+//                                DialogListener dialogListener = (DialogListener) getContext();
+//                                DialogListener dialogListener = getListener();
+//                                if (dialogListener != null) {
+//                                    dialogListener.onFinishUpdateDialog(getArguments().getInt("position"), book);
+//                                }
+                            }
+                            if (listener != null) {
+                                listener.onFinishUpdateDialog(book);
+                            }
+                            dismiss();
+                        });
+                    } else {
+                        Log.d(TAG, "get failed with ", task.getException());
+                    }
+                });
             }
         }
-        if(book != null) {
-            txt_title.getEditText().setText(book.getBookName());
-            txt_author.getEditText().setText(book.getAuthor());
-            txt_description.getEditText().setText(book.getDescription());
-            bookCover.setImageBitmap(book.getCover());
-            imageToStore = book.getCover();
-            bookCover.setCropToPadding(true);
-            bookCover.setClipToOutline(true);
-            Log.d("Book Title: ", book.getBookName() + " 's data acquired'");
-        }
+    }
 
-        Button addPhoto = view.findViewById(R.id.btnAddCover);
-        Button saveButton = view.findViewById(R.id.btnSaveBook);
-        Button backButton = view.findViewById(R.id.btnBack);
+    private void updateBook(String doc_Id, String title, String description, String author, Uri cover) {
+//        if (!isValidUsername(username) | !isValidPassword(password) |
+//                !isValidRePassword(re_password, password) | !isValidPhoneNo(phone) |
+//                !isValidPhoto(photo)) {
+//            return;
+//        }
+//        if (!username.isEmpty() && !username.equals(user.getUsername())) user.setUsername(username);
+//        if (!email.isEmpty() && !email.equals(user.getEmail())) user.setEmail(email);
+//        if (!password.isEmpty() && !re_password.isEmpty() && password.equals(re_password))
+//            user.setPassword(password);
+//        if (!phone.isEmpty() && !phone.equals(user.getPhone())) user.setPhone(phone);
+        Log.d("Update: ", "Update book: " + title + " " + description + " " + author);
+        Book book = new Book(title, description, author);
+        firebaseBookViewModel.updateBook(cover, book, doc_Id);
+    }
 
-        addPhoto.setOnClickListener(view1 -> chooseImage());
-        backButton.setOnClickListener(view1 -> dismiss());
-        saveButton.setOnClickListener(view1 -> {
-            String title, author, description;
+//    public boolean updateBook(String title, String description, String author, Bitmap imageToStore) {
+//        boolean checkOperation = false;
+//        if(!title.isEmpty() && !title.equals(book.getBookName())) book.setBookName(title);
+//        if(!description.isEmpty() && !description.equals(book.getDescription())) book.setDescription(description);
+//        if(!author.isEmpty() && !author.equals(book.getAuthor())) book.setAuthor(author);
+//        if(imageToStore != null && !imageToStore.sameAs(book.getCover())) book.setCover(imageToStore);
+//        if(db.updateBook(book) > 0) {
+//            checkOperation = true;
+//            Log.d("success: ", "Update Book ID: " + book.getBookId() + " Book Title: " + book.getBookName() + " Author" + book.getAuthor());
+//        }
+//        return checkOperation;
+//    }
 
-            title = (txt_title.getEditText() != null) ? txt_title.getEditText().getText().toString().trim() : "";
-            author = (txt_author.getEditText() != null) ? txt_author.getEditText().getText().toString().trim() : "";
-            description = (txt_description.getEditText() != null) ? txt_description.getEditText().getText().toString().trim() : "";
-            boolean result = false;
-            if(action == AnemiUtils.ACTION_ADD && imageToStore != null) {
-                Log.d("success", "Add new book action");
-                result = addBook(title, description, author, imageToStore);
-            } else if (action == AnemiUtils.ACTION_UPDATE && imageToStore != null) {
-                Log.d("success", "Update new book action");
-                result = updateBook(title, description, author, imageToStore);
-            }
-            if (result) {
-                Toast.makeText(getContext(), "Successfully " + (action == AnemiUtils.ACTION_ADD ? "add new " : "update ") + " book", Toast.LENGTH_SHORT).show();
-//                DialogListener dialogListener = (DialogListener) getContext();
-//                DialogListener dialogListener = getListener();
-                if (dialogListener != null) {
-                    dialogListener.onFinishUpdateDialog(getArguments().getInt("position"), book);
+//    public boolean addBook(String title, String description, String author, Bitmap imageToStore) {
+//        boolean checkOperation = false;
+//        if(!title.isEmpty() && !author.isEmpty() && !description.isEmpty() && imageToStore != null) {
+//            book = new Book(DUMMY_ID, title, description, author, imageToStore);
+//            int book_id = (int) db.addBook(book);
+//            checkOperation = (book_id == -1) ? false : true;
+//            book.setBookId(book_id);
+//            Log.d("success: ", "Add new Book ID: " + book.getBookId() + " Book Title: " + book.getBookName() + " Author" + book.getAuthor());
+//        }
+//        return checkOperation;
+//    }
+
+    public void addBook(String title, String description, String author, Uri cover) {
+        Log.d("Insert: ", "Insert book : " + title + " " + description + " " + author);
+        Book book = new Book(title, description, author);
+        firebaseBookViewModel.addNewBook(cover, book);
+    }
+
+    ActivityResultLauncher pickImage = registerForActivityResult(new ActivityResultContracts.GetContent(),
+            new ActivityResultCallback<Uri>() {
+                @Override
+                public void onActivityResult(Uri result) {
+                    if (result != null) {
+                        imageToStore = result;
+                        bookCover.setImageURI(result);
+                    }
                 }
-                dismiss();
-            }
-        });
+            });
+
+    public interface OnCompletedDialogListener {
+        void onFinishUpdateDialog(Book book);
     }
 
-    public boolean updateBook(String title, String description, String author, Bitmap imageToStore) {
-        boolean checkOperation = false;
-        if(!title.isEmpty() && !title.equals(book.getBookName())) book.setBookName(title);
-        if(!description.isEmpty() && !description.equals(book.getDescription())) book.setDescription(description);
-        if(!author.isEmpty() && !author.equals(book.getAuthor())) book.setAuthor(author);
-        if(imageToStore != null && !imageToStore.sameAs(book.getCover())) book.setCover(imageToStore);
-        if(db.updateBook(book) > 0) {
-            checkOperation = true;
-            Log.d("success: ", "Update Book ID: " + book.getBookId() + " Book Title: " + book.getBookName() + " Author" + book.getAuthor());
-        }
-        return checkOperation;
-    }
-
-    public boolean addBook(String title, String description, String author, Bitmap imageToStore) {
-        boolean checkOperation = false;
-        if(!title.isEmpty() && !author.isEmpty() && !description.isEmpty() && imageToStore != null) {
-            book = new Book(DUMMY_ID, title, description, author, imageToStore);
-            int book_id = (int) db.addBook(book);
-            checkOperation = (book_id == -1) ? false : true;
-            book.setBookId(book_id);
-            Log.d("success: ", "Add new Book ID: " + book.getBookId() + " Book Title: " + book.getBookName() + " Author" + book.getAuthor());
-        }
-        return checkOperation;
-    }
-
-    private void chooseImage() {
-        try {
-            Intent getIntent = new Intent(Intent.ACTION_GET_CONTENT);
-            getIntent.setType("image/*");
-//            Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-            Intent pickIntent = new Intent(Intent.ACTION_PICK);
-            pickIntent.setType("image/*");
-
-            Intent chooserIntent = Intent.createChooser(getIntent, "Select Image");
-            chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] {pickIntent});
-
-            startActivityForResult(chooserIntent, PICK_IMAGE);
-        } catch(Exception e) {
-            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        try {
-            super.onActivityResult(requestCode, requestCode, data);
-            if (resultCode == RESULT_OK && requestCode == PICK_IMAGE && data != null && data.getData() != null) {
-                Uri selectedImageUri = data.getData();
-                imageToStore = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), selectedImageUri);
-                bookCover.setImageBitmap(imageToStore);
-            }
-        } catch(Exception e) {
-            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private DialogUpdateBookFragment.DialogListener getListener(){
-        DialogUpdateBookFragment.DialogListener listener;
-        try{
-            Fragment onInputSelected_Fragment = getTargetFragment();
-            if (onInputSelected_Fragment != null){
-                listener = (DialogUpdateBookFragment.DialogListener) onInputSelected_Fragment;
-                Log.d("success cast: ", "dialog " + getTargetFragment());
-            }
-            else {
-                Activity onInputSelected_Activity = getActivity();
-                listener = (DialogUpdateBookFragment.DialogListener) onInputSelected_Activity;
-                Log.d("success cast: ", "activity");
-            }
-            return listener;
-        }catch(ClassCastException e){
-            Log.e("Custom Dialog", "onAttach: ClassCastException: " + e.getMessage());
-        }
-        return null;
-    }
-
-    public interface DialogListener {
-        void onFinishUpdateDialog(int position, Book book);
+    public void setOnCompletedDialogListener(OnCompletedDialogListener listener) {
+        this.listener = listener;
     }
 }

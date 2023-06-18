@@ -1,7 +1,5 @@
 package com.piseth.anemi.utils.model;
 
-import android.graphics.Bitmap;
-
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
@@ -22,14 +20,6 @@ public class User {
     @ColumnInfo(defaultValue = "0")
     private int isDeleted;
 
-//    public User(int id, String username, String password, int userRoleId, String phone, Bitmap photo) {
-//        this.id = id;
-//        this.username = username;
-//        this.password = password;
-//        this.userRoleId = userRoleId;
-//        this.phone = phone;
-//        this.photo = photo;
-//    }
     public User() {}
     public User(String username, String email, String password, int userRoleId, String phone) {
         this.username = username;

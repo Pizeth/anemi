@@ -34,7 +34,6 @@ public class FirestoreRecyclerUserListAdapter extends FirestoreRecyclerAdapter <
     @Override
     protected void onBindViewHolder(@NonNull FirestoreRecyclerUserListAdapter.UserListViewHolder holder, int position, @NonNull User model) {
         User user = getItem(position);
-//        holder.picture.setImageBitmap(user.getPhoto());
         Glide.with(holder.picture.getContext()).load(user.getPhoto()).into(holder.picture);
         holder.username.setText(user.getUsername());
         holder.phone.setText(user.getPhone());
@@ -44,7 +43,7 @@ public class FirestoreRecyclerUserListAdapter extends FirestoreRecyclerAdapter <
     @Override
     public FirestoreRecyclerUserListAdapter.UserListViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.user_list, parent, false);
-        return new FirestoreRecyclerUserListAdapter.UserListViewHolder(view);
+        return new UserListViewHolder(view);
     }
     @Override
     public long getItemId(int position) {
@@ -78,6 +77,7 @@ public class FirestoreRecyclerUserListAdapter extends FirestoreRecyclerAdapter <
             phone = viewItem.findViewById(R.id.txtPhone);
             btnUpdate = viewItem.findViewById(R.id.btnUpdateUser);
             btnDelete = viewItem.findViewById(R.id.btnDeleteUser);
+
             btnUpdate.setOnClickListener(view -> {
                 int position = getAbsoluteAdapterPosition();
                 if(position != RecyclerView.NO_POSITION && listener != null) {
