@@ -63,7 +63,7 @@ public class FirebasePageRepo {
     }
 
     public Query getAllPageFromBookQuery(String book_id) {
-        return pageRef.whereEqualTo("book_id", book_id);
+        return pageRef.whereEqualTo("book_id", book_id).orderBy("pageNumber");
     }
 
     public void getPages(PageRoomViewModel pageRoomViewModel) {

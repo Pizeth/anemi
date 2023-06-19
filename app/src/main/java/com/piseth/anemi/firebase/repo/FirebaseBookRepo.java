@@ -45,7 +45,6 @@ public class FirebaseBookRepo {
                                 if(task12 != null) {
                                     Log.i("Added", "New Book : " + task12.getResult().getId() + " added");
                                 }
-//                                page.uploadPageToFirebase();
                             }
                         });
                     });
@@ -106,6 +105,6 @@ public class FirebaseBookRepo {
     }
 
     public Query getSearchBookQuery(String book_title) {
-        return bookRef.whereEqualTo("book_title", book_title);
+        return bookRef.orderBy("bookName").startAt(book_title).endAt(book_title + '\uf8ff');
     }
 }

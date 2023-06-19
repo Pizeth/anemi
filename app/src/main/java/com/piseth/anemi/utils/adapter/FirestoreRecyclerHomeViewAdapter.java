@@ -3,6 +3,8 @@ package com.piseth.anemi.utils.adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -14,6 +16,9 @@ import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.piseth.anemi.R;
 import com.piseth.anemi.utils.model.Book;
 import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class FirestoreRecyclerHomeViewAdapter extends FirestoreRecyclerAdapter<Book, FirestoreRecyclerHomeViewAdapter.HomeViewHolder> {
     /**
@@ -49,6 +54,35 @@ public class FirestoreRecyclerHomeViewAdapter extends FirestoreRecyclerAdapter<B
     public String getDocumentId(int position) {
         return getSnapshots().getSnapshot(position).getId();
     }
+
+//    @Override
+//    public Filter getFilter() {
+//        return bookFilter;
+//    }
+//
+//    private Filter bookFilter = new Filter() {
+//        @Override
+//        protected FilterResults performFiltering(CharSequence charSequence) {
+//            List<Book> filterList = new ArrayList<>();
+//            if (charSequence == null || charSequence.length() == 0) {
+//                filterList.addAll(filterBook);
+//            } else {
+//                String filterPattern = charSequence.toString().toLowerCase().trim();
+//                for (Book book : filterBook) {
+//                    if (book.getBookName().toLowerCase().contains(filterPattern)) {
+//                        filterList.add(book);
+//                    }
+//                }
+//            }
+//            FilterResults result = new FilterResults();
+//            result.values = filterList;
+//            return  result;
+//        }
+//        @Override
+//        protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
+//
+//        }
+//    };
 
     public interface OnBookItemClickListener {
         void onClickView(View view, int p);
