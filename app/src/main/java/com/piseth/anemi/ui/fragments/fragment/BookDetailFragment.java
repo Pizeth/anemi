@@ -26,24 +26,17 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import com.piseth.anemi.R;
-import com.piseth.anemi.firebase.viewmodel.FirebaseBookViewModel;
 import com.piseth.anemi.firebase.viewmodel.FirebasePageViewModel;
-import com.piseth.anemi.utils.adapter.FirestoreRecyclerBookListAdapter;
 import com.piseth.anemi.utils.adapter.FirestoreRecyclerPageListAdapter;
 import com.piseth.anemi.utils.model.Book;
 import com.piseth.anemi.utils.model.Page;
 import com.piseth.anemi.utils.model.User;
 import com.piseth.anemi.utils.util.AnemiUtils;
-import com.piseth.anemi.utils.util.DatabaseManageHandler;
 import com.piseth.anemi.utils.util.WrapContentLinearLayoutManager;
 
 /**
@@ -61,18 +54,16 @@ public class BookDetailFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-    private DatabaseManageHandler db;
     private SharedPreferences loggedInUser;
     private TextView txt_title, txt_author, txt_description;
     private ImageView bookCover;
-    private Uri imageToStore;
     private RecyclerView recyclerView;
     private BookManagementFragment bookManagementFragment;
-    //    private BookDetailFragment bookDetailFragment;
     private FloatingActionButton fabAddBook, fabBack;
     private FirebasePageViewModel firebasePageViewModel;
     private FirestoreRecyclerPageListAdapter fireAdapter;
-    private String id;
+    private String id, page_id="";
+    private int page_number;
 
 
     public BookDetailFragment() {
@@ -112,7 +103,6 @@ public class BookDetailFragment extends Fragment {
         if (getActivity() != null) {
             loggedInUser = getActivity().getSharedPreferences(AnemiUtils.LOGGED_IN_USER, MODE_PRIVATE);
         }
-//        db = new DatabaseManageHandler(getActivity());
     }
 
     @Override
@@ -130,7 +120,6 @@ public class BookDetailFragment extends Fragment {
         txt_description = view.findViewById(R.id.description);
         bookCover = view.findViewById(R.id.book_cover);
         if (getArguments() != null) {
-//            book = db.getBook(getArguments().getInt("book_id"));
             id = getArguments().getString("book_id");
             FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
             CollectionReference bookRef = firebaseFirestore.collection("Books");
@@ -143,7 +132,6 @@ public class BookDetailFragment extends Fragment {
                         txt_author.setText(book.getAuthor());
                         txt_description.setText(book.getDescription());
                         Glide.with(bookCover.getContext()).load(book.getCover()).into(bookCover);
-                        Log.d("success!", book.getBookName() + " 's data acquired'");
                     }
                 }
             });
@@ -166,9 +154,7 @@ public class BookDetailFragment extends Fragment {
                     fabAddBook.setVisibility(View.INVISIBLE);
                 }
             }
-            fabAddBook.setOnClickListener(view1 -> {
-                pickImage.launch("image/*");
-            });
+            fabAddBook.setOnClickListener(view1 -> pickImage.launch("image/*"));
             fabBack.setOnClickListener(view1 -> {
                 bookManagementFragment = new BookManagementFragment();
                 getParentFragmentManager().beginTransaction().replace(R.id.container, bookManagementFragment).commit();
@@ -182,28 +168,21 @@ public class BookDetailFragment extends Fragment {
 
                 @Override
                 public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                    deleteBookDialog(viewHolder.getAbsoluteAdapterPosition());
+                    deletePageDialog(viewHolder.getAbsoluteAdapterPosition());
                 }
             }).attachToRecyclerView(recyclerView);
 
             fireAdapter.setOnPageListClickListener(new FirestoreRecyclerPageListAdapter.OnPageListClickListener() {
                 @Override
                 public void onUpdate(int p) {
-//                    dialogAction(fireAdapter.getDocumentId(p), p, AnemiUtils.ACTION_UPDATE);
+                    page_id = fireAdapter.getDocumentId(p);
+                    page_number = fireAdapter.getItem(p).getPageNumber();
                     pickImage.launch("image/*");
                 }
 
                 @Override
                 public void onDelete(int p) {
-                    deleteBookDialog(p);
-                }
-
-                @Override
-                public void onView(int p) {
-                    Bundle book_id = new Bundle();
-//                    book_id.putString("book_id", fireAdapter.getDocumentId(p));
-//                    bookDetailFragment = new BookDetailFragment(book_id);
-//                    getParentFragmentManager().beginTransaction().replace(R.id.container, bookDetailFragment).commit();
+                    deletePageDialog(p);
                 }
             });
         }
@@ -216,16 +195,18 @@ public class BookDetailFragment extends Fragment {
         fireAdapter.startListening();
     }
 
-    public void deleteBookDialog(int p) {
+    public void deletePageDialog(int p) {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(getContext());
         alertDialog.setTitle("Remove Book");
         alertDialog.setMessage("Delete this book??");
         alertDialog.setPositiveButton("CANCEL", (dialog, which) -> dialog.cancel());
         alertDialog.setNegativeButton("YES", (dialog, which) -> {
-            // DO SOMETHING HERE
-//            firebasePageViewModel.deleteBook(fireAdapter.getDocumentId(p));
-//            Log.d("BookManagement", "Successfully Delete book" + fireAdapter.getItem(p).getBookName());
-//            Toast.makeText(getContext(), "Successfully Delete Book name " + fireAdapter.getItem(p).getBookName(), Toast.LENGTH_LONG).show();
+            // Perform delete action
+            firebasePageViewModel.deletePage(fireAdapter.getDocumentId(p));
+            // or using the builtin method of adapter to delete item
+            // fireAdapter.deleteItem(p);
+            Log.d("BookManagement", "Successfully Delete Page number" + fireAdapter.getItem(p).getPageNumber());
+            Toast.makeText(getContext(), "Successfully Delete Page number " + fireAdapter.getItem(p).getPageNumber(), Toast.LENGTH_LONG).show();
         });
 
         AlertDialog dialog = alertDialog.create();
@@ -237,20 +218,22 @@ public class BookDetailFragment extends Fragment {
                 @Override
                 public void onActivityResult(Uri result) {
                     if (result != null) {
-                        imageToStore = result;
-//                        bookCover.setImageURI(result);
                         Page page = new Page();
-                        int pageNo = fireAdapter.getItemCount();
-                        if(pageNo == 0) {
-                            pageNo = 1;
-                        } else {
-                            pageNo ++;
-                        }
-//                        pageNo = pageNo == 0 ? 1 : pageNo++;
                         page.setBook_id(id);
-                        page.setPageNumber(pageNo);
-                        firebasePageViewModel.uploadPageToFirebase(imageToStore, page, id);
-                        Toast.makeText(getContext(), "Page added succefull!", Toast.LENGTH_LONG).show();
+                        if(page_id.isEmpty()) {
+                            int pageNo = fireAdapter.getItemCount();
+                            if(pageNo == 0) {
+                                pageNo = 1;
+                            } else {
+                                pageNo ++;
+                            }
+                            page.setPageNumber(pageNo);
+                            firebasePageViewModel.uploadPageToFirebase(result, page, getContext());
+                        } else {
+                            page.setPageNumber(page_number);
+                            firebasePageViewModel.upDatePage(result, page, page_id, getContext());
+                            page_id = "";
+                        }
                     }
                 }
             });

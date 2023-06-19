@@ -13,20 +13,14 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
 import com.piseth.anemi.R;
 import com.piseth.anemi.firebase.viewmodel.FirebaseUserViewModel;
-import com.piseth.anemi.room.viewmodel.UserRoomViewModel;
 import com.piseth.anemi.utils.model.User;
 import com.piseth.anemi.utils.util.AnemiUtils;
 import com.piseth.anemi.utils.util.DatabaseManageHandler;
@@ -40,9 +34,7 @@ public class Register extends AppCompatActivity {
     private TextInputLayout txt_username, txt_email, txt_password, txt_re_password, txt_phone;
     private ImageView profileImage;
     private TextView errorLabel;
-    private UserRoomViewModel userRoomViewModel;
     private FirebaseUserViewModel firebaseUserViewModel;
-    private FirebaseFirestore firestoreDb;
     private FirebaseAuth auth;
 
     @Override
@@ -57,15 +49,12 @@ public class Register extends AppCompatActivity {
         profileImage = findViewById(R.id.image_logo);
         errorLabel = findViewById(R.id.lbl_error);
         db = new DatabaseManageHandler(this);
-        firestoreDb = FirebaseFirestore.getInstance();
         loggedInUser = getSharedPreferences(AnemiUtils.LOGGED_IN_USER, MODE_PRIVATE);
         auth = FirebaseAuth.getInstance();
-        userRoomViewModel = new ViewModelProvider(this).get(UserRoomViewModel.class);
         firebaseUserViewModel = new ViewModelProvider(this).get(FirebaseUserViewModel.class);
     }
 
     public void btnAddPhotoOnClickListener(View view) {
-//        chooseImage();
         pickImage.launch("image/*");
     }
 
@@ -88,49 +77,26 @@ public class Register extends AppCompatActivity {
 //                Intent intent = new Intent(Register.this, Login.class);
 //                startActivity(intent);
 //            }
-            createUser(username, email, password, re_password, phone, imageToStore);
+            createUser(username, email, password, re_password, phone);
         }
     }
 
-//    uploadImageBtn.setOnClickListener(new View.OnClickListener() {
-//        @Override
-//        public void onClick(View view) {
-//            progressBar.setVisibility(View.VISIBLE);
-//            firebaseViewModel.uploadImagesToFirebase(mImageURI , photoRoomViewModel);
-//            firebaseViewModel.getTaskMutableLiveData().observe(MainActivity.this, new Observer<Task<DocumentReference>>() {
-//                @Override
-//                public void onChanged(Task<DocumentReference> documentReferenceTask) {
-//                    if (documentReferenceTask.isSuccessful()){
-//                        mImageView.setImageResource(R.drawable.upload_icon);
-//                        Toast.makeText(MainActivity.this, "Image Uploaded Successfully !!", Toast.LENGTH_SHORT).show();
-//                    }else{
-//                        Toast.makeText(MainActivity.this, documentReferenceTask.getException().toString() , Toast.LENGTH_SHORT).show();
-//                    }
-//                    progressBar.setVisibility(View.INVISIBLE);
-//                }
-//            });
-//        }
-//    });
-
-    private void createUser(String username, String email, String password, String re_password, String phone, Uri photo) {
+    private void createUser(String username, String email, String password, String re_password, String phone) {
         if (!isValidUsername(username) | !isValidPassword(password) |
             !isValidRePassword(re_password, password) | !isValidPhoneNo(phone) |
             !isValidPhoto(imageToStore)) {
             return;
         }
         Log.d("Insert: ", username + " " + password + " " + phone);
-        auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                if (task.isSuccessful()) {
-                    User user = new User(username, email, password, AnemiUtils.ROLE_USER, phone);
-                    String id = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                    firebaseUserViewModel.addNewUser(imageToStore, user, id);
-                    Toast.makeText(Register.this, "Successfully Register new User", Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(Register.this, Login.class));
-                } else {
-                    Toast.makeText(Register.this, "Registration failed", Toast.LENGTH_SHORT).show();
-                }
+        auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                User user = new User(username, email, password, AnemiUtils.ROLE_USER, phone);
+                String id = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                firebaseUserViewModel.addNewUser(imageToStore, user, id);
+                Toast.makeText(Register.this, "Successfully Register new User", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(Register.this, Login.class));
+            } else {
+                Toast.makeText(Register.this, "Registration failed", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -164,23 +130,6 @@ public class Register extends AppCompatActivity {
         return checkOperation;
     }
 
-    private void chooseImage() {
-        try {
-            Intent getIntent = new Intent(Intent.ACTION_GET_CONTENT);
-            getIntent.setType("image/*");
-
-//            Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-            Intent pickIntent = new Intent(Intent.ACTION_PICK);
-            pickIntent.setType("image/*");
-
-            Intent chooserIntent = Intent.createChooser(getIntent, "Select Image");
-            chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{pickIntent});
-            startActivityForResult(chooserIntent, AnemiUtils.PICK_IMAGE);
-        } catch (Exception e) {
-            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-    }
-
     ActivityResultLauncher pickImage = registerForActivityResult(new ActivityResultContracts.GetContent(),
         new ActivityResultCallback<Uri>() {
             @Override
@@ -188,23 +137,10 @@ public class Register extends AppCompatActivity {
                 if (result != null){
                     imageToStore = result;
                     profileImage.setImageURI(result);
+                    profileImage.setClipToOutline(true);
                 }
             }
         });
-
-//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        try {
-//            super.onActivityResult(requestCode, requestCode, data);
-//            if (resultCode == RESULT_OK && requestCode == AnemiUtils.PICK_IMAGE && data != null && data.getData() != null) {
-//                Uri selectedImageUri = data.getData();
-//                imageToStore = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImageUri);
-//                profileImage.setImageBitmap(imageToStore);
-//                profileImage.setClipToOutline(true);
-//            }
-//        } catch (Exception e) {
-//            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-//        }
-//    }
 
     private boolean isValidUsername(String text_username) {
         if (text_username.isEmpty()) {

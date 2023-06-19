@@ -35,7 +35,6 @@ public class Login extends AppCompatActivity {
     private User user;
     private SharedPreferences loggedInUser;
     private FirebaseAuth auth;
-    private FirebaseFirestore firebaseFirestore;
     private CollectionReference userRef;
 
     @Override
@@ -43,28 +42,18 @@ public class Login extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_login);
-        loggedInUser = getSharedPreferences(AnemiUtils.LOGGED_IN_USER, MODE_PRIVATE);
         image = findViewById(R.id.image_logo);
         username = findViewById(R.id.username);
         password = findViewById(R.id.password);
-//        db = new DatabaseManageHandler(this);
         auth = FirebaseAuth.getInstance();
-        firebaseFirestore = FirebaseFirestore.getInstance();
+        FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
         userRef = firebaseFirestore.collection("Users");
-
-//        if (loggedInUser.contains(AnemiUtils.LOGGED_IN_USER)) {
-//            Intent intent = new Intent(Login.this, BookDashBoardActivity.class);
-//            startActivity(intent);
-//        }
+        loggedInUser = getSharedPreferences(AnemiUtils.LOGGED_IN_USER, MODE_PRIVATE);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        FirebaseUser currentUser = auth.getCurrentUser();
-        if(currentUser != null) {
-            saveCurrentUserToPreference(currentUser);
-        }
     }
 
     public void btnSignUpOnClick(View view) {
@@ -91,7 +80,7 @@ public class Login extends AppCompatActivity {
                         Log.d("Error", error.getMessage());
                         return;
                     }
-                    if (!value.isEmpty()) {
+                    if (value != null && !value.isEmpty()) {
                         for (QueryDocumentSnapshot documentSnapshot : value) {
                             User user = documentSnapshot.toObject(User.class);
                             Log.d("LOGIN", "User " + user.getUsername() + " is found");
@@ -104,13 +93,6 @@ public class Login extends AppCompatActivity {
                     }
                 });
             }
-
-//            if (checkExistedUser(username, password)) {
-//                Toast.makeText(this, "Login Successfully! Welcome back " + username + "!!!", Toast.LENGTH_SHORT).show();
-//                Intent intent = new Intent(Login.this, BookDashBoardActivity.class);
-//                startActivity(intent);
-//            } else
-//                Toast.makeText(this, "Login failed! Incorrect Credential!!!", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -140,19 +122,9 @@ public class Login extends AppCompatActivity {
             }
         });
     }
-//    public void btnSignAsAdminOnClick(View view) {
-//        Intent intent = new Intent(login.this, Admin_Login.class);
-//        Pair[] pairs = new Pair[5];
-//        pairs[0] = new Pair<View, String>(image, "logo_image");
-//        pairs[1] = new Pair<View, String>(username, "username_input");
-//        pairs[2] = new Pair<View, String>(password, "password_input");
-//        pairs[3] = new Pair<View, String>(signIn, "sign_in");
-//        pairs[4] = new Pair<View, String>(signAdmin, "user_sign");
-//        ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(login.this, pairs);
-//        startActivity(intent, options.toBundle());
-//        finish();
-//    }
 
+
+//   No longer use, switch to FirebaseAuth
     public boolean checkExistedUser(String username, String password) {
         boolean isExisted = false;
         if (!username.isEmpty() && !password.isEmpty()) user = db.getUser(username);
@@ -171,30 +143,5 @@ public class Login extends AppCompatActivity {
             }
         }
         return isExisted;
-    }
-
-    private boolean isValidUsername(String text_username) {
-        if (text_username.isEmpty()) {
-            username.setError("Username cannot be empty!");
-            return false;
-        } else if (!text_username.matches(AnemiUtils.NO_WHITE_SPACE)) {
-            username.setError("White space is not allow!");
-            return false;
-        } else {
-            username.setError(null);
-            username.setErrorEnabled(false);
-            return true;
-        }
-    }
-
-    private boolean isValidPassword(String text_password) {
-        if (text_password.isEmpty()) {
-            password.setError("password cannot be empty!");
-            return false;
-        } else {
-            password.setError(null);
-            password.setErrorEnabled(false);
-            return true;
-        }
     }
 }

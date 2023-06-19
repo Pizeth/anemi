@@ -1,9 +1,8 @@
 package com.piseth.anemi.ui.activities;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.ActivityOptions;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Pair;
@@ -11,17 +10,23 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
-import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.piseth.anemi.R;
+import com.piseth.anemi.utils.model.User;
+import com.piseth.anemi.utils.util.AnemiUtils;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static int SPLASH_SCREEN = 3000;
+    private static final int SPLASH_SCREEN = 3000;
     //Variables
     private Animation topAnim, bottomAnim;
     private ImageView image;
-    private TextView logo, slogan;
+    private FirebaseAuth auth;
+    private SharedPreferences loggedInUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,10 +42,19 @@ public class MainActivity extends AppCompatActivity {
         image = findViewById(R.id.imageView);
 
         image.setAnimation(topAnim);
+        auth = FirebaseAuth.getInstance();
+        loggedInUser = getSharedPreferences(AnemiUtils.LOGGED_IN_USER, MODE_PRIVATE);
 
         new Handler().postDelayed(() -> {
-            Intent intent = new Intent(MainActivity.this, Login.class);
-            Pair pairs[] = new Pair[1];
+            Intent intent;
+            User loggedUser = AnemiUtils.getLoggedInUser(loggedInUser);
+            FirebaseUser currentUser = auth.getCurrentUser();
+            if(loggedUser !=null || currentUser != null) {
+                intent = new Intent(MainActivity.this, BookDashBoardActivity.class);
+            } else {
+                intent = new Intent(MainActivity.this, Login.class);
+            }
+            Pair[] pairs = new Pair[1];
             pairs[0] = new Pair<View, String>(image, "logo_image");
             ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(MainActivity.this, pairs);
             startActivity(intent, options.toBundle());

@@ -33,10 +33,6 @@ public class FirebaseUserViewModel extends ViewModel {
         return firebaseUserRepo.getAllUsers();
     }
 
-//    public User getUser(String id) {
-//        return firebaseUserRepo.getUser(id);
-//    }
-
     public Query getAllUsersQuery() {
         return firebaseUserRepo.getAllUsersQuery();
     }

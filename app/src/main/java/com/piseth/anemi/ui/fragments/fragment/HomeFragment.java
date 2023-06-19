@@ -1,58 +1,28 @@
 package com.piseth.anemi.ui.fragments.fragment;
 
-import static android.content.Context.MODE_PRIVATE;
-
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AutoCompleteTextView;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.SearchView;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.chip.ChipGroup;
-import com.google.android.material.search.SearchBar;
-import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.piseth.anemi.R;
-import com.piseth.anemi.common.Common;
 import com.piseth.anemi.firebase.viewmodel.FirebaseBookViewModel;
-import com.piseth.anemi.service.IBookLoadDone;
-import com.piseth.anemi.utils.adapter.FirestoreRecyclerBookListAdapter;
 import com.piseth.anemi.utils.adapter.FirestoreRecyclerHomeViewAdapter;
 import com.piseth.anemi.utils.model.Book;
-import com.piseth.anemi.utils.util.AnemiUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -69,6 +39,7 @@ public class HomeFragment extends Fragment {
     private RecyclerView recyclerView;
     private FirebaseBookViewModel firebaseBookViewModel;
     private FirestoreRecyclerHomeViewAdapter fireAdapter;
+    FirestoreRecyclerOptions<Book> options, optionsFilter;
     private ViewBookContentFragment viewBookContentFragment;
     private SearchView searchView;
     public HomeFragment() {
@@ -115,7 +86,7 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         firebaseBookViewModel = new ViewModelProvider(getActivity()).get(FirebaseBookViewModel.class);
-        FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
+        options = new FirestoreRecyclerOptions.Builder<Book>()
                 .setQuery(firebaseBookViewModel.getAllBooksQuery(), Book.class)
                 .build();
         fireAdapter = new FirestoreRecyclerHomeViewAdapter(options);
@@ -139,27 +110,22 @@ public class HomeFragment extends Fragment {
                 return false;
             }
         });
-
-        fireAdapter.setOnBookItemClickListener((view1, p) -> {
-            Bundle book_id = new Bundle();
-            book_id.putString("book_id", fireAdapter.getDocumentId(p));
-            book_id.putString("book_title", fireAdapter.getItem(p).getBookName());
-            viewBookContentFragment = new ViewBookContentFragment(book_id);
-            getParentFragmentManager().beginTransaction().replace(R.id.container, viewBookContentFragment).commit();
-        });
+        onListItemsClick();
     }
 
     private void filterList(String newText) {
         if(!newText.isEmpty()) {
-            FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
+            optionsFilter = new FirestoreRecyclerOptions.Builder<Book>()
                     .setQuery(firebaseBookViewModel.getSearchBookQuery(newText), Book.class)
                     .build();
-            FirestoreRecyclerHomeViewAdapter filterAdapter = new FirestoreRecyclerHomeViewAdapter(options);
-            recyclerView.setAdapter(filterAdapter);
-            filterAdapter.startListening();
+            fireAdapter = new FirestoreRecyclerHomeViewAdapter(optionsFilter);
+
         } else {
-            recyclerView.setAdapter(fireAdapter);
+            fireAdapter = new FirestoreRecyclerHomeViewAdapter(options);
         }
+        recyclerView.setAdapter(fireAdapter);
+        onListItemsClick();
+        fireAdapter.startListening();
     }
 
     @Override
@@ -175,7 +141,17 @@ public class HomeFragment extends Fragment {
         fireAdapter.stopListening();
     }
 
-    //Not yet Implement
+    private void onListItemsClick() {
+        fireAdapter.setOnBookItemClickListener((view1, p) -> {
+            Bundle book_id = new Bundle();
+            book_id.putString("book_id", fireAdapter.getDocumentId(p));
+            book_id.putString("book_title", fireAdapter.getItem(p).getBookName());
+            viewBookContentFragment = new ViewBookContentFragment(book_id);
+            getParentFragmentManager().beginTransaction().replace(R.id.container, viewBookContentFragment).commit();
+        });
+    }
+
+    //Not yet Implement filtering
     private void showFilterDialog() {
         android.app.AlertDialog.Builder alerDialog = new android.app.AlertDialog.Builder(getContext());
         alerDialog.setTitle("Search");

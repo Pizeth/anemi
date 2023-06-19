@@ -8,7 +8,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -30,11 +29,9 @@ import com.piseth.anemi.R;
 import com.piseth.anemi.firebase.viewmodel.FirebaseUserViewModel;
 import com.piseth.anemi.room.viewmodel.UserRoomViewModel;
 import com.piseth.anemi.ui.fragments.dialog.DialogUpdateUserFragment;
-import com.piseth.anemi.utils.adapter.CustomRecyclerUserListAdapter;
 import com.piseth.anemi.utils.adapter.FirestoreRecyclerUserListAdapter;
 import com.piseth.anemi.utils.model.User;
 import com.piseth.anemi.utils.util.AnemiUtils;
-import com.piseth.anemi.utils.util.DatabaseManageHandler;
 import com.piseth.anemi.utils.util.WrapContentLinearLayoutManager;
 
 import java.util.List;
@@ -55,20 +52,13 @@ public class UserManageFragment extends Fragment {
     private String mParam1;
     private String mParam2;
     private RecyclerView recyclerView;
-    private DatabaseManageHandler db;
     private FirebaseFirestore fireDb = FirebaseFirestore.getInstance();
     private CollectionReference userRef = fireDb.collection("Users");
     private FirestoreRecyclerUserListAdapter fireAdapter;
-
-    private CustomRecyclerUserListAdapter adapter;
-
-    public static String LOGGED_IN_USER = "logged_user";
     private SharedPreferences loggedInUser;
-//    private MaterialToolbar topMenu;
     private List<User> loadData;
     private UserRoomViewModel userRoomViewModel;
     private FirebaseUserViewModel firebaseUserViewModel;
-//    DialogUserUpdateFragment.DialogListener listener;
 
     public UserManageFragment() {
         // Required empty public constructor
@@ -99,8 +89,6 @@ public class UserManageFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-//        db = new DatabaseManageHandler(getActivity());
-//        loadData = db.getAllUsers();
         if(getContext() != null) {
             loggedInUser = getContext().getSharedPreferences(AnemiUtils.LOGGED_IN_USER, MODE_PRIVATE);
         }
@@ -116,8 +104,6 @@ public class UserManageFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-//        Query query = userRef.orderBy(AnemiUtils.USERNAME, Query.Direction.ASCENDING);
-//        Query query = userRef.whereEqualTo("isDeleted", 0);
         userRoomViewModel = new ViewModelProvider(getActivity()).get(UserRoomViewModel.class);
         firebaseUserViewModel = new ViewModelProvider(getActivity()).get(FirebaseUserViewModel.class);
         FirestoreRecyclerOptions<User> options = new FirestoreRecyclerOptions.Builder<User>()
@@ -127,15 +113,7 @@ public class UserManageFragment extends Fragment {
         recyclerView = view.findViewById(R.id.recyclerUserView);
         recyclerView.setLayoutManager(new WrapContentLinearLayoutManager(getContext()));
         recyclerView.setHasFixedSize(true);
-//        adapter = new CustomRecyclerUserListAdapter(getContext(), this, this);
         recyclerView.setAdapter(fireAdapter);
-
-//        userRoomViewModel.getAllUsersLiveData().observe(getViewLifecycleOwner(), new Observer<List<User>>() {
-//            @Override
-//            public void onChanged(List<User> users) {
-//                adapter.submitList(users);
-//            }
-//        });
 
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
                 ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
@@ -160,9 +138,8 @@ public class UserManageFragment extends Fragment {
                 bundle.putInt("position", p);
 
                 DialogUpdateUserFragment dialogFragment = new DialogUpdateUserFragment(bundle);
-//                dialogFragment.setTargetFragment(this, 0);
                 dialogFragment.setArguments(bundle);
-                FragmentManager fragmentManager = ((FragmentActivity) getContext()).getSupportFragmentManager(); // instantiate your view context
+                FragmentManager fragmentManager = ((FragmentActivity) getContext()).getSupportFragmentManager();
                 FragmentTransaction ft = fragmentManager.beginTransaction();
                 Fragment prev = ((FragmentActivity) getContext()).getSupportFragmentManager().findFragmentByTag("dialog");
                 if (prev != null) {
@@ -170,41 +147,19 @@ public class UserManageFragment extends Fragment {
                 }
                 ft.addToBackStack(null);
                 dialogFragment.show(ft, "dialog");
-                dialogFragment.setOnUpdateCompletedDialogListener(new DialogUpdateUserFragment.OnUpdateCompletedDialogListener() {
-                    @Override
-                    public void onFinishUpdateDialog(User user) {
-                        Log.d("Manage User", "Finish update ID" + fireAdapter.getDocumentId(p));
-                        FirebaseUser fireUser = FirebaseAuth.getInstance().getCurrentUser();
-                        if(fireUser != null && fireUser.getUid().equals(docId)) {
-                            AnemiUtils.setUserPreference(loggedInUser, user);
-                        }
+                dialogFragment.setOnUpdateCompletedDialogListener(user -> {
+                    Log.d("Manage User", "Finish update ID" + fireAdapter.getDocumentId(p));
+                    FirebaseUser fireUser = FirebaseAuth.getInstance().getCurrentUser();
+                    if(fireUser != null && fireUser.getUid().equals(docId)) {
+                        AnemiUtils.setUserPreference(loggedInUser, user);
                     }
                 });
             }
-
             @Override
             public void onDelete(int p) {
                 deleteUserDialog(p);
             }
         });
-//        adapter.notifyAll();
-//        adapter.notifyDataSetChanged();
-
-//        topMenu = view.findViewById(R.id.top_tool_bar);
-//        topMenu.setOnMenuItemClickListener(item -> {
-//            int itemId = item.getItemId();
-//            if (itemId == R.id.add) {
-//                dialogAction(AnemiUtils.NEW_ENTRY, AnemiUtils.STARTING_POSITION, AnemiUtils.ACTION_ADD);
-//            } else if (itemId == R.id.logout) {
-//                SharedPreferences.Editor prefsEditor = loggedInUser.edit();
-//                prefsEditor.remove(LOGGED_IN_USER);
-//                prefsEditor.apply();
-//                Intent intent = new Intent(getActivity(), login.class);
-//                startActivity(intent);
-//                return true;
-//            }
-//            return false;
-//        });
     }
 
     @Override
@@ -214,37 +169,18 @@ public class UserManageFragment extends Fragment {
         fireAdapter.startListening();
     }
 
-//    @Override
-//    public void onResume() {
-//        super.onResume();
-//        fireAdapter.startListening();
-//    }
 
     @Override
     public void onStop() {
         super.onStop();
-//        fireAdapter.stopListening();
+        fireAdapter.stopListening();
     }
 
-//    @Override
-//    public void onFinishUpdateDialog(int position, User user) {
-//        loadData.set(position, user);
-//        adapter.notifyItemChanged(position);
-//    }
-
-//    public void setListener(DialogUserUpdateFragment.DialogListener listener) {
-//        this.listener = listener;
-//    }
-
-//    @Override
+    //No longer use, switch to firebase
     public void onUpdate(int p) {
-        Log.d("Update: ", "Update button pressed " + adapter.getItemId(p));
-        Toast.makeText(getContext(), "Update pressed " + adapter.getItemId(p), Toast.LENGTH_SHORT).show();
-
-
         Bundle bundle = new Bundle();
         bundle.putBoolean("notAlertDialog", true);
-        bundle.putLong("user_id", adapter.getItemId(p));
+        bundle.putLong("user_id", fireAdapter.getItemId(p));
         bundle.putInt("position", p);
 
         DialogUpdateUserFragment dialogFragment = new DialogUpdateUserFragment(bundle);
@@ -260,11 +196,6 @@ public class UserManageFragment extends Fragment {
         dialogFragment.show(ft, "dialog");
     }
 
-//    @Override
-    public void onDelete(int p) {
-        // Implement your functionality for onDelete here
-        deleteUserDialog(p);
-    }
 
     public void deleteUserDialog(int p) {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(getContext());
@@ -272,15 +203,9 @@ public class UserManageFragment extends Fragment {
         alertDialog.setMessage("Delete this user??");
         alertDialog.setPositiveButton("CANCEL", (dialog, which) -> dialog.cancel());
         alertDialog.setNegativeButton("YES", (dialog, which) -> {
-            // DO SOMETHING HERE
-//            db.deleteUser((int) (adapter.getItemId(p)));
+            // Perform delete action using modelView
             firebaseUserViewModel.deleteUser(fireAdapter.getDocumentId(p));
-//            fireAdapter.deleteItem(p);
             userRoomViewModel.deleteUser(fireAdapter.getItemId(p));
-//            Log.d("Update: ", "Successfully Delete User" + adapter.getItemId(p));
-//            Toast.makeText(getContext(), "Successfully Delete User " + adapter.getItemId(p), Toast.LENGTH_SHORT).show();
-//            loadData.remove(p);
-//            adapter.notifyItemRemoved(p);
         });
 
         AlertDialog dialog = alertDialog.create();

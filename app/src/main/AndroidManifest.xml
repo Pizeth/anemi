@@ -17,16 +17,7 @@
         android:theme="@style/Theme.Anemi"
         tools:targetApi="31">
         <activity
-            android:name=".UpdateBookActivity"
-            android:exported="false" />
-        <activity
-            android:name=".AddBookActivity"
-            android:exported="false" />
-        <activity
             android:name=".ui.activities.BookDashBoardActivity"
-            android:exported="false" />
-        <activity
-            android:name=".Admin_Login"
             android:exported="false" />
         <activity
             android:name=".ui.activities.Register"

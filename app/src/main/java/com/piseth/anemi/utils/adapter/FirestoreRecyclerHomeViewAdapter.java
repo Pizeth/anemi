@@ -3,8 +3,6 @@ package com.piseth.anemi.utils.adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Filter;
-import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -16,9 +14,6 @@ import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.piseth.anemi.R;
 import com.piseth.anemi.utils.model.Book;
 import com.squareup.picasso.Picasso;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class FirestoreRecyclerHomeViewAdapter extends FirestoreRecyclerAdapter<Book, FirestoreRecyclerHomeViewAdapter.HomeViewHolder> {
     /**

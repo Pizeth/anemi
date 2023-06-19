@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModel;
 
 import com.google.firebase.firestore.Query;
 import com.piseth.anemi.firebase.repo.FirebaseBookRepo;
-import com.piseth.anemi.room.viewmodel.UserRoomViewModel;
 import com.piseth.anemi.utils.model.Book;
 
 import java.util.List;
@@ -18,11 +17,11 @@ public class FirebaseBookViewModel extends ViewModel {
         firebaseBookRepo = new FirebaseBookRepo();
     }
 
-    public void addNewBook(Uri uri, Book book /*, FirebasePageViewModel firebasePageViewModel*/) {
+    public void addNewBook(Uri uri, Book book) {
         firebaseBookRepo.addNewBook(uri, book);
     }
 
-    public void updateBook(Uri uri,  Book book, /*FirebasePageViewModel firebasePageViewModel,*/ String id) {
+    public void updateBook(Uri uri,  Book book, String id) {
         firebaseBookRepo.updateBook(uri, book, id);
     }
 

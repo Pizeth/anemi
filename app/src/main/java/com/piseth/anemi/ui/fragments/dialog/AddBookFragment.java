@@ -3,15 +3,8 @@ package com.piseth.anemi.ui.fragments.dialog;
 import static android.app.Activity.RESULT_OK;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,17 +13,23 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
 import com.google.android.material.textfield.TextInputLayout;
-import com.piseth.anemi.utils.util.DatabaseManageHandler;
 import com.piseth.anemi.R;
 import com.piseth.anemi.ui.fragments.fragment.HomeFragment;
 import com.piseth.anemi.utils.model.Book;
+import com.piseth.anemi.utils.util.DatabaseManageHandler;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link AddBookFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
+
+//Switch to using Dialog fragment instead, this fragment is abandon
 public class AddBookFragment extends Fragment implements View.OnClickListener {
 
     // TODO: Rename parameter arguments, choose names that match
@@ -39,7 +38,6 @@ public class AddBookFragment extends Fragment implements View.OnClickListener {
     private static final String ARG_PARAM2 = "param2";
     public static final int PICK_IMAGE = 1;
     public static final int DUMMY_ID = 99;
-    public static String USER_PHOTO = "user_photo";
 
     // TODO: Rename and change types of parameters
     private String mParam1;

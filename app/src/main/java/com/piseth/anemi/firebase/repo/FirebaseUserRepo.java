@@ -2,7 +2,6 @@ package com.piseth.anemi.firebase.repo;
 
 import android.net.Uri;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
@@ -64,7 +63,8 @@ public class FirebaseUserRepo {
         } else {
             setUser(id, user);
         }
-        if(FirebaseAuth.getInstance().getCurrentUser().getUid().equals(id)) {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if(currentUser != null && currentUser.getUid().equals(id)) {
             updateAuthenticateUser(user.getEmail(), user.getPassword(), isUpdateEmail, isUpdatePassword, current_password);
         }
     }
@@ -91,32 +91,36 @@ public class FirebaseUserRepo {
     private void updateAuthenticateUser(String email, String password, boolean isUpdateEmail, boolean isUpdatePassword, String current_password) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         // Get auth credentials from the user for re-authentication.
-        AuthCredential credential = EmailAuthProvider.getCredential(user.getEmail(), current_password);
-        // Prompt the user to re-provide their sign-in credentials
-        user.reauthenticate(credential).addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                if(isUpdateEmail) {
-                    user.updateEmail(email).addOnCompleteListener(task1 -> {
-                        if (task1.isSuccessful()) {
-                            Log.d("Update Credential", "Email updated");
-                        } else {
-                            Log.d("Update Credential", "Error email not updated");
-                        }
-                    });
+        AuthCredential credential;
+        if (user != null) {
+            credential = EmailAuthProvider.getCredential(user.getEmail(), current_password);
+
+            // Prompt the user to re-provide their sign-in credentials
+            user.reauthenticate(credential).addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    if(isUpdateEmail) {
+                        user.updateEmail(email).addOnCompleteListener(task1 -> {
+                            if (task1.isSuccessful()) {
+                                Log.d("Update Credential", "Email updated");
+                            } else {
+                                Log.d("Update Credential", "Error email not updated");
+                            }
+                        });
+                    }
+                    if(isUpdatePassword) {
+                        user.updatePassword(password).addOnCompleteListener(task12 -> {
+                            if (task12.isSuccessful()) {
+                                Log.d("Update Credential", "Password updated");
+                            } else {
+                                Log.d("Update Credential", "Error password not updated");
+                            }
+                        });
+                    }
+                } else {
+                    Log.d("Update Credential", "Error auth failed");
                 }
-                if(isUpdatePassword) {
-                    user.updatePassword(password).addOnCompleteListener(task12 -> {
-                        if (task12.isSuccessful()) {
-                            Log.d("Update Credential", "Password updated");
-                        } else {
-                            Log.d("Update Credential", "Error password not updated");
-                        }
-                    });
-                }
-            } else {
-                Log.d("Update Credential", "Error auth failed");
-            }
-        });
+            });
+        }
     }
 
     public void deleteUser(String id) {
@@ -140,6 +144,6 @@ public class FirebaseUserRepo {
     }
 
     public Query getAllUsersQuery() {
-        return userRef.whereEqualTo("isDeleted", 0);
+        return userRef.whereEqualTo("isDeleted", 0).orderBy("userRoleId", Query.Direction.DESCENDING).orderBy("username", Query.Direction.ASCENDING);
     }
 }

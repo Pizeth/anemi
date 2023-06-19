@@ -34,23 +34,18 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.piseth.anemi.R;
 import com.piseth.anemi.firebase.viewmodel.FirebaseUserViewModel;
-import com.piseth.anemi.room.viewmodel.UserRoomViewModel;
 import com.piseth.anemi.utils.model.User;
 import com.piseth.anemi.utils.util.AnemiUtils;
 import com.piseth.anemi.utils.util.DatabaseManageHandler;
 
 public class DialogUpdateUserFragment extends DialogFragment {
-
-    public static final int PICK_IMAGE = 1;
     private DatabaseManageHandler db;
-    //    private User user;
     private Uri imageToStore;
     private TextInputLayout txt_username, txt_email, txt_password, txt_re_password, txt_phone;
     private Button addPhoto, saveButton;
     private TextView errorLabel;
     private ImageView profileImage;
     private OnUpdateCompletedDialogListener listener;
-    private UserRoomViewModel userRoomViewModel;
     private FirebaseUserViewModel firebaseUserViewModel;
     private FirebaseFirestore firebaseFirestore;
     private CollectionReference userRef;
@@ -84,7 +79,6 @@ public class DialogUpdateUserFragment extends DialogFragment {
         Dialog dialog = getDialog();
         if (dialog != null) {
             int width = (int) (getResources().getDisplayMetrics().widthPixels * 0.90);
-//            int height = (int)(getResources().getDisplayMetrics().heightPixels*0.90);
             dialog.getWindow().setLayout(width, ViewGroup.LayoutParams.WRAP_CONTENT);
             dialog.getWindow().setBackgroundDrawableResource(R.drawable.shape);
         }
@@ -111,16 +105,13 @@ public class DialogUpdateUserFragment extends DialogFragment {
         saveButton = view.findViewById(R.id.btnSave);
         firebaseFirestore = FirebaseFirestore.getInstance();
         userRef = firebaseFirestore.collection("Users");
-        userRoomViewModel = new ViewModelProvider(getActivity()).get(UserRoomViewModel.class);
         firebaseUserViewModel = new ViewModelProvider(getActivity()).get(FirebaseUserViewModel.class);
         String id;
 
         if (getArguments() != null) {
-//            int user_id = (int) getArguments().getLong("user_id");
             id = getArguments().getString("user_id");
             if (!id.isEmpty()) {
                 Log.d("Successful: ", "user_id to update is " + id);
-//                user = db.getUser((user_id));
                 userRef.document(id).get().addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         DocumentSnapshot document = task.getResult();
@@ -152,11 +143,12 @@ public class DialogUpdateUserFragment extends DialogFragment {
                                 re_password = (txt_re_password.getEditText() != null) ? txt_re_password.getEditText().getText().toString().trim() : "";
                                 phone = (txt_phone.getEditText() != null) ? txt_phone.getEditText().getText().toString().trim() : "";
 
-//                            if (!isValidUsername(username) | !isValidPassword(password) |
-//                                !isValidRePassword(re_password, password) | !isValidPhoneNo(phone) |
-//                                !isValidPhoto(photo)) {
-//                                return;
-//                            }
+//                                Validation still has some problem
+//                                if (!isValidUsername(username) | !isValidPassword(password) |
+//                                    !isValidRePassword(re_password, password) | !isValidPhoneNo(phone) |
+//                                    !isValidPhoto(imageToStore)) {
+//                                    return;
+//                                }
                                 if (!username.isEmpty() && !username.equals(user.getUsername())) user.setUsername(username);
                                 if (!email.isEmpty() && !email.equals(user.getEmail())) {
                                     isUpdateEmail = true;
@@ -187,16 +179,6 @@ public class DialogUpdateUserFragment extends DialogFragment {
                 });
             }
         }
-
-//        if (user != null) {
-//            txt_username.getEditText().setText(user.getUsername());
-//            txt_phone.getEditText().setText(user.getPhone());
-////            profileImage.setImageBitmap(user.getPhoto());
-//            Glide.with(profileImage.getContext()).load(user.getPhoto()).into(profileImage);
-//            profileImage.setCropToPadding(true);
-//            profileImage.setClipToOutline(true);
-//            Log.d("USERNAME: ", user.getUsername() + " 's data acquired'");
-//        }
     }
 
     @Override
@@ -207,16 +189,6 @@ public class DialogUpdateUserFragment extends DialogFragment {
     }
 
     private void updateUser(String doc_Id, User user, Uri photo, boolean isUpdateEmail, boolean isUpdatePassword, String current_password) {
-//        if (!isValidUsername(username) | !isValidPassword(password) |
-//                !isValidRePassword(re_password, password) | !isValidPhoneNo(phone) |
-//                !isValidPhoto(photo)) {
-//            return;
-//        }
-//        if (!username.isEmpty() && !username.equals(user.getUsername())) user.setUsername(username);
-//        if (!email.isEmpty() && !email.equals(user.getEmail())) user.setEmail(email);
-//        if (!password.isEmpty() && !re_password.isEmpty() && password.equals(re_password))
-//            user.setPassword(password);
-//        if (!phone.isEmpty() && !phone.equals(user.getPhone())) user.setPhone(phone);
         Log.d("Insert: ", user.getUsername() + " " + user.getPassword() + " " + user.getPhone());
         firebaseUserViewModel.updateUser(photo, user, doc_Id, isUpdateEmail, isUpdatePassword, current_password);
         Toast.makeText(getContext(), user.getUsername() + "'s has been succesfully updated", Toast.LENGTH_LONG).show();
@@ -234,36 +206,6 @@ public class DialogUpdateUserFragment extends DialogFragment {
 //            checkOperation = true;
 //        }
 //        return checkOperation;
-//    }
-
-//    private void chooseImage() {
-//        try {
-//            Intent getIntent = new Intent(Intent.ACTION_GET_CONTENT);
-//            getIntent.setType("image/*");
-////            Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-//            Intent pickIntent = new Intent(Intent.ACTION_PICK);
-//            pickIntent.setType("image/*");
-//
-//            Intent chooserIntent = Intent.createChooser(getIntent, "Select Image");
-//            chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] {pickIntent});
-//
-//            startActivityForResult(chooserIntent, PICK_IMAGE);
-//        } catch(Exception e) {
-//            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-//        }
-//    }
-
-//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        try {
-//            super.onActivityResult(requestCode, requestCode, data);
-//            if (resultCode == RESULT_OK && requestCode == PICK_IMAGE && data != null && data.getData() != null) {
-//                Uri selectedImageUri = data.getData();
-//                imageToStore = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), selectedImageUri);
-//                profileImage.setImageBitmap(imageToStore);
-//            }
-//        } catch(Exception e) {
-//            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-//        }
 //    }
 
     ActivityResultLauncher pickImage = registerForActivityResult(new ActivityResultContracts.GetContent(),

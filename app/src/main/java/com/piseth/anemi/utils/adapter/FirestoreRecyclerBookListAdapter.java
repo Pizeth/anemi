@@ -3,8 +3,6 @@ package com.piseth.anemi.utils.adapter;
 import static android.content.Context.MODE_PRIVATE;
 
 import android.content.SharedPreferences;
-import android.net.Uri;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,7 +31,6 @@ public class FirestoreRecyclerBookListAdapter extends FirestoreRecyclerAdapter<B
      *
      */
     private FirestoreRecyclerBookListAdapter.OnBookListClickListener listener;
-    private SharedPreferences loggedInUser;
 
     public FirestoreRecyclerBookListAdapter(@NonNull FirestoreRecyclerOptions<Book> options) {
         super(options);
@@ -50,7 +47,7 @@ public class FirestoreRecyclerBookListAdapter extends FirestoreRecyclerAdapter<B
     @Override
     public FirestoreRecyclerBookListAdapter.BookListViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.book_list, parent, false);
-        loggedInUser = parent.getContext().getSharedPreferences(AnemiUtils.LOGGED_IN_USER, MODE_PRIVATE);
+        SharedPreferences loggedInUser = parent.getContext().getSharedPreferences(AnemiUtils.LOGGED_IN_USER, MODE_PRIVATE);
         User user = AnemiUtils.getLoggedInUser(loggedInUser);
         if(user != null) {
             if(user.getUserRoleId() != AnemiUtils.ROLE_ADMIN) {

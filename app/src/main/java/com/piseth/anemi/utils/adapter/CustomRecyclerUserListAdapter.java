@@ -23,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 
 import de.danielbechler.diff.ObjectDifferBuilder;
 
+// Switch to using FireStoreRecyclerView
 //public class CustomRecyclerUserListAdapter extends ListAdapter<User, CustomRecyclerUserListAdapter.UserListViewHolder> {
 public class CustomRecyclerUserListAdapter extends FirebaseRecyclerAdapter<User, CustomRecyclerUserListAdapter.UserListViewHolder> {
 

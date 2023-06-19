@@ -2,8 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="200dp"
-    android:layout_height="250dp"
+    android:layout_width="match_parent"
+    android:layout_height="283dp"
     android:padding="5dp">
 
     <androidx.cardview.widget.CardView
@@ -20,6 +20,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@color/platinum"
+                android:contentDescription="@string/user_profile"
                 android:scaleType="centerCrop"
                 tools:srcCompat="@drawable/baseline_insert_photo_24" />
 
@@ -30,7 +31,6 @@
                 android:layout_gravity="bottom"
                 android:background="@color/anemi"
                 android:padding="5dp"
-                android:text="TextView"
                 android:textColor="@color/white" />
         </FrameLayout>
     </androidx.cardview.widget.CardView>

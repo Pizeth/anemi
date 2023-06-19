@@ -53,6 +53,8 @@ public class FirestoreRecyclerUserListAdapter extends FirestoreRecyclerAdapter <
     public String getDocumentId(int position) {
         return getSnapshots().getSnapshot(position).getId();
     }
+
+//    Quick way to delete list item
     public void deleteItem(int position) {
         getSnapshots().getSnapshot(position).getReference().delete();
     }

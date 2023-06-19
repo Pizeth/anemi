@@ -22,8 +22,6 @@ import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.CollectionReference;
@@ -165,11 +163,7 @@ public class DialogUpdateBookFragment extends DialogFragment {
                             }
                             if (result) {
                                 Toast.makeText(getContext(), "Successfully " + (action == AnemiUtils.ACTION_ADD ? "add new " : "update ") + " book", Toast.LENGTH_SHORT).show();
-//                                DialogListener dialogListener = (DialogListener) getContext();
-//                                DialogListener dialogListener = getListener();
-//                                if (dialogListener != null) {
-//                                    dialogListener.onFinishUpdateDialog(getArguments().getInt("position"), book);
-//                                }
+
                             }
                             if (listener != null) {
                                 listener.onFinishUpdateDialog(book);

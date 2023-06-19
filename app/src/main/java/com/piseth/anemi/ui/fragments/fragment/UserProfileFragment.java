@@ -3,10 +3,7 @@ package com.piseth.anemi.ui.fragments.fragment;
 import static android.content.Context.MODE_PRIVATE;
 
 import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -47,8 +44,6 @@ public class UserProfileFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-//    private DatabaseManageHandler db;
-//    private Bitmap imageToStore;
     private TextView txt_username, txt_email, txt_role, txt_phone;
     private ImageView profileImage;
 
@@ -81,7 +76,6 @@ public class UserProfileFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-//        db = new DatabaseManageHandler(getActivity());
         if(getActivity() != null) {
             loggedInUser = getActivity().getSharedPreferences(AnemiUtils.LOGGED_IN_USER, MODE_PRIVATE);
         }
@@ -102,7 +96,6 @@ public class UserProfileFragment extends Fragment {
         txt_phone = view.findViewById(R.id.phone);
         profileImage = view.findViewById(R.id.image_logo);
         FloatingActionButton fabUpdateUser = view.findViewById(R.id.floating_edit_user);
-//        reloadInfo(AnemiUtils.getLoggedInUser(loggedInUser));
 
         fabUpdateUser.setOnClickListener(view1 -> {
             Bundle bundle = new Bundle();
@@ -127,31 +120,6 @@ public class UserProfileFragment extends Fragment {
     public void onStart() {
         super.onStart();
         reloadInfo(AnemiUtils.getLoggedInUser(loggedInUser));
-    }
-
-    /**
-     * helper to retrieve the path of an image URI
-     */
-    public String getPath(Uri uri) {
-        // just some safety built in
-        if( uri == null ) {
-            // TODO perform some logging or show user feedback
-            return null;
-        }
-        // try to retrieve the image from the media store first
-        // this will only work for images selected from gallery
-        String[] projection = { MediaStore.Images.Media.DATA };
-        Cursor cursor = getContext().getContentResolver().query(uri, projection, null, null, null);
-        if( cursor != null ){
-            int column_index = cursor
-                    .getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-            cursor.moveToFirst();
-            String path = cursor.getString(column_index);
-            cursor.close();
-            return path;
-        }
-        // this is our fallback here
-        return uri.getPath();
     }
 
     public void reloadInfo(User user) {

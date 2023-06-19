@@ -3,32 +3,24 @@ package com.piseth.anemi.firebase.repo;
 import android.net.Uri;
 import android.util.Log;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.piseth.anemi.firebase.viewmodel.FirebasePageViewModel;
-import com.piseth.anemi.room.viewmodel.UserRoomViewModel;
 import com.piseth.anemi.utils.model.Book;
-import com.piseth.anemi.utils.model.User;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class FirebaseBookRepo {
-    private FirebaseFirestore firebaseFirestore;
     private CollectionReference bookRef;
     private StorageReference storageReference;
 
     public FirebaseBookRepo() {
-        firebaseFirestore = FirebaseFirestore.getInstance();
+        FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
         bookRef = firebaseFirestore.collection("Books");
         storageReference = FirebaseStorage.getInstance().getReference().child("bookCover");
     }
@@ -42,9 +34,7 @@ public class FirebaseBookRepo {
                         book.setCover(uri1.toString());
                         bookRef.add(book).addOnCompleteListener(task12 -> {
                             if (task12.isComplete()) {
-                                if(task12 != null) {
-                                    Log.i("Added", "New Book : " + task12.getResult().getId() + " added");
-                                }
+                                Log.i("Added", "New Book : " + task12.getResult().getId() + " added");
                             }
                         });
                     });
@@ -101,7 +91,7 @@ public class FirebaseBookRepo {
     }
 
     public Query getAllBooksQuery() {
-        return bookRef.whereEqualTo("isDeleted", 0);
+        return bookRef.whereEqualTo("isDeleted", 0).orderBy("bookName");
     }
 
     public Query getSearchBookQuery(String book_title) {

@@ -17,7 +17,6 @@ import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.material.button.MaterialButton;
 import com.piseth.anemi.R;
-import com.piseth.anemi.utils.model.Book;
 import com.piseth.anemi.utils.model.Page;
 import com.piseth.anemi.utils.model.User;
 import com.piseth.anemi.utils.util.AnemiUtils;
@@ -25,14 +24,7 @@ import com.piseth.anemi.utils.util.AnemiUtils;
 import org.jetbrains.annotations.NotNull;
 
 public class FirestoreRecyclerPageListAdapter extends FirestoreRecyclerAdapter<Page, FirestoreRecyclerPageListAdapter.PageListViewHolder>  {
-    /**
-     * Create a new RecyclerView adapter that listens to a Firestore Query.  See {@link
-     * FirestoreRecyclerOptions} for configuration options.
-     *
-     * @param options
-     */
     private OnPageListClickListener listener;
-    private SharedPreferences loggedInUser;
 
     public FirestoreRecyclerPageListAdapter(@NonNull FirestoreRecyclerOptions<Page> options) {
         super(options);
@@ -41,14 +33,14 @@ public class FirestoreRecyclerPageListAdapter extends FirestoreRecyclerAdapter<P
     @Override
     protected void onBindViewHolder(@NonNull FirestoreRecyclerPageListAdapter.PageListViewHolder holder, int position, @NonNull Page model) {
         Glide.with(holder.page.getContext()).load(model.getImageURL()).into(holder.page);
-        holder.pageNumber.setText(Integer.toString(model.getPageNumber()));
+        holder.pageNumber.setText(String.format(Integer.toString(model.getPageNumber())));
     }
 
     @NonNull
     @Override
     public FirestoreRecyclerPageListAdapter.PageListViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.page_list, parent, false);
-        loggedInUser = parent.getContext().getSharedPreferences(AnemiUtils.LOGGED_IN_USER, MODE_PRIVATE);
+        SharedPreferences loggedInUser = parent.getContext().getSharedPreferences(AnemiUtils.LOGGED_IN_USER, MODE_PRIVATE);
         User user = AnemiUtils.getLoggedInUser(loggedInUser);
         if(user != null) {
             if(user.getUserRoleId() != AnemiUtils.ROLE_ADMIN) {
@@ -67,11 +59,14 @@ public class FirestoreRecyclerPageListAdapter extends FirestoreRecyclerAdapter<P
     public String getDocumentId(int position) {
         return getSnapshots().getSnapshot(position).getId();
     }
+    public void deleteItem(int position) {
+        getSnapshots().getSnapshot(position).getReference().delete();
+    }
 
     public interface OnPageListClickListener {
         void onUpdate(int p);
         void onDelete(int p);
-        void onView(int p);
+//        void onView(int p);
     }
 
     public void setOnPageListClickListener(FirestoreRecyclerPageListAdapter.OnPageListClickListener listener) {
@@ -102,12 +97,12 @@ public class FirestoreRecyclerPageListAdapter extends FirestoreRecyclerAdapter<P
                     listener.onDelete(position);
                 }
             });
-            btnView.setOnClickListener(view -> {
-                int position = getAbsoluteAdapterPosition();
-                if(position != RecyclerView.NO_POSITION && listener != null) {
-                    listener.onView(position);
-                }
-            });
+//            btnView.setOnClickListener(view -> {
+//                int position = getAbsoluteAdapterPosition();
+//                if(position != RecyclerView.NO_POSITION && listener != null) {
+//                    listener.onView(position);
+//                }
+//            });
         }
     }
 }

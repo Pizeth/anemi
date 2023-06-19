@@ -99,7 +99,7 @@ public class ViewBookContentFragment extends Fragment {
             book_title.setText(title);
             FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
             CollectionReference pageRef = firebaseFirestore.collection("Pages");
-            pageRef.whereEqualTo("book_id", id).addSnapshotListener((value, error) -> {
+            pageRef.whereEqualTo("book_id", id).orderBy("pageNumber").addSnapshotListener((value, error) -> {
                 List<Page> pages = new ArrayList<>();
                 if (error != null) {
                     return;

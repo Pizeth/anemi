@@ -28,7 +28,6 @@
             android:layout_toEndOf="@id/back_to_home"
             android:gravity="center_horizontal"
             android:lineSpacingExtra="48sp"
-            android:text="TextView"
             android:textColor="@color/platinum"
             android:textSize="24sp"
             android:textStyle="bold" />
