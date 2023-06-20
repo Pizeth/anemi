@@ -197,8 +197,8 @@ public class BookDetailFragment extends Fragment {
 
     public void deletePageDialog(int p) {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(getContext());
-        alertDialog.setTitle("Remove Book");
-        alertDialog.setMessage("Delete this book??");
+        alertDialog.setTitle("Remove Page");
+        alertDialog.setMessage("Delete this page??");
         alertDialog.setPositiveButton("CANCEL", (dialog, which) -> dialog.cancel());
         alertDialog.setNegativeButton("YES", (dialog, which) -> {
             // Perform delete action
