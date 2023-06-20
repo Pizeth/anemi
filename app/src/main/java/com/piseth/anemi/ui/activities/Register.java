@@ -91,8 +91,9 @@ public class Register extends AppCompatActivity {
         auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 User user = new User(username, email, password, AnemiUtils.ROLE_USER, phone);
-                String id = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                String id = auth.getUid();
                 firebaseUserViewModel.addNewUser(imageToStore, user, id);
+                AnemiUtils.setUserPreference(loggedInUser, user);
                 Toast.makeText(Register.this, "Successfully Register new User", Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(Register.this, Login.class));
             } else {

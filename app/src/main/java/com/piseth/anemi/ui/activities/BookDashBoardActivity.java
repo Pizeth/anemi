@@ -70,6 +70,7 @@ public class BookDashBoardActivity extends AppCompatActivity implements Navigati
         }
 
         if(user != null) {
+
             ImageView profile = navigationView.getHeaderView(0).findViewById(R.id.imageProfile);
             TextView username = navigationView.getHeaderView(0).findViewById(R.id.text_username);
             Glide.with(profile.getContext()).load(user.getPhoto()).into(profile);

@@ -124,7 +124,7 @@ public class DialogUpdateUserFragment extends DialogFragment {
                             Glide.with(profileImage.getContext()).load(user.getPhoto()).into(profileImage);
                             profileImage.setCropToPadding(true);
                             profileImage.setClipToOutline(true);
-                            if(!currentUser.getUid().equals(id)) {
+                            if(currentUser != null && !currentUser.getUid().equals(id)) {
                                 txt_email.getEditText().setEnabled(false);
                                 txt_password.getEditText().setEnabled(false);
                                 txt_re_password.getEditText().setEnabled(false);
@@ -189,9 +189,9 @@ public class DialogUpdateUserFragment extends DialogFragment {
     }
 
     private void updateUser(String doc_Id, User user, Uri photo, boolean isUpdateEmail, boolean isUpdatePassword, String current_password) {
-        Log.d("Insert: ", user.getUsername() + " " + user.getPassword() + " " + user.getPhone());
+        Log.d("Update", user.getUsername() + " " + user.getPassword() + " " + user.getPhone());
         firebaseUserViewModel.updateUser(photo, user, doc_Id, isUpdateEmail, isUpdatePassword, current_password);
-        Toast.makeText(getContext(), user.getUsername() + "'s has been succesfully updated", Toast.LENGTH_LONG).show();
+        Toast.makeText(getContext(), user.getUsername() + "'s has been successfully updated", Toast.LENGTH_LONG).show();
     }
 
 //    public boolean updateUser(String username, String email, String password, String re_password, String phone, Uri imageToStore) {

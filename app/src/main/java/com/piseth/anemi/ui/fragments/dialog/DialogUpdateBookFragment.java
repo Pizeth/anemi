@@ -42,8 +42,6 @@ public class DialogUpdateBookFragment extends DialogFragment {
     public static final int PICK_IMAGE = 1;
     public static final int DUMMY_ID = 99;
     private int action;
-    private DatabaseManageHandler db;
-    private Book book;
     private Uri imageToStore;
     private TextInputLayout txt_title, txt_author, txt_description;
     private ImageView bookCover;
@@ -96,7 +94,6 @@ public class DialogUpdateBookFragment extends DialogFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        db = new DatabaseManageHandler(getContext());
         Log.d("API123", "onCreate");
     }
 
@@ -128,69 +125,66 @@ public class DialogUpdateBookFragment extends DialogFragment {
             id = getArguments().getString("book_id");
             if (!id.isEmpty()) {
                 Log.d("Successful: ", "book_id to update is " + id);
-//                book = db.getBook((book_id));
-                bookRef.document(id).get().addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (document.exists()) {
-                            Book book = document.toObject(Book.class);
-
-                            txt_title.getEditText().setText(book.getBookName());
-                            txt_author.getEditText().setText(book.getAuthor());
-                            txt_description.getEditText().setText(book.getDescription());
-                            Glide.with(bookCover.getContext()).load(book.getCover()).into(bookCover);
-
-                            Log.d("SUCCESS", book.getBookName() + " 's data acquired'");
+                if(id.equals(AnemiUtils.NEW_BOOK_ENTRY)) {
+                    Log.d("Successful: ", "no book_id to update is ");
+                    saveButton.setOnClickListener(view1 -> {
+                        populateDataFromDialog(new Book());
+                    });
+                } else {
+                    bookRef.document(id).get().addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                Book book = document.toObject(Book.class);
+                                txt_title.getEditText().setText(book.getBookName());
+                                txt_author.getEditText().setText(book.getAuthor());
+                                txt_description.getEditText().setText(book.getDescription());
+                                Glide.with(bookCover.getContext()).load(book.getCover()).into(bookCover);
+                                Log.d("SUCCESS", book.getBookName() + " 's data acquired'");
+                                saveButton.setOnClickListener(view1 -> {
+                                    populateDataFromDialog(book);
+                                });
+                            } else {
+                                Log.d(TAG, "No such document");
+                            }
                         } else {
-                            Log.d(TAG, "No such document");
+                            Log.d(TAG, "get failed with ", task.getException());
                         }
-                        addPhoto.setOnClickListener(view1 -> pickImage.launch("image/*"));
-                        backButton.setOnClickListener(view1 -> dismiss());
-                        saveButton.setOnClickListener(view1 -> {
-                            String doc_id, title, author, description;
-
-                            doc_id = getArguments().getString("book_id");
-                            title = (txt_title.getEditText() != null) ? txt_title.getEditText().getText().toString().trim() : "";
-                            author = (txt_author.getEditText() != null) ? txt_author.getEditText().getText().toString().trim() : "";
-                            description = (txt_description.getEditText() != null) ? txt_description.getEditText().getText().toString().trim() : "";
-                            boolean result = false;
-                            if(action == AnemiUtils.ACTION_ADD) {
-                                Log.d("success", "Add new book action");
-                                addBook(title, description, author, imageToStore);
-                            } else if (action == AnemiUtils.ACTION_UPDATE) {
-                                Log.d("success", "Update book action");
-                                updateBook(doc_id, title, description, author, imageToStore);
-                            }
-                            if (result) {
-                                Toast.makeText(getContext(), "Successfully " + (action == AnemiUtils.ACTION_ADD ? "add new " : "update ") + " book", Toast.LENGTH_SHORT).show();
-
-                            }
-                            if (listener != null) {
-                                listener.onFinishUpdateDialog(book);
-                            }
-                            dismiss();
-                        });
-                    } else {
-                        Log.d(TAG, "get failed with ", task.getException());
-                    }
-                });
+                    });
+                }
             }
+            addPhoto.setOnClickListener(view1 -> pickImage.launch("image/*"));
+            backButton.setOnClickListener(view1 -> dismiss());
         }
     }
 
-    private void updateBook(String doc_Id, String title, String description, String author, Uri cover) {
-//        if (!isValidUsername(username) | !isValidPassword(password) |
-//                !isValidRePassword(re_password, password) | !isValidPhoneNo(phone) |
-//                !isValidPhoto(photo)) {
-//            return;
-//        }
-//        if (!username.isEmpty() && !username.equals(user.getUsername())) user.setUsername(username);
-//        if (!email.isEmpty() && !email.equals(user.getEmail())) user.setEmail(email);
-//        if (!password.isEmpty() && !re_password.isEmpty() && password.equals(re_password))
-//            user.setPassword(password);
-//        if (!phone.isEmpty() && !phone.equals(user.getPhone())) user.setPhone(phone);
-        Log.d("Update: ", "Update book: " + title + " " + description + " " + author);
-        Book book = new Book(title, description, author);
+    public void populateDataFromDialog(Book book) {
+        String doc_id, title, author, description;
+
+        doc_id = getArguments().getString("book_id");
+        title = (txt_title.getEditText() != null) ? txt_title.getEditText().getText().toString().trim() : "";
+        author = (txt_author.getEditText() != null) ? txt_author.getEditText().getText().toString().trim() : "";
+        description = (txt_description.getEditText() != null) ? txt_description.getEditText().getText().toString().trim() : "";
+        if(action == AnemiUtils.ACTION_ADD) {
+            book = new Book(title, description, author);
+            Log.d("success", "Add new book action");
+            addBook(book, imageToStore);
+        } else if (action == AnemiUtils.ACTION_UPDATE) {
+            if (!title.isEmpty() && !title.equals(book.getBookName())) book.setBookName(title);
+            if (!author.isEmpty() && !author.equals(book.getAuthor())) book.setAuthor(author);
+            if (!description.isEmpty() && !description.equals(book.getDescription())) book.setAuthor(description);
+            Log.d("success", "Update book action");
+            updateBook(doc_id, book, imageToStore);
+        }
+        Toast.makeText(getContext(), "Successfully " + (action == AnemiUtils.ACTION_ADD ? "add new " : "update ") + " book", Toast.LENGTH_SHORT).show();
+        if (listener != null) {
+            listener.onFinishUpdateDialog(book);
+        }
+        dismiss();
+    }
+
+    private void updateBook(String doc_Id, Book book, Uri cover) {
+        Log.d("Update: ", "Update book: " + book.getBookName() + " " + book.getDescription() + " " + book.getAuthor());
         firebaseBookViewModel.updateBook(cover, book, doc_Id);
     }
 
@@ -219,9 +213,8 @@ public class DialogUpdateBookFragment extends DialogFragment {
 //        return checkOperation;
 //    }
 
-    public void addBook(String title, String description, String author, Uri cover) {
-        Log.d("Insert: ", "Insert book : " + title + " " + description + " " + author);
-        Book book = new Book(title, description, author);
+    public void addBook(Book book, Uri cover) {
+        Log.d("Insert: ", "Insert book : " + book.getBookName() + " " + book.getDescription() + " " + book.getAuthor());
         firebaseBookViewModel.addNewBook(cover, book);
     }
 
