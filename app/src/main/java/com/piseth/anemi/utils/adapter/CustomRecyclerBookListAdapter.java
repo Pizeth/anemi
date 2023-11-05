@@ -56,7 +56,7 @@ public class CustomRecyclerBookListAdapter extends RecyclerView.Adapter<CustomRe
         loggedInUser = context.getSharedPreferences(AnemiUtils.LOGGED_IN_USER, MODE_PRIVATE);
         User user = AnemiUtils.getLoggedInUser(loggedInUser);
         if(user != null) {
-            if(user.getUserRoleId() != AnemiUtils.ROLE_ADMIN) {
+            if(user.getRoleId() != AnemiUtils.ROLE_ADMIN) {
                 view.findViewById(R.id.btnUpdateBook).setVisibility(View.INVISIBLE);
                 view.findViewById(R.id.btnDeleteBook).setVisibility(View.INVISIBLE);
             }

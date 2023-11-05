@@ -1,58 +1,64 @@
 package com.piseth.anemi.utils.model;
 
-import androidx.room.ColumnInfo;
-import androidx.room.Entity;
-import androidx.room.PrimaryKey;
+import com.google.type.DateTime;
 
-import com.google.firebase.firestore.Exclude;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
-@Entity(tableName = "table_user")
+//@Entity(tableName = "table_user")
 public class User {
-    @Exclude
-    @PrimaryKey
+//    @Exclude
+//    @PrimaryKey
     private int id;
     private String username;
     private String email;
     private String password;
-    private int userRoleId;
+    private String dob;
+    private int roleId;
+    private String firstName;
+    private String lastName;
+    private String address;
     private String phone;
-    private String photo;
-    @ColumnInfo(defaultValue = "0")
-    private int isDeleted;
+    private String avatar;
+    private String salt;
+    private String regDate;
+    private List<CourseDetail> courseDetails;
+    private List<QuizTaker> quizTakers;
+    private List<RefreshToken> refreshTokens;
+    private Role role;
+//    @ColumnInfo(defaultValue = "0")
+//    private int isDeleted;
 
-    public User() {}
-    public User(String username, String email, String password, int userRoleId, String phone) {
-        this.username = username;
-        this.email = email;
-        this.password = password;
-        this.userRoleId = userRoleId;
-        this.phone = phone;
+    public User() {
+        courseDetails = new ArrayList<>();
+        quizTakers = new ArrayList<>();
+        refreshTokens = new ArrayList<>();
     }
+//    public User(String username, String email, String password, int userRoleId, String phone) {
+//        this.username = username;
+//        this.email = email;
+//        this.password = password;
+//        this.userRoleId = userRoleId;
+//        this.phone = phone;
+//    }
 
-    public User(int id, String username, String password, int userRoleId, String phone, String photo) {
-        this.id = id;
-        this.username = username;
-        this.password = password;
-        this.userRoleId = userRoleId;
-        this.phone = phone;
-        this.photo = photo;
-    }
+//    public User(int id, String username, String password, int userRoleId, String phone, String photo) {
+//        this.id = id;
+//        this.username = username;
+//        this.password = password;
+//        this.userRoleId = userRoleId;
+//        this.phone = phone;
+//        this.photo = photo;
+//    }
 
-    @Exclude
+//    @Exclude
     public int getId() {
         return id;
     }
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public int getUserRoleId() {
-        return userRoleId;
-    }
-
-    public void setUserRoleId(int userRoleId) {
-        this.userRoleId = userRoleId;
     }
 
     public String getUsername() {
@@ -79,12 +85,108 @@ public class User {
         this.password = password;
     }
 
+    public String getDob() {
+        return dob;
+    }
+
+    public void setDob(String dob) {
+        this.dob = dob;
+    }
+
+    public int getRoleId() {
+        return roleId;
+    }
+
+    public void setRoleId(int roleId) {
+        this.roleId = roleId;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
     public String getPhone() {
         return phone;
     }
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
+    public String getSalt() {
+        return salt;
+    }
+
+    public void setSalt(String salt) {
+        this.salt = salt;
+    }
+
+    public String getRegDate() {
+        return regDate;
+    }
+
+    public void setRegDate(String regDate) {
+        this.regDate = regDate;
+    }
+
+    public List<CourseDetail> getCourseDetails() {
+        return courseDetails;
+    }
+
+    public void setCourseDetails(List<CourseDetail> courseDetails) {
+        this.courseDetails = courseDetails;
+    }
+
+    public List<QuizTaker> getQuizTakers() {
+        return quizTakers;
+    }
+
+    public void setQuizTakers(List<QuizTaker> quizTakers) {
+        this.quizTakers = quizTakers;
+    }
+
+    public List<RefreshToken> getRefreshTokens() {
+        return refreshTokens;
+    }
+
+    public void setRefreshTokens(List<RefreshToken> refreshTokens) {
+        this.refreshTokens = refreshTokens;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
     }
 
 //    public Bitmap getPhoto() {
@@ -95,19 +197,5 @@ public class User {
 //        this.photo = photo;
 //    }
 
-    public String getPhoto() {
-        return photo;
-    }
 
-    public void setPhoto(String photo) {
-        this.photo = photo;
-    }
-
-    public int getIsDeleted() {
-        return isDeleted;
-    }
-
-    public void setIsDeleted(int isDeleted) {
-        this.isDeleted = isDeleted;
-    }
 }

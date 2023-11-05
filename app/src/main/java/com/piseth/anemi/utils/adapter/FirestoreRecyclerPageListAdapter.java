@@ -43,7 +43,7 @@ public class FirestoreRecyclerPageListAdapter extends FirestoreRecyclerAdapter<P
         SharedPreferences loggedInUser = parent.getContext().getSharedPreferences(AnemiUtils.LOGGED_IN_USER, MODE_PRIVATE);
         User user = AnemiUtils.getLoggedInUser(loggedInUser);
         if(user != null) {
-            if(user.getUserRoleId() != AnemiUtils.ROLE_ADMIN) {
+            if(user.getRoleId() != AnemiUtils.ROLE_ADMIN) {
                 view.findViewById(R.id.btnUpdatePage).setVisibility(View.INVISIBLE);
                 view.findViewById(R.id.btnDeletePage).setVisibility(View.INVISIBLE);
             }

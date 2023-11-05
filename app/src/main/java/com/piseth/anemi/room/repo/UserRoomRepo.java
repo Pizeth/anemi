@@ -23,33 +23,33 @@ public class UserRoomRepo {
         return userListLiveData;
     }
 
-    public User getUser(long id) {
-        return userDao.getUser(id);
-    }
+//    public User getUser(long id) {
+//        return userDao.getUser(id);
+//    }
+//
+//    public User getUser(String username) {
+//        return  userDao.getUser(username);
+//    }
+//
+//    public UserRoomRepo(Application application) {
+//        AnemiDatabase anemiDatabase = AnemiDatabase.getmInstance(application);
+//        userDao = anemiDatabase.userDao();
+//        userListLiveData = userDao.getAllUsers();
+//    }
+//
+//    public long insertUser(User user) {
+//        executor.execute(() -> id = userDao.insertUser(user));
+//        return id;
+//    }
+//
+//    public int updateUser(User user) {
+//        executor.execute(() -> row = userDao.upDateUser(user));
+//        return row;
+//    }
 
-    public User getUser(String username) {
-        return  userDao.getUser(username);
-    }
-
-    public UserRoomRepo(Application application) {
-        AnemiDatabase anemiDatabase = AnemiDatabase.getmInstance(application);
-        userDao = anemiDatabase.userDao();
-        userListLiveData = userDao.getAllUsers();
-    }
-
-    public long insertUser(User user) {
-        executor.execute(() -> id = userDao.insertUser(user));
-        return id;
-    }
-
-    public int updateUser(User user) {
-        executor.execute(() -> row = userDao.upDateUser(user));
-        return row;
-    }
-
-    public int deleteUser(long id) {
-
-        executor.execute(() -> row = userDao.deleteUser(id));
-        return row;
-    }
+//    public int deleteUser(long id) {
+//
+//        executor.execute(() -> row = userDao.deleteUser(id));
+//        return row;
+//    }
 }

@@ -34,7 +34,7 @@ public class FirestoreRecyclerUserListAdapter extends FirestoreRecyclerAdapter <
     @Override
     protected void onBindViewHolder(@NonNull FirestoreRecyclerUserListAdapter.UserListViewHolder holder, int position, @NonNull User model) {
         User user = getItem(position);
-        Glide.with(holder.picture.getContext()).load(user.getPhoto()).into(holder.picture);
+        Glide.with(holder.picture.getContext()).load(user.getAvatar()).into(holder.picture);
         holder.username.setText(user.getUsername());
         holder.phone.setText(user.getPhone());
     }

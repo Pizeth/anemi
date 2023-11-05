@@ -38,7 +38,7 @@ public class FirebaseUserRepo {
             if (task.isSuccessful()) {
                 if (task.isComplete()) {
                     profileImageRef.getDownloadUrl().addOnSuccessListener(uri1 -> {
-                        user.setPhoto(uri1.toString());
+                        user.setAvatar(uri1.toString());
                         setUser(id, user);
                     });
                 }
@@ -54,7 +54,7 @@ public class FirebaseUserRepo {
                 if (task.isSuccessful()) {
                     if (task.isComplete()) {
                         profileImageRef.getDownloadUrl().addOnSuccessListener(uri1 -> {
-                            user.setPhoto(uri1.toString());
+                            user.setAvatar(uri1.toString());
                             setUser(id, user);
                         });
                     }
@@ -75,7 +75,7 @@ public class FirebaseUserRepo {
                 FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
                 UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
                         .setDisplayName(user.getUsername())
-                        .setPhotoUri(Uri.parse(user.getPhoto()))
+                        .setPhotoUri(Uri.parse(user.getAvatar()))
                         .build();
                 if (firebaseUser != null) {
                     firebaseUser.updateProfile(profileUpdates).addOnCompleteListener(task1 -> {

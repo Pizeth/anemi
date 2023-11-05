@@ -90,7 +90,8 @@ public class Register extends AppCompatActivity {
         Log.d("Insert: ", username + " " + password + " " + phone);
         auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                User user = new User(username, email, password, AnemiUtils.ROLE_USER, phone);
+//                User user = new User(username, email, password, AnemiUtils.ROLE_USER, phone);
+                User user = new User();
                 String id = auth.getUid();
                 firebaseUserViewModel.addNewUser(imageToStore, user, id);
                 AnemiUtils.setUserPreference(loggedInUser, user);
@@ -115,7 +116,8 @@ public class Register extends AppCompatActivity {
         }
         if (password.equals(re_password)) {
 //            User user = new User(AnemiUtils.DUMMY_ID, username, password, AnemiUtils.ROLE_USER, phone, imageToStore);
-            User user = new User(AnemiUtils.DUMMY_ID, username, password, AnemiUtils.ROLE_USER, phone, "imageToStore");
+//            User user = new User(AnemiUtils.DUMMY_ID, username, password, AnemiUtils.ROLE_USER, phone, "imageToStore");
+            User user = new User();
             SharedPreferences.Editor prefsEditor = loggedInUser.edit();
 //            byte[] userPhoto = AnemiUtils.getBitmapAsByteArray(user.getPhoto());
             Gson gson = new Gson();

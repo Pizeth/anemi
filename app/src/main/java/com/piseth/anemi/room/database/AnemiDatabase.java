@@ -17,11 +17,11 @@ import com.piseth.anemi.utils.model.User;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-@Database(entities = {Page.class, User.class, Book.class}, version = 1, exportSchema = false)
+@Database(entities = {Page.class, Book.class}, version = 1, exportSchema = false)
 public abstract class AnemiDatabase extends RoomDatabase {
     private static AnemiDatabase mInstance;
     public abstract PageDao pageDao();
-    public abstract UserDao userDao();
+//    public abstract UserDao userDao();
     private Executor executor = Executors.newSingleThreadExecutor();
     public static synchronized AnemiDatabase getmInstance(Context context) {
         if (mInstance == null) {
@@ -41,7 +41,7 @@ public abstract class AnemiDatabase extends RoomDatabase {
                         Executors.newSingleThreadScheduledExecutor().execute(new Runnable() {
                             @Override
                             public void run() {
-                                getmInstance(context).userDao().insertUser(new User(1, "admin", "123", 3, "0123456789", "123"));
+//                                getmInstance(context).userDao().insertUser(new User(1, "admin", "123", 3, "0123456789", "123"));
                             }
                         });
                     }

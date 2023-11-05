@@ -150,7 +150,7 @@ public class BookDetailFragment extends Fragment {
             fabBack = view.findViewById(R.id.floating_back_button);
             User user = AnemiUtils.getLoggedInUser(loggedInUser);
             if (user != null) {
-                if (user.getUserRoleId() != AnemiUtils.ROLE_ADMIN) {
+                if (user.getRoleId() != AnemiUtils.ROLE_ADMIN) {
                     fabAddBook.setVisibility(View.INVISIBLE);
                 }
             }

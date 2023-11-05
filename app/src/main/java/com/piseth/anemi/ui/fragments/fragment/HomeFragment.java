@@ -21,6 +21,7 @@ import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.material.chip.ChipGroup;
 import com.piseth.anemi.R;
 import com.piseth.anemi.firebase.viewmodel.FirebaseBookViewModel;
+import com.piseth.anemi.retrofit.repo.UserRetrofitRepo;
 import com.piseth.anemi.utils.adapter.FirestoreRecyclerHomeViewAdapter;
 import com.piseth.anemi.utils.model.Book;
 
@@ -35,7 +36,6 @@ public class HomeFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-
     private RecyclerView recyclerView;
     private FirebaseBookViewModel firebaseBookViewModel;
     private FirestoreRecyclerHomeViewAdapter fireAdapter;

@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -24,14 +25,14 @@ import org.jetbrains.annotations.NotNull;
 import de.danielbechler.diff.ObjectDifferBuilder;
 
 // Switch to using FireStoreRecyclerView
-//public class CustomRecyclerUserListAdapter extends ListAdapter<User, CustomRecyclerUserListAdapter.UserListViewHolder> {
-public class CustomRecyclerUserListAdapter extends FirebaseRecyclerAdapter<User, CustomRecyclerUserListAdapter.UserListViewHolder> {
+public class CustomRecyclerUserListAdapter extends ListAdapter<User, CustomRecyclerUserListAdapter.UserListViewHolder> {
+//public class CustomRecyclerUserListAdapter extends FirebaseRecyclerAdapter<User, CustomRecyclerUserListAdapter.UserListViewHolder> {
 
 //    private final Context context;
 //    private List<User> users;
 //    private final DatabaseManageHandler db;
     private DialogUpdateUserFragment.OnUpdateCompletedDialogListener dialogListener;
-    private OnUserListClickListener onUserListClickListener;
+    private OnUserListClickListener listener;
     private SharedPreferences loggedInUser;
 //    private LayoutInflater inflater;
 
@@ -43,19 +44,10 @@ public class CustomRecyclerUserListAdapter extends FirebaseRecyclerAdapter<User,
 //        this.onUserListClickListener = onUserListClickListener;
 //        db = new DatabaseManageHandler(context);
 //    }
-    /**
-     * Initialize a {@link RecyclerView.Adapter} that listens to a Firebase query. See
-     * {@link FirebaseRecyclerOptions} for configuration options.
-     *
-     * @param options
-     */
-    public CustomRecyclerUserListAdapter(@NonNull FirebaseRecyclerOptions<User> options, DialogUpdateUserFragment.OnUpdateCompletedDialogListener dialogListener, OnUserListClickListener onUserListClickListener) {
-        super(options);
-        this.dialogListener = dialogListener;
-        this.onUserListClickListener = onUserListClickListener;
-//        db = new DatabaseManageHandler(context);
-    }
 
+    public CustomRecyclerUserListAdapter() {
+        super(DIFF_CALLBACK);
+    }
 
     private static final DiffUtil.ItemCallback<User> DIFF_CALLBACK = new DiffUtil.ItemCallback<User>() {
         @Override
@@ -73,7 +65,7 @@ public class CustomRecyclerUserListAdapter extends FirebaseRecyclerAdapter<User,
     @Override
     public UserListViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.user_list, parent, false);
-        UserListViewHolder holder = new UserListViewHolder(view, onUserListClickListener);
+//        UserListViewHolder holder = new UserListViewHolder(view, onUserListClickListener);
 //        UserListViewHolder holder = new UserListViewHolder(view, new OnUserListClickListener() {
 //            @Override
 //            public void onUpdate(int p) {
@@ -129,16 +121,17 @@ public class CustomRecyclerUserListAdapter extends FirebaseRecyclerAdapter<User,
 //                dialog.show();
 //            }
 //        });
-        return holder;
+        return new UserListViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull UserListViewHolder holder, int position) {
         User user = getItem(position);
 //        holder.picture.setImageBitmap(user.getPhoto());
-        Glide.with(holder.picture.getContext()).load(user.getPhoto()).into(holder.picture);
+        Glide.with(holder.picture.getContext()).load(user.getAvatar()).into(holder.picture);
         holder.username.setText(user.getUsername());
         holder.phone.setText(user.getPhone());
+
 //        final long itemId = user.getId();
 //        holder.itemView.setOnClickListener();
 //        holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -147,11 +140,6 @@ public class CustomRecyclerUserListAdapter extends FirebaseRecyclerAdapter<User,
 //                onProductClickListener.onProductClick(view, itemId);
 //            }
 //        });
-    }
-
-    @Override
-    protected void onBindViewHolder(@NonNull UserListViewHolder holder, int position, @NonNull User model) {
-
     }
 
 //    @Override
@@ -184,21 +172,25 @@ public class CustomRecyclerUserListAdapter extends FirebaseRecyclerAdapter<User,
         void onDelete(int p);
     }
 
-    public static class UserListViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public void setOnUserListClickListener(OnUserListClickListener listener) {
+        this.listener = listener;
+    }
+
+    public class UserListViewHolder extends RecyclerView.ViewHolder {
         ImageView picture;
         TextView username, phone;
         MaterialButton btnUpdate, btnDelete;
-        OnUserListClickListener onUserListClickListener;
-        public UserListViewHolder(@NotNull View viewItem, OnUserListClickListener listener) {
+//        OnUserListClickListener onUserListClickListener;
+        public UserListViewHolder(@NotNull View viewItem) {
             super(viewItem);
             picture = viewItem.findViewById(R.id.profilePicture);
             username = viewItem.findViewById(R.id.txtUsername);
             phone = viewItem.findViewById(R.id.txtPhone);
             btnUpdate = viewItem.findViewById(R.id.btnUpdateUser);
             btnDelete = viewItem.findViewById(R.id.btnDeleteUser);
-            this.onUserListClickListener = listener;
-            btnUpdate.setOnClickListener(this);
-            btnDelete.setOnClickListener(this);
+//            this.onUserListClickListener = listener;
+//            btnUpdate.setOnClickListener(this);
+//            btnDelete.setOnClickListener(this);
 //            viewItem.setOnClickListener(new View.OnClickListener() {
 //                @Override
 //                public void onClick(View v) {
@@ -206,16 +198,35 @@ public class CustomRecyclerUserListAdapter extends FirebaseRecyclerAdapter<User,
 //                    onUserListClickListener.onDelete(getLayoutPosition());
 //                }
 //            });
+
+            picture = viewItem.findViewById(R.id.profilePicture);
+            username = viewItem.findViewById(R.id.txtUsername);
+            phone = viewItem.findViewById(R.id.txtPhone);
+            btnUpdate = viewItem.findViewById(R.id.btnUpdateUser);
+            btnDelete = viewItem.findViewById(R.id.btnDeleteUser);
+
+            btnUpdate.setOnClickListener(view -> {
+                int position = getAbsoluteAdapterPosition();
+                if(position != RecyclerView.NO_POSITION && listener != null) {
+                    listener.onUpdate(position);
+                }
+            });
+            btnDelete.setOnClickListener(view -> {
+                int position = getAbsoluteAdapterPosition();
+                if (position != RecyclerView.NO_POSITION && listener != null) {
+                    listener.onDelete(position);
+                }
+            });
         }
 
-        @Override
-        public void onClick(View view) {
-            int id = view.getId();
-            if (id == R.id.btnUpdateUser) {
-                onUserListClickListener.onUpdate(this.getLayoutPosition());
-            } else if (id == R.id.btnDeleteUser) {
-                onUserListClickListener.onDelete(this.getLayoutPosition());
-            }
-        }
+//        @Override
+//        public void onClick(View view) {
+//            int id = view.getId();
+//            if (id == R.id.btnUpdateUser) {
+//                onUserListClickListener.onUpdate(this.getLayoutPosition());
+//            } else if (id == R.id.btnDeleteUser) {
+//                onUserListClickListener.onDelete(this.getLayoutPosition());
+//            }
+//        }
     }
 }

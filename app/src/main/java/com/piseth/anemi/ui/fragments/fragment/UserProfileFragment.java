@@ -126,9 +126,9 @@ public class UserProfileFragment extends Fragment {
         if(user != null) {
             txt_username.setText(user.getUsername());
             txt_email.setText(user.getEmail());
-            txt_role.setText(user.getUserRoleId() == AnemiUtils.ROLE_ADMIN ? AnemiUtils.ADMIN : AnemiUtils.USER);
+            txt_role.setText(user.getRoleId() == AnemiUtils.ROLE_ADMIN ? AnemiUtils.ADMIN : AnemiUtils.USER);
             txt_phone.setText(user.getPhone());
-            Glide.with(profileImage.getContext()).load(user.getPhoto()).into(profileImage);
+            Glide.with(profileImage.getContext()).load(user.getAvatar()).into(profileImage);
             profileImage.setCropToPadding(true);
             profileImage.setClipToOutline(true);
             Log.d("USERNAME: ", user.getUsername() + " 's data acquired'");

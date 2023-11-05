@@ -13,7 +13,7 @@ import androidx.annotation.Nullable;
 import com.piseth.anemi.R;
 import com.piseth.anemi.utils.model.Book;
 import com.piseth.anemi.utils.model.User;
-import com.piseth.anemi.utils.model.UserRole;
+import com.piseth.anemi.utils.model.Role;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -109,7 +109,8 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
             cursor.close();
             // return user
 //            return new User(user_id, username, password, role_id, phone, photo);
-            return new User(user_id, username, password, role_id, phone, "photo");
+//            return new User(user_id, username, password, role_id, phone, "photo");
+            return new User();
         } else return null;
     }
 
@@ -131,7 +132,8 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
             cursor.close();
             // return user
 //            return new User(user_id, username, password, role_id, phone, photo);
-            return new User(user_id, username, password, role_id, phone, "photo");
+//            return new User(user_id, username, password, role_id, phone, "photo");
+            return new User();
         } else return null;
     }
 
@@ -145,17 +147,17 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(selectQuery, null);
 
         // looping through all rows and adding to list
-        if (cursor.moveToFirst()) {
-            do {
-                User user = new User(Integer.parseInt(cursor.getString(0)),
-                                cursor.getString(1), cursor.getString(2),
-                                Integer.parseInt(cursor.getString(3)), cursor.getString(4),
-//                                AnemiUtils.getBitmapFromBytesArray(cursor.getBlob(5)));
-                                AnemiUtils.getBitmapFromBytesArray(cursor.getBlob(5)).toString());
-                // Adding user to list
-                userList.add(user);
-            } while (cursor.moveToNext());
-        }
+//        if (cursor.moveToFirst()) {
+//            do {
+//                User user = new User(Integer.parseInt(cursor.getString(0)),
+//                                cursor.getString(1), cursor.getString(2),
+//                                Integer.parseInt(cursor.getString(3)), cursor.getString(4),
+////                                AnemiUtils.getBitmapFromBytesArray(cursor.getBlob(5)));
+//                                AnemiUtils.getBitmapFromBytesArray(cursor.getBlob(5)).toString());
+//                // Adding user to list
+//                userList.add(user);
+//            } while (cursor.moveToNext());
+//        }
         cursor.close();
 
         // return user list
@@ -164,16 +166,16 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
 
     public void initializeUserAdmin() {
 //        User admin = new User(ADMIN_ID, "admin", "123", 3, "0123456789", BitmapFactory.decodeResource(context.getResources(), R.mipmap.exia));
-        User admin = new User(ADMIN_ID, "admin", "123", 3, "0123456789", BitmapFactory.decodeResource(context.getResources(), R.mipmap.exia).toString());
-        addUser(admin);
+//        User admin = new User(ADMIN_ID, "admin", "123", 3, "0123456789", BitmapFactory.decodeResource(context.getResources(), R.mipmap.exia).toString());
+//        addUser(admin);
     }
 
     public void initializeRole() {
-        List<UserRole> roles = new ArrayList<>();
-        roles.add( new UserRole(1, "Member"));
-        roles.add( new UserRole(2, "Editor"));
-        roles.add( new UserRole(3, "Admin"));
-        for (UserRole r : roles) {
+        List<Role> roles = new ArrayList<>();
+        roles.add( new Role(1, "Member"));
+        roles.add( new Role(2, "Editor"));
+        roles.add( new Role(3, "Admin"));
+        for (Role r : roles) {
             addUserRole(r);
         }
     }
@@ -186,7 +188,7 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
         ContentValues value = new ContentValues();
         value.put(USERNAME, user.getUsername());
         value.put(PASSWORD, user.getPassword());
-        value.put(ROLE_ID, user.getUserRoleId());
+        value.put(ROLE_ID, user.getRoleId());
         value.put(PHONE, user.getPhone());
 //        value.put(PHOTO, AnemiUtils.getBitmapAsByteArray(user.getPhoto()));
         return currentDB.insert(TABLE_USER, null, value);
@@ -198,7 +200,7 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
         ContentValues value = new ContentValues();
         value.put(USERNAME, user.getUsername());
         value.put(PASSWORD, user.getPassword());
-        value.put(ROLE_ID, user.getUserRoleId());
+        value.put(ROLE_ID, user.getRoleId());
         value.put(PHONE, user.getPhone());
 //        value.put(PHOTO, AnemiUtils.getBitmapAsByteArray(user.getPhoto()));
         return db.update(TABLE_USER, value, _ID + " = " + user.getId(), null);
@@ -211,7 +213,7 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
         return db.update(TABLE_USER, values, _ID + " = " + id, null);
     }
 
-    public UserRole getUserRole(int id) {
+    public Role getUserRole(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.query(TABLE_USER_ROLE, new String[] { ROLE_ID,
@@ -219,7 +221,7 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
                 new String[] { String.valueOf(id) }, null, null, null, null);
         if (cursor != null) cursor.moveToFirst();
 
-        UserRole userRole = new UserRole(Integer.parseInt(cursor.getString(0)), cursor.getString(1));
+        Role userRole = new Role(Integer.parseInt(cursor.getString(0)), cursor.getString(1));
         // return contact
         return userRole;
     }
@@ -233,21 +235,21 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
         return cursor.getString(0);
     }
 
-    public void addUserRole(UserRole userRole) {
+    public void addUserRole(Role userRole) {
         if(currentDB == null) {
             currentDB = this.getWritableDatabase();
         }
 //        SQLiteDatabase db = this.getWritableDatabase();
         ContentValues value = new ContentValues();
-        value.put(USER_ROLE, userRole.getUserRole());
+        value.put(USER_ROLE, userRole.getId());
         currentDB.insert(TABLE_USER_ROLE, null, value);
     }
 
-    public int updateUserRole(UserRole userRole) {
+    public int updateUserRole(Role userRole) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues value = new ContentValues();
-        value.put(USER_ROLE, userRole.getUserRole());
-        return db.update(TABLE_USER_ROLE, value, ROLE_ID + " = " + userRole.getUserRoleId(), null);
+        value.put(USER_ROLE, userRole.getId());
+        return db.update(TABLE_USER_ROLE, value, ROLE_ID + " = " + userRole.getId(), null);
     }
 
     public int deleteUserRole(int id) {

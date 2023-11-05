@@ -66,23 +66,23 @@ public class BookDashBoardActivity extends AppCompatActivity implements Navigati
         User user = AnemiUtils.getLoggedInUser(loggedInUser);
 
         if (savedInstanceState == null) {
-            replaceFragment(homeFragment);
+            replaceFragment(userManageFragment);
         }
 
         if(user != null) {
 
             ImageView profile = navigationView.getHeaderView(0).findViewById(R.id.imageProfile);
             TextView username = navigationView.getHeaderView(0).findViewById(R.id.text_username);
-            Glide.with(profile.getContext()).load(user.getPhoto()).into(profile);
+            Glide.with(profile.getContext()).load(user.getAvatar()).into(profile);
             profile.setCropToPadding(true);
             profile.setClipToOutline(true);
             username.setText(user.getUsername());
-            if(user.getUserRoleId() != AnemiUtils.ROLE_ADMIN) {
-                bottomMenu.getMenu().findItem(R.id.book_manage).setVisible(false);
-                navigationView.getMenu().findItem(R.id.nav_book_manage).setVisible(false);
-                bottomMenu.getMenu().findItem(R.id.user_manage).setVisible(false);
-                navigationView.getMenu().findItem(R.id.nav_user_manage).setVisible(false);
-            }
+//            if(user.getRoleId() != AnemiUtils.ROLE_ADMIN) {
+//                bottomMenu.getMenu().findItem(R.id.book_manage).setVisible(false);
+//                navigationView.getMenu().findItem(R.id.nav_book_manage).setVisible(false);
+//                bottomMenu.getMenu().findItem(R.id.user_manage).setVisible(false);
+//                navigationView.getMenu().findItem(R.id.nav_user_manage).setVisible(false);
+//            }
         }
 
 //        switch to using sharePreference
