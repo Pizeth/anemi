@@ -1,8 +1,13 @@
 package com.piseth.anemi.utils.util;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.provider.OpenableColumns;
 import android.util.Base64;
 
 import com.google.gson.Gson;
@@ -30,6 +35,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class AnemiUtils {
 
     public static final String SERVER_API = "https://10.0.2.2:7000/";
+//    public static final String SERVER_API = "https://127.0.0.1:7000/";
     public static final String LOGGED_IN_USER = "logged_user";
     public static final String USER_PHOTO = "user_photo";
     public static final int ROLE_ADMIN = 3;
@@ -160,5 +166,30 @@ public class AnemiUtils {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @SuppressLint("Range")
+    public static String getFileName(Context context, Uri uri) {
+        String result = null;
+        String scheme = uri.getScheme();
+        if (scheme != null && scheme.equals("content")) {
+            Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
+            try {
+                if (cursor != null && cursor.moveToFirst()) {
+                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                }
+            } finally {
+                assert cursor != null;
+                cursor.close();
+            }
+        }
+        if (result == null) {
+            result = uri.getPath();
+            int cut = result.lastIndexOf('/');
+            if (cut != -1) {
+                result = result.substring(cut + 1);
+            }
+        }
+        return result;
     }
 }

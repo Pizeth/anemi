@@ -10,6 +10,7 @@ import com.piseth.anemi.retrofit.apiservices.UserCallBack;
 import com.piseth.anemi.retrofit.repo.UserRetrofitRepo;
 import com.piseth.anemi.utils.model.User;
 
+import java.io.File;
 import java.util.List;
 
 import retrofit2.Call;
@@ -28,7 +29,9 @@ public class UserViewModel extends AndroidViewModel {
         return userRetrofitRepo.getAllUsers();
     }
     public void getUserById(long id, UserCallBack callBack) { userRetrofitRepo.getUserById(id, callBack); }
-    public void addUser(String path, User user) { userRetrofitRepo.addUser(path, user); }
-    public void updateUser(long id, String path, User user) { userRetrofitRepo.updateUser(id, path, user); }
+//    public void addUser(String path, User user) { userRetrofitRepo.addUser(path, user); }
+    public void addUser(File file, User user) { userRetrofitRepo.addUser(file, user); }
+//    public void updateUser(long id, String path, User user) { userRetrofitRepo.updateUser(id, path, user); }
+    public void updateUser(long id, File file, User user) { userRetrofitRepo.updateUser(id, file, user); }
     public void deleteUser(long id) { userRetrofitRepo.deleteUser(id); }
 }

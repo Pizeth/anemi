@@ -4,8 +4,12 @@ import static android.content.ContentValues.TAG;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,12 +29,12 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.common.internal.Preconditions;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.piseth.anemi.R;
 import com.piseth.anemi.firebase.viewmodel.FirebaseUserViewModel;
@@ -39,7 +43,12 @@ import com.piseth.anemi.retrofit.viewmodel.UserViewModel;
 import com.piseth.anemi.utils.model.User;
 import com.piseth.anemi.utils.util.AnemiUtils;
 import com.piseth.anemi.utils.util.DatabaseManageHandler;
-import com.piseth.anemi.utils.util.RealPathUtil;
+
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class DialogUpdateUserFragment extends DialogFragment {
     private DatabaseManageHandler db;
@@ -124,11 +133,16 @@ public class DialogUpdateUserFragment extends DialogFragment {
                 userViewModel.getUserById(id, new UserCallBack() {
                     @Override
                     public void onSuccess(User user) {
+                        Log.d("msg", "jol again");
                         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
                         txt_username.getEditText().setText(user.getUsername());
                         txt_email.getEditText().setText(user.getEmail());
                         txt_phone.getEditText().setText(user.getPhone());
-                        Glide.with(profileImage.getContext()).load(user.getAvatar()).into(profileImage);
+                        if(user.getAvatar().isEmpty()) {
+                            profileImage.setImageBitmap(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.baseline_person_outline_24));
+                        } else {
+                            Glide.with(profileImage.getContext()).load(AnemiUtils.SERVER_API + user.getAvatar()).into(profileImage);
+                        }
                         profileImage.setCropToPadding(true);
                         profileImage.setClipToOutline(true);
                         if(currentUser != null && !currentUser.getUid().equals(id)) {
@@ -138,7 +152,11 @@ public class DialogUpdateUserFragment extends DialogFragment {
                         }
                         Log.d("USERNAME: ", user.getUsername() + " 's data acquired'");
 
-                        addPhoto.setOnClickListener(view1 -> pickImage.launch("image/*"));
+                        addPhoto.setOnClickListener(view1 -> {
+                            pickImage.launch("image/*");
+//                            Log.d("ok", imageToStore.toString());
+//                            profileImage.setImageURI(imageToStore);
+                        });
                         saveButton.setOnClickListener(view1 -> {
                             String username, email, password, re_password, phone, current_password = user.getPassword();
                             boolean isUpdateEmail = false, isUpdatePassword = false;
@@ -263,10 +281,76 @@ public class DialogUpdateUserFragment extends DialogFragment {
 
     private void updateUser(long id, /*String doc_Id,*/ User user, Uri photo, boolean isUpdateEmail, boolean isUpdatePassword, String current_password) {
         Log.d("Update", user.getUsername() + " " + user.getPassword() + " " + user.getPhone());
-        userViewModel.updateUser(id, RealPathUtil.getRealPath(getContext(), imageToStore), user);
+//        userViewModel.updateUser(id, RealPathUtil.getRealPath(getContext(), imageToStore), user);
+        userViewModel.updateUser(id, createFile(getContext(), imageToStore), user);
 //        firebaseUserViewModel.updateUser(photo, user, doc_Id, isUpdateEmail, isUpdatePassword, current_password);
         Toast.makeText(getContext(), user.getUsername() + "'s has been successfully updated", Toast.LENGTH_LONG).show();
     }
+
+    private File createFile(Context context, Uri file) {
+        Preconditions.checkNotNull(file);
+        InputStream inputStream = null;
+        long size = -1;
+        try {
+            ContentResolver resolver = getContext().getContentResolver();
+            ParcelFileDescriptor fd = null;
+            try {
+                fd = resolver.openFileDescriptor(file, "r");
+                if (fd != null) {
+                    size = fd.getStatSize();
+                    fd.close();
+                }
+            } catch (NullPointerException npe) {
+                // happens under test.
+                Log.w(TAG, "NullPointerException during file size calculation.", npe);
+                size = -1;
+            } catch (IOException checkSizeError) {
+                Log.w(TAG, "could not retrieve file size for upload " + file.toString(), checkSizeError);
+            }
+
+            inputStream = resolver.openInputStream(file);
+            if (inputStream != null) {
+                if (size == -1) {
+                    // If we had issues calculating the size, try stream.available -- it may still work
+                    try {
+                        int streamSize = inputStream.available();
+                        if (streamSize >= 0) {
+                            size = streamSize;
+                        }
+                    } catch (IOException e) {
+                        // Ignore the error and continue without a size.  We document it may not be there.
+                    }
+                }
+                inputStream = new BufferedInputStream(inputStream);
+            }
+        } catch (FileNotFoundException e) {
+            Log.e(TAG, "could not locate file for uploading:" + file.toString());
+        }
+
+//        byte[] bytes = ByteStreams.toByteArray(inputStream);
+        File image = new File(context.getCacheDir(), AnemiUtils.getFileName(context, file));
+        Log.d("image", "Image name: " + image.getName());
+        Log.d("image", "Image name: " + image.getPath());
+//        File image = null;
+//        Files.copy(inputStream, image, StandardCopyOption.REPLACE_EXISTING);
+        return image;
+    }
+
+//    private getFile(Uri selectedImage) {
+//        // Get the Image from data
+////        Uri selectedImage = data.getData();
+//        String selectedFilePath = FilePath.getPath(this,selectedImage);
+//        String[] filePathColumn = {MediaStore.Images.Media.DATA};
+//        Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
+//        assert cursor != null;
+//        cursor.moveToFirst();
+//        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+//        imagePath = cursor.getString(columnIndex);
+////                str1.setText(mediaPath);
+//        // Set the Image in ImageView for Previewing the Media
+//        imageView.setImageBitmap(BitmapFactory.decodeFile(selectedFilePath));
+//        cursor.close();
+//    }
 
 //    public boolean updateUser(String username, String email, String password, String re_password, String phone, Uri imageToStore) {
 //        boolean checkOperation = false;
@@ -289,6 +373,8 @@ public class DialogUpdateUserFragment extends DialogFragment {
                     if (result != null) {
                         imageToStore = result;
                         profileImage.setImageURI(result);
+                      Log.d("img", "Image string " + result.toString());
+                      Log.d("img", "Image path " + result.getPath());
                     }
                 }
             });

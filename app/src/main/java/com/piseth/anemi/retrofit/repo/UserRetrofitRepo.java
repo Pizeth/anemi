@@ -86,8 +86,8 @@ public class UserRetrofitRepo {
         });
     }
 
-    public void addUser(String path, User user) {
-        File image = new File(path);
+    public void addUser(File image, User user) {
+//        File image = new File(path);
         RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), image);
         MultipartBody.Part body = MultipartBody.Part.createFormData("image", image.getName(), requestFile);
         Call<User> call = userApi.addUser(body, user);
@@ -110,8 +110,8 @@ public class UserRetrofitRepo {
         });
     }
 
-    public void updateUser(long id, String path, User user) {
-        File image = new File(path);
+    public void updateUser(long id, File image, User user) {
+//        File image = new File(path);
         RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), image);
         MultipartBody.Part body = MultipartBody.Part.createFormData("image", image.getName(), requestFile);
         Call<User> call = userApi.updateUser(id, body, user);

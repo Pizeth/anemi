@@ -111,11 +111,11 @@ public class BookManagementFragment extends Fragment {
 
         fabAddBook = view.findViewById(R.id.floating_add_book);
         User user = AnemiUtils.getLoggedInUser(loggedInUser);
-        if(user != null) {
-            if(user.getRoleId() != AnemiUtils.ROLE_ADMIN) {
-                fabAddBook.setVisibility(View.INVISIBLE);
-            }
-        }
+//        if(user != null) {
+//            if(user.getRoleId() != AnemiUtils.ROLE_ADMIN) {
+//                fabAddBook.setVisibility(View.INVISIBLE);
+//            }
+//        }
         fabAddBook.setOnClickListener(view1 -> dialogAction(AnemiUtils.NEW_BOOK_ENTRY, AnemiUtils.STARTING_POSITION, AnemiUtils.ACTION_ADD));
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
                 ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
