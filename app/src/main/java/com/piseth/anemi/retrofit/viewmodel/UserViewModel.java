@@ -32,6 +32,6 @@ public class UserViewModel extends AndroidViewModel {
 //    public void addUser(String path, User user) { userRetrofitRepo.addUser(path, user); }
     public void addUser(File file, User user) { userRetrofitRepo.addUser(file, user); }
 //    public void updateUser(long id, String path, User user) { userRetrofitRepo.updateUser(id, path, user); }
-    public void updateUser(long id, File file, User user) { userRetrofitRepo.updateUser(id, file, user); }
+    public void updateUser(long id, User user) { userRetrofitRepo.updateUser(id, user); }
     public void deleteUser(long id) { userRetrofitRepo.deleteUser(id); }
 }

@@ -35,6 +35,13 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class AnemiUtils {
 
     public static final String SERVER_API = "https://10.0.2.2:7000/";
+//    public static final String PUBLIC_KEY = "public_cjcNLhDV1p4OBh0HByyE2SbIdNQ=";
+    public static final String PUBLIC_KEY = "45b2aab7ef429409451e";
+    public static final String PRIVATE_KEY = "aace177b6fa28fc00d5a";
+    public static final String[] AVATAR_TAG = {"AVATAR", "Portrait", "Profile"};
+    public static final String IMAGEKIT_TOKEN = "";
+
+    public static final String URL_ENDPOINT = "https://ik.imagekit.io/razeth";
 //    public static final String SERVER_API = "https://127.0.0.1:7000/";
     public static final String LOGGED_IN_USER = "logged_user";
     public static final String USER_PHOTO = "user_photo";

@@ -24,11 +24,10 @@ public interface UserApi {
     @POST("api/Users/Register")
     Call<User> addUser(@Part MultipartBody.Part image,
                        @Part("user") User user);
-    @Multipart
     @PUT("api/Users/{id}")
     Call<User> updateUser(@Path("id") long id,
-                          @Part MultipartBody.Part image,
-                          @Part("user") User user);
+//                          @Part MultipartBody.Part image,
+                          User user);
     @DELETE("api/Users/{id}")
     Call<User> deleteUser(@Path("id") long id);
 }

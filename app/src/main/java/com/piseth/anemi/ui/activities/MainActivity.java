@@ -15,6 +15,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.imagekit.android.ImageKit;
+import com.imagekit.android.entity.TransformationPosition;
+import com.imagekit.android.entity.UploadPolicy;
 import com.piseth.anemi.R;
 import com.piseth.anemi.utils.model.User;
 import com.piseth.anemi.utils.util.AnemiUtils;
@@ -34,6 +37,16 @@ public class MainActivity extends AppCompatActivity {
 //        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
 
+        ImageKit.Companion.init(
+                getApplicationContext(),
+                AnemiUtils.PUBLIC_KEY,
+                AnemiUtils.URL_ENDPOINT,
+                TransformationPosition.PATH,
+                new UploadPolicy.Builder()
+                        .requireNetworkType(UploadPolicy.NetworkType.ANY)
+                        .maxRetries(5)
+                        .build()
+        );
         //Animation
         topAnim = AnimationUtils.loadAnimation(this, R.anim.top_animation);
         bottomAnim = AnimationUtils.loadAnimation(this, R.anim.bottom_animation);

@@ -6,7 +6,10 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
@@ -36,6 +39,13 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.imagekit.android.ImageKit;
+import com.imagekit.android.ImageKitCallback;
+import com.imagekit.android.entity.TransformationPosition;
+import com.imagekit.android.entity.UploadError;
+import com.imagekit.android.entity.UploadPolicy;
+import com.imagekit.android.entity.UploadResponse;
+import com.imagekit.android.preprocess.ImageUploadPreprocessor;
 import com.piseth.anemi.R;
 import com.piseth.anemi.firebase.viewmodel.FirebaseUserViewModel;
 import com.piseth.anemi.retrofit.apiservices.UserCallBack;
@@ -43,6 +53,14 @@ import com.piseth.anemi.retrofit.viewmodel.UserViewModel;
 import com.piseth.anemi.utils.model.User;
 import com.piseth.anemi.utils.util.AnemiUtils;
 import com.piseth.anemi.utils.util.DatabaseManageHandler;
+import com.uploadcare.android.library.api.UploadcareClient;
+import com.uploadcare.android.library.api.UploadcareFile;
+import com.uploadcare.android.library.callbacks.UploadFileCallback;
+import com.uploadcare.android.library.exceptions.UploadcareApiException;
+import com.uploadcare.android.library.upload.FileUploader;
+import com.uploadcare.android.library.upload.Uploader;
+import com.uploadcare.android.widget.controller.UploadcareWidget;
+import com.uploadcare.android.widget.controller.UploadcareWidgetResult;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -63,6 +81,8 @@ public class DialogUpdateUserFragment extends DialogFragment {
     private UserViewModel userViewModel;
     private FirebaseFirestore firebaseFirestore;
     private CollectionReference userRef;
+    private UploadcareClient uploadCare;
+    private Uploader uploader;
 
     public DialogUpdateUserFragment(Bundle savedInstanceState) {
         super.setArguments(savedInstanceState);
@@ -83,6 +103,7 @@ public class DialogUpdateUserFragment extends DialogFragment {
         builder.setNeutralButton("OK", (dialog, which) -> dismiss());
         builder.setPositiveButton("SAVE", (dialog, which) -> dismiss());
         builder.setNegativeButton("CANCEL", (dialog, which) -> dismiss());
+        uploadCare = new UploadcareClient(AnemiUtils.PUBLIC_KEY, AnemiUtils.PRIVATE_KEY);
 
         return builder.create();
     }
@@ -108,6 +129,17 @@ public class DialogUpdateUserFragment extends DialogFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+//        ImageKit.Companion.init(
+//                getContext(),
+//                AnemiUtils.PUBLIC_KEY,
+//                AnemiUtils.URL_ENDPOINT,
+//                TransformationPosition.PATH,
+//                new UploadPolicy.Builder()
+//                        .requireNetworkType(UploadPolicy.NetworkType.ANY)
+//                        .maxRetries(3)
+//                        .build()
+//        );
+
         txt_username = view.findViewById(R.id.username);
         txt_email = view.findViewById(R.id.email);
         txt_password = view.findViewById(R.id.password);
@@ -123,6 +155,7 @@ public class DialogUpdateUserFragment extends DialogFragment {
         firebaseUserViewModel = new ViewModelProvider(getActivity()).get(FirebaseUserViewModel.class);
 //        String id;
         long id;
+        Fragment fragment = this; //or Activity activity = this;
 
         if (getArguments() != null) {
 //            id = getArguments().getString("user_id");
@@ -141,7 +174,8 @@ public class DialogUpdateUserFragment extends DialogFragment {
                         if(user.getAvatar().isEmpty()) {
                             profileImage.setImageBitmap(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.baseline_person_outline_24));
                         } else {
-                            Glide.with(profileImage.getContext()).load(AnemiUtils.SERVER_API + user.getAvatar()).into(profileImage);
+//                            Glide.with(profileImage.getContext()).load(AnemiUtils.SERVER_API + user.getAvatar()).into(profileImage);
+                            Glide.with(profileImage.getContext()).load(user.getAvatar()).into(profileImage);
                         }
                         profileImage.setCropToPadding(true);
                         profileImage.setClipToOutline(true);
@@ -157,6 +191,20 @@ public class DialogUpdateUserFragment extends DialogFragment {
 //                            Log.d("ok", imageToStore.toString());
 //                            profileImage.setImageURI(imageToStore);
                         });
+
+                        profileImage.setOnClickListener(view1 -> {
+                            pickImage.launch("image/*");
+//                            Log.d("ok", imageToStore.toString());
+//                            profileImage.setImageURI(imageToStore);
+                        });
+
+//                        profileImage.setOnClickListener(view1 -> {
+//                            UploadcareWidget.getInstance()
+//                                    .selectFile(fragment)
+//                                    //set other parameters for upload
+//                                    .launch();
+//                        });
+
                         saveButton.setOnClickListener(view1 -> {
                             String username, email, password, re_password, phone, current_password = user.getPassword();
                             boolean isUpdateEmail = false, isUpdatePassword = false;
@@ -187,7 +235,82 @@ public class DialogUpdateUserFragment extends DialogFragment {
                                 user.setPassword(password);
                             }
                             if (!phone.isEmpty() && !phone.equals(user.getPhone())) user.setPhone(phone);
-                            updateUser(id, user, imageToStore, isUpdateEmail, isUpdatePassword, current_password);
+
+//                            UploadPolicy policy = new UploadPolicy.Builder().maxRetries(3).backoffCriteria(
+//                                    100L,
+//                                    UploadPolicy.BackoffPolicy.EXPONENTIAL
+//                            ).build();
+                            UploadcareClient uploadCare = new UploadcareClient(AnemiUtils.PUBLIC_KEY, AnemiUtils.PRIVATE_KEY);
+
+                            uploader = new FileUploader(uploadCare, imageToStore, getContext()) // Use "MultipleFilesUploader" for multiple files.
+                                    .store(true);
+                            // Other upload parameters.
+
+                            uploader.uploadAsync(new UploadFileCallback() {
+                                @Override
+                                public void onProgressUpdate(long l, long l1, double v) {
+
+                                }
+
+                                @Override
+                                public void onFailure(UploadcareApiException e) {
+                                    // Handle errors.
+                                    Log.d("Error", "Upload error " + e.getMessage());
+                                }
+
+                                @Override
+                                public void onSuccess(UploadcareFile file) {
+                                    Log.d("Success", "File location is " + file.getSource());
+                                    Log.d("Success", "File URL is " + file.getUrl());
+                                    Log.d("Success", "File OG URL is " + file.getOriginalFileUrl());
+                                    Log.d("Success", "File OG name is " + file.getOriginalFilename());
+                                    String name = file.getOriginalFileUrl().toString();
+                                    Log.d("Uploaded", "File cdn location" + name);
+                                    String replace = name.replace(file.getOriginalFilename(), user.getUsername());
+                                    Log.d("Success Rename", "File after rename" + replace);
+//                                    Toast.makeText(getContext(), "File location is " + file.getSource(), Toast.LENGTH_SHORT).show();
+//                                    Toast.makeText(getContext(), "File URL is " + file.getUrl(), Toast.LENGTH_SHORT).show();
+//                                    Toast.makeText(getContext(), "File OG URL is " + file.getOriginalFileUrl(), Toast.LENGTH_SHORT).show();
+//                                    Toast.makeText(getContext(), "File OG name is " + file.getOriginalFilename(), Toast.LENGTH_SHORT).show();
+
+//                                    user.setAvatar(file.getOriginalFileUrl().getPath().replace(file.getOriginalFilename(), user.getUsername()));
+                                    updateUser(id, user);
+                                    Log.d("User Updated", user.getUsername() + "'s info updated");
+                                }
+                            });
+
+//                            ImageKit.Companion.getInstance().uploader().upload(
+//                                    createFile(getContext(), imageToStore),
+//                                    AnemiUtils.IMAGEKIT_TOKEN,
+//                                    username,
+//                                    false,
+//                                    new String[]{"nice", "copy", "books"},
+//                                    "/Images/Avatar/",
+//                                    false,
+//                                    "",
+//                                    "",
+//                                    null,
+//                                    "",
+//                                    true,
+//                                    true,
+//                                    true,
+//                                    true,
+//                                    null,
+//                                    policy,
+//                                    new ImageKitCallback() {
+//                                        @Override
+//                                        public void onSuccess(@NonNull UploadResponse uploadResponse) {
+////                                            uploadResponse.getWidth();
+////                                            updateUser(id, user, imageToStore, isUpdateEmail, isUpdatePassword, current_password);
+//                                        }
+//
+//                                        @Override
+//                                        public void onError(@NonNull UploadError uploadError) {
+//
+//                                        }
+//                                    }
+//                            );
+
                             Log.d("Successful: ", "Back to manage user Screen");
                             if (listener != null) {
                                 listener.onFinishUpdateDialog(user);
@@ -279,15 +402,16 @@ public class DialogUpdateUserFragment extends DialogFragment {
         Log.d("API123", "onCreate");
     }
 
-    private void updateUser(long id, /*String doc_Id,*/ User user, Uri photo, boolean isUpdateEmail, boolean isUpdatePassword, String current_password) {
+    private void updateUser(long id, User user) {
         Log.d("Update", user.getUsername() + " " + user.getPassword() + " " + user.getPhone());
 //        userViewModel.updateUser(id, RealPathUtil.getRealPath(getContext(), imageToStore), user);
-        userViewModel.updateUser(id, createFile(getContext(), imageToStore), user);
+//        userViewModel.updateUser(id, createFile(getContext(), imageToStore), user);
 //        firebaseUserViewModel.updateUser(photo, user, doc_Id, isUpdateEmail, isUpdatePassword, current_password);
+        userViewModel.updateUser(id, user);
         Toast.makeText(getContext(), user.getUsername() + "'s has been successfully updated", Toast.LENGTH_LONG).show();
     }
 
-    private File createFile(Context context, Uri file) {
+    private Bitmap createFile(Context context, Uri file) {
         Preconditions.checkNotNull(file);
         InputStream inputStream = null;
         long size = -1;
@@ -328,29 +452,13 @@ public class DialogUpdateUserFragment extends DialogFragment {
         }
 
 //        byte[] bytes = ByteStreams.toByteArray(inputStream);
-        File image = new File(context.getCacheDir(), AnemiUtils.getFileName(context, file));
-        Log.d("image", "Image name: " + image.getName());
-        Log.d("image", "Image name: " + image.getPath());
-//        File image = null;
-//        Files.copy(inputStream, image, StandardCopyOption.REPLACE_EXISTING);
-        return image;
+//        File image = new File(context.getCacheDir(), AnemiUtils.getFileName(context, file));
+//        Log.d("image", "Image name: " + image.getName());
+//        Log.d("image", "Image name: " + image.getPath());
+//        Bitmap image = BitmapFactory.decodeStream(inputStream);
+//        return inputStream;
+        return BitmapFactory.decodeStream(inputStream);
     }
-
-//    private getFile(Uri selectedImage) {
-//        // Get the Image from data
-////        Uri selectedImage = data.getData();
-//        String selectedFilePath = FilePath.getPath(this,selectedImage);
-//        String[] filePathColumn = {MediaStore.Images.Media.DATA};
-//        Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
-//        assert cursor != null;
-//        cursor.moveToFirst();
-//        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-//        imagePath = cursor.getString(columnIndex);
-////                str1.setText(mediaPath);
-//        // Set the Image in ImageView for Previewing the Media
-//        imageView.setImageBitmap(BitmapFactory.decodeFile(selectedFilePath));
-//        cursor.close();
-//    }
 
 //    public boolean updateUser(String username, String email, String password, String re_password, String phone, Uri imageToStore) {
 //        boolean checkOperation = false;
@@ -477,9 +585,5 @@ public class DialogUpdateUserFragment extends DialogFragment {
             errorLabel.setVisibility(View.GONE);
             return true;
         }
-    }
-
-    public void clickListeners() {
-
     }
 }

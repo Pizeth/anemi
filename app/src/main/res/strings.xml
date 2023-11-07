@@ -1,0 +1,5 @@
+<resources>
+    <!--Replace with your public/secret keys to use UploadcareWidget. Private key is optional, required only if you use Rest API features.-->
+    <string name="uploadcare_public_key" translatable="false">45b2aab7ef429409451e</string>
+    <string name="uploadcare_secret_key" translatable="false">aace177b6fa28fc00d5a</string>
+</resources>

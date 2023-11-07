@@ -110,11 +110,11 @@ public class UserRetrofitRepo {
         });
     }
 
-    public void updateUser(long id, File image, User user) {
+    public void updateUser(long id, User user) {
 //        File image = new File(path);
-        RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), image);
-        MultipartBody.Part body = MultipartBody.Part.createFormData("image", image.getName(), requestFile);
-        Call<User> call = userApi.updateUser(id, body, user);
+//        RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), image);
+//        MultipartBody.Part body = MultipartBody.Part.createFormData("image", image.getName(), requestFile);
+        Call<User> call = userApi.updateUser(id, /*body,*/ user);
         call.enqueue(new Callback<User>() {
             @Override
             public void onResponse(Call<User> call, Response<User> response) {
