@@ -6,10 +6,8 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
@@ -39,13 +37,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.imagekit.android.ImageKit;
-import com.imagekit.android.ImageKitCallback;
-import com.imagekit.android.entity.TransformationPosition;
-import com.imagekit.android.entity.UploadError;
-import com.imagekit.android.entity.UploadPolicy;
-import com.imagekit.android.entity.UploadResponse;
-import com.imagekit.android.preprocess.ImageUploadPreprocessor;
 import com.piseth.anemi.R;
 import com.piseth.anemi.firebase.viewmodel.FirebaseUserViewModel;
 import com.piseth.anemi.retrofit.apiservices.UserCallBack;
@@ -59,11 +50,8 @@ import com.uploadcare.android.library.callbacks.UploadFileCallback;
 import com.uploadcare.android.library.exceptions.UploadcareApiException;
 import com.uploadcare.android.library.upload.FileUploader;
 import com.uploadcare.android.library.upload.Uploader;
-import com.uploadcare.android.widget.controller.UploadcareWidget;
-import com.uploadcare.android.widget.controller.UploadcareWidgetResult;
 
 import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -81,8 +69,6 @@ public class DialogUpdateUserFragment extends DialogFragment {
     private UserViewModel userViewModel;
     private FirebaseFirestore firebaseFirestore;
     private CollectionReference userRef;
-    private UploadcareClient uploadCare;
-    private Uploader uploader;
 
     public DialogUpdateUserFragment(Bundle savedInstanceState) {
         super.setArguments(savedInstanceState);
@@ -103,7 +89,6 @@ public class DialogUpdateUserFragment extends DialogFragment {
         builder.setNeutralButton("OK", (dialog, which) -> dismiss());
         builder.setPositiveButton("SAVE", (dialog, which) -> dismiss());
         builder.setNegativeButton("CANCEL", (dialog, which) -> dismiss());
-        uploadCare = new UploadcareClient(AnemiUtils.PUBLIC_KEY, AnemiUtils.PRIVATE_KEY);
 
         return builder.create();
     }
@@ -139,7 +124,6 @@ public class DialogUpdateUserFragment extends DialogFragment {
 //                        .maxRetries(3)
 //                        .build()
 //        );
-
         txt_username = view.findViewById(R.id.username);
         txt_email = view.findViewById(R.id.email);
         txt_password = view.findViewById(R.id.password);
@@ -186,24 +170,10 @@ public class DialogUpdateUserFragment extends DialogFragment {
                         }
                         Log.d("USERNAME: ", user.getUsername() + " 's data acquired'");
 
-                        addPhoto.setOnClickListener(view1 -> {
-                            pickImage.launch("image/*");
-//                            Log.d("ok", imageToStore.toString());
-//                            profileImage.setImageURI(imageToStore);
-                        });
+                        addPhoto.setOnClickListener(view1 -> { pickImage.launch("image/*"); });
 
-                        profileImage.setOnClickListener(view1 -> {
-                            pickImage.launch("image/*");
-//                            Log.d("ok", imageToStore.toString());
-//                            profileImage.setImageURI(imageToStore);
-                        });
+                        profileImage.setOnClickListener(view1 -> { pickImage.launch("image/*"); });
 
-//                        profileImage.setOnClickListener(view1 -> {
-//                            UploadcareWidget.getInstance()
-//                                    .selectFile(fragment)
-//                                    //set other parameters for upload
-//                                    .launch();
-//                        });
 
                         saveButton.setOnClickListener(view1 -> {
                             String username, email, password, re_password, phone, current_password = user.getPassword();
@@ -240,44 +210,47 @@ public class DialogUpdateUserFragment extends DialogFragment {
 //                                    100L,
 //                                    UploadPolicy.BackoffPolicy.EXPONENTIAL
 //                            ).build();
-                            UploadcareClient uploadCare = new UploadcareClient(AnemiUtils.PUBLIC_KEY, AnemiUtils.PRIVATE_KEY);
 
-                            uploader = new FileUploader(uploadCare, imageToStore, getContext()) // Use "MultipleFilesUploader" for multiple files.
-                                    .store(true);
-                            // Other upload parameters.
 
-                            uploader.uploadAsync(new UploadFileCallback() {
-                                @Override
-                                public void onProgressUpdate(long l, long l1, double v) {
+                            if(imageToStore != null) {
+                                UploadcareClient uploadCare = new UploadcareClient(AnemiUtils.PUBLIC_KEY, AnemiUtils.PRIVATE_KEY);
+                                Uploader uploader = new FileUploader(uploadCare, imageToStore, getContext()).store(true);
+                                uploader.uploadAsync(new UploadFileCallback() {
+                                    @Override
+                                    public void onProgressUpdate(long l, long l1, double v) {}
 
-                                }
+                                    @Override
+                                    public void onFailure(UploadcareApiException e) {
+                                        // Handle errors.
+                                        Log.d("Error", "Upload error " + e.getMessage());
+                                    }
 
-                                @Override
-                                public void onFailure(UploadcareApiException e) {
-                                    // Handle errors.
-                                    Log.d("Error", "Upload error " + e.getMessage());
-                                }
-
-                                @Override
-                                public void onSuccess(UploadcareFile file) {
-                                    Log.d("Success", "File location is " + file.getSource());
-                                    Log.d("Success", "File URL is " + file.getUrl());
-                                    Log.d("Success", "File OG URL is " + file.getOriginalFileUrl());
-                                    Log.d("Success", "File OG name is " + file.getOriginalFilename());
-                                    String name = file.getOriginalFileUrl().toString();
-                                    Log.d("Uploaded", "File cdn location" + name);
-                                    String replace = name.replace(file.getOriginalFilename(), user.getUsername());
-                                    Log.d("Success Rename", "File after rename" + replace);
+                                    @Override
+                                    public void onSuccess(UploadcareFile file) {
+                                        Log.d("Success", "File location is " + file.getSource());
+                                        Log.d("Success", "File URL is " + file.getUrl());
+                                        Log.d("Success", "File OG URL is " + file.getOriginalFileUrl());
+                                        Log.d("Success", "File OG name is " + file.getOriginalFilename());
+                                        String name = file.getOriginalFileUrl().toString();
+                                        Log.d("Uploaded", "File cdn location " + name);
+                                        String avatarUrl = name.replace(file.getOriginalFilename(), user.getUsername());
+                                        Log.d("Success Rename", "File after rename " + avatarUrl);
 //                                    Toast.makeText(getContext(), "File location is " + file.getSource(), Toast.LENGTH_SHORT).show();
 //                                    Toast.makeText(getContext(), "File URL is " + file.getUrl(), Toast.LENGTH_SHORT).show();
 //                                    Toast.makeText(getContext(), "File OG URL is " + file.getOriginalFileUrl(), Toast.LENGTH_SHORT).show();
 //                                    Toast.makeText(getContext(), "File OG name is " + file.getOriginalFilename(), Toast.LENGTH_SHORT).show();
 
-//                                    user.setAvatar(file.getOriginalFileUrl().getPath().replace(file.getOriginalFilename(), user.getUsername()));
-                                    updateUser(id, user);
-                                    Log.d("User Updated", user.getUsername() + "'s info updated");
-                                }
-                            });
+                                        user.setAvatar(avatarUrl);
+//                                        updateUser(id, user);
+                                        Log.d("User Updated", user.getUsername() + "'s info updated");
+                                        listener.onFinishUpdateDialog(id, user);
+                                    }
+                                });
+                            } else {
+                                listener.onFinishUpdateDialog(id, user);
+                            }
+
+
 
 //                            ImageKit.Companion.getInstance().uploader().upload(
 //                                    createFile(getContext(), imageToStore),
@@ -312,10 +285,11 @@ public class DialogUpdateUserFragment extends DialogFragment {
 //                            );
 
                             Log.d("Successful: ", "Back to manage user Screen");
-                            if (listener != null) {
-                                listener.onFinishUpdateDialog(user);
-                                Log.d("Update: ", " Position " + getArguments().getInt("position"));
-                            }
+//                            if (listener != null) {
+//                                listener.onFinishUpdateDialog(id, user);
+//                                Log.d("Update: ", " Position " + getArguments().getInt("position"));
+//                                Log.d("Update", user.getUsername() + " " + user.getPassword() + " " + user.getPhone() + " " + user.getAvatar());
+//                            }
                             dismiss();
                         });
                     }
@@ -403,7 +377,7 @@ public class DialogUpdateUserFragment extends DialogFragment {
     }
 
     private void updateUser(long id, User user) {
-        Log.d("Update", user.getUsername() + " " + user.getPassword() + " " + user.getPhone());
+        Log.d("Update", user.getUsername() + " " + user.getPassword() + " " + user.getPhone() + " " + user.getAvatar());
 //        userViewModel.updateUser(id, RealPathUtil.getRealPath(getContext(), imageToStore), user);
 //        userViewModel.updateUser(id, createFile(getContext(), imageToStore), user);
 //        firebaseUserViewModel.updateUser(photo, user, doc_Id, isUpdateEmail, isUpdatePassword, current_password);
@@ -507,7 +481,7 @@ public class DialogUpdateUserFragment extends DialogFragment {
     }
 
     public interface OnUpdateCompletedDialogListener {
-        void onFinishUpdateDialog(User user);
+        void onFinishUpdateDialog(long id, User user);
     }
 
     public void setOnUpdateCompletedDialogListener(OnUpdateCompletedDialogListener listener) {

@@ -112,7 +112,7 @@ public class UserProfileFragment extends Fragment {
             }
             ft.addToBackStack(null);
             dialogFragment.show(ft, "dialog");
-            dialogFragment.setOnUpdateCompletedDialogListener(this::reloadInfo);
+//            dialogFragment.setOnUpdateCompletedDialogListener(this::reloadInfo);
         });
     }
 

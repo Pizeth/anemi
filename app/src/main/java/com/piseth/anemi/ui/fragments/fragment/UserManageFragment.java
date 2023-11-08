@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -125,16 +126,17 @@ public class UserManageFragment extends Fragment {
         recyclerView.setAdapter(adapter);
 
         userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
-        userViewModel.getAllUsers().observe(getViewLifecycleOwner(), new Observer<List<User>>() {
-            @Override
-            public void onChanged(List<User> users) {
-                List<User> allUsers = users;
-                for (User user: allUsers) {
-                    Log.d(TAG, "Username is: " + user.getUsername());
-                }
-                adapter.submitList(users);
-            }
-        });
+//        userViewModel.getAllUsers().observe(getViewLifecycleOwner(), new Observer<List<User>>() {
+//            @Override
+//            public void onChanged(List<User> users) {
+//                List<User> allUsers = users;
+//                for (User user: allUsers) {
+//                    Log.d(TAG, "Username is: " + user.getUsername());
+//                }
+//                adapter.submitList(users);
+//            }
+//        });
+        liveUserDataListening();
 
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
                 ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
@@ -178,6 +180,16 @@ public class UserManageFragment extends Fragment {
 //                        AnemiUtils.setUserPreference(loggedInUser, user);
 //                    }
 //                });
+                dialogFragment.setOnUpdateCompletedDialogListener(new DialogUpdateUserFragment.OnUpdateCompletedDialogListener() {
+                    @Override
+                    public void onFinishUpdateDialog(long id, User user) {
+                        Log.d("User Avatar Updated", "User avatar is : " + user.getAvatar());
+                        userViewModel.updateUser(id, user);
+                        liveUserDataListening();
+                        adapter.notify();
+                        Toast.makeText(getContext(), user.getUsername() + "'s has been successfully updated", Toast.LENGTH_LONG).show();
+                    }
+                });
             }
 
             @Override
@@ -223,8 +235,9 @@ public class UserManageFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        recyclerView.getRecycledViewPool().clear();
+//        recyclerView.getRecycledViewPool().clear();
 //        fireAdapter.startListening();
+//        liveUserDataListening();
     }
 
 
@@ -254,6 +267,18 @@ public class UserManageFragment extends Fragment {
         dialogFragment.show(ft, "dialog");
     }
 
+    public void liveUserDataListening() {
+        userViewModel.getAllUsers().observe(getViewLifecycleOwner(), new Observer<List<User>>() {
+            @Override
+            public void onChanged(List<User> users) {
+                List<User> allUsers = users;
+                for (User user: allUsers) {
+                    Log.d(TAG, "Username is: " + user.getUsername());
+                }
+                adapter.submitList(users);
+            }
+        });
+    }
 
     public void deleteUserDialog(int p) {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(getContext());

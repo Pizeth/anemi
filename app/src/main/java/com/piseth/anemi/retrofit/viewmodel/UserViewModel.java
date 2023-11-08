@@ -19,14 +19,16 @@ import retrofit2.Response;
 
 public class UserViewModel extends AndroidViewModel {
     private UserRetrofitRepo userRetrofitRepo;
+    private LiveData<List<User>> allUsers;
 
     public UserViewModel(@NonNull Application application) {
         super(application);
         userRetrofitRepo = new UserRetrofitRepo();
+        allUsers = userRetrofitRepo.getAllUsers();
     }
 
     public LiveData<List<User>> getAllUsers() {
-        return userRetrofitRepo.getAllUsers();
+        return allUsers;
     }
     public void getUserById(long id, UserCallBack callBack) { userRetrofitRepo.getUserById(id, callBack); }
 //    public void addUser(String path, User user) { userRetrofitRepo.addUser(path, user); }

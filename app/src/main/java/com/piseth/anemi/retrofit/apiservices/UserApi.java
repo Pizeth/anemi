@@ -7,6 +7,7 @@ import java.util.List;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Multipart;
@@ -27,7 +28,7 @@ public interface UserApi {
     @PUT("api/Users/{id}")
     Call<User> updateUser(@Path("id") long id,
 //                          @Part MultipartBody.Part image,
-                          User user);
+                          @Body User user);
     @DELETE("api/Users/{id}")
     Call<User> deleteUser(@Path("id") long id);
 }

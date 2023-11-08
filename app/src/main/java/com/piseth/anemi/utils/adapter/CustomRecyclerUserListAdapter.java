@@ -1,6 +1,7 @@
 package com.piseth.anemi.utils.adapter;
 
 import android.content.SharedPreferences;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,6 +58,11 @@ public class CustomRecyclerUserListAdapter extends ListAdapter<User, CustomRecyc
 
         @Override
         public boolean areContentsTheSame(@NonNull User oldItem, @NonNull User newItem) {
+            boolean compare;
+            compare = ObjectDifferBuilder.buildDefault().compare(oldItem, newItem).hasChanges();
+            Log.d("Object 1 ", "Object 1 username is " + oldItem.getUsername());
+            Log.d("Object 2 ", "Object 2 username is " + newItem.getUsername());
+            Log.d("Compare object ", "The object is the same? " + compare);
             return ObjectDifferBuilder.buildDefault().compare(oldItem, newItem).hasChanges();
         }
     };
