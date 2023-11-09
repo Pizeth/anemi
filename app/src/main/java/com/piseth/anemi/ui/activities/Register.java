@@ -3,6 +3,7 @@ package com.piseth.anemi.ui.activities;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -21,9 +22,16 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.gson.Gson;
 import com.piseth.anemi.R;
 import com.piseth.anemi.firebase.viewmodel.FirebaseUserViewModel;
+import com.piseth.anemi.retrofit.viewmodel.UserViewModel;
 import com.piseth.anemi.utils.model.User;
 import com.piseth.anemi.utils.util.AnemiUtils;
 import com.piseth.anemi.utils.util.DatabaseManageHandler;
+import com.uploadcare.android.library.api.UploadcareClient;
+import com.uploadcare.android.library.api.UploadcareFile;
+import com.uploadcare.android.library.callbacks.UploadFileCallback;
+import com.uploadcare.android.library.exceptions.UploadcareApiException;
+import com.uploadcare.android.library.upload.FileUploader;
+import com.uploadcare.android.library.upload.Uploader;
 
 public class Register extends AppCompatActivity {
 
@@ -35,6 +43,7 @@ public class Register extends AppCompatActivity {
     private ImageView profileImage;
     private TextView errorLabel;
     private FirebaseUserViewModel firebaseUserViewModel;
+    private UserViewModel userViewModel;
     private FirebaseAuth auth;
 
     @Override
@@ -50,8 +59,9 @@ public class Register extends AppCompatActivity {
         errorLabel = findViewById(R.id.lbl_error);
         db = new DatabaseManageHandler(this);
         loggedInUser = getSharedPreferences(AnemiUtils.LOGGED_IN_USER, MODE_PRIVATE);
-        auth = FirebaseAuth.getInstance();
-        firebaseUserViewModel = new ViewModelProvider(this).get(FirebaseUserViewModel.class);
+//        auth = FirebaseAuth.getInstance();
+//        firebaseUserViewModel = new ViewModelProvider(this).get(FirebaseUserViewModel.class);
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
     }
 
     public void btnAddPhotoOnClickListener(View view) {
@@ -87,20 +97,52 @@ public class Register extends AppCompatActivity {
             !isValidPhoto(imageToStore)) {
             return;
         }
-        Log.d("Insert: ", username + " " + password + " " + phone);
-        auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-//                User user = new User(username, email, password, AnemiUtils.ROLE_USER, phone);
-                User user = new User();
-                String id = auth.getUid();
-                firebaseUserViewModel.addNewUser(imageToStore, user, id);
-                AnemiUtils.setUserPreference(loggedInUser, user);
-                Toast.makeText(Register.this, "Successfully Register new User", Toast.LENGTH_SHORT).show();
+        UploadcareClient uploadCare = new UploadcareClient(AnemiUtils.PUBLIC_KEY, AnemiUtils.PRIVATE_KEY);
+        Uploader uploader = new FileUploader(uploadCare, imageToStore, getApplicationContext()).store(true);
+        uploader.uploadAsync(new UploadFileCallback() {
+            @Override
+            public void onProgressUpdate(long l, long l1, double v) {}
+
+            @Override
+            public void onFailure(UploadcareApiException e) {
+                // Handle errors.
+                Log.d("Error", "Upload error " + e.getMessage());
+                Toast.makeText(Register.this, "Registration failed", Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onSuccess(UploadcareFile file) {
+                Log.d("Success", "File OG URL is " + file.getOriginalFileUrl());
+                Log.d("Success", "File OG name is " + file.getOriginalFilename());
+                String fileName = file.getOriginalFileUrl().toString();
+                Log.d("Uploaded", "File cdn location " + fileName);
+                String avatarUrl = fileName.replace(file.getOriginalFilename(), username);
+                Log.d("Success Rename", "File after rename " + avatarUrl);
+                User user = new User(username, email, password, AnemiUtils.ROLE_USER, phone, avatarUrl);
+                Log.d("User Updated", user.getUsername() + "'s info updated");
+//                listener.onFinishUpdateDialog(id, user);
+//                AnemiUtils.setUserPreference(loggedInUser, user);
+                userViewModel.registerUser(user, loggedInUser);
+                Toast.makeText(Register.this, "Successfully Register new User", Toast.LENGTH_LONG).show();
                 startActivity(new Intent(Register.this, Login.class));
-            } else {
-                Toast.makeText(Register.this, "Registration failed", Toast.LENGTH_SHORT).show();
             }
         });
+
+
+        Log.d("Insert: ", username + " " + password + " " + phone);
+//        auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
+//            if (task.isSuccessful()) {
+//                User user = new User(username, email, password, AnemiUtils.ROLE_USER, phone);
+//                User user = new User();
+//                String id = auth.getUid();
+//                firebaseUserViewModel.addNewUser(imageToStore, user, id);
+//                AnemiUtils.setUserPreference(loggedInUser, user);
+//                Toast.makeText(Register.this, "Successfully Register new User", Toast.LENGTH_SHORT).show();
+//                startActivity(new Intent(Register.this, Login.class));
+//            } else {
+//                Toast.makeText(Register.this, "Registration failed", Toast.LENGTH_SHORT).show();
+//            }
+//        });
     }
 
     public void btnBackToSignInOnClick(View view) {

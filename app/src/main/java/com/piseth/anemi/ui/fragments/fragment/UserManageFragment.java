@@ -186,7 +186,7 @@ public class UserManageFragment extends Fragment {
                         Log.d("User Avatar Updated", "User avatar is : " + user.getAvatar());
                         userViewModel.updateUser(id, user);
                         liveUserDataListening();
-                        adapter.notify();
+//                        adapter.notify();
                         Toast.makeText(getContext(), user.getUsername() + "'s has been successfully updated", Toast.LENGTH_LONG).show();
                     }
                 });
@@ -276,6 +276,7 @@ public class UserManageFragment extends Fragment {
                     Log.d(TAG, "Username is: " + user.getUsername());
                 }
                 adapter.submitList(users);
+//                adapter.notifyDataSetChanged();
             }
         });
     }

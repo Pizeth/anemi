@@ -12,6 +12,7 @@ import android.util.Base64;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.piseth.anemi.utils.model.TokenUser;
 import com.piseth.anemi.utils.model.User;
 
 import org.checkerframework.checker.units.qual.Time;
@@ -86,19 +87,36 @@ public class AnemiUtils {
         return Base64.decode(data.getBytes(), Base64.DEFAULT);
     }
 
-    public static User getLoggedInUser(SharedPreferences loggedInUser) {
+//    public static User getLoggedInUser(SharedPreferences loggedInUser) {
+//        if (loggedInUser.contains(LOGGED_IN_USER)) {
+//            Gson gson = new Gson();
+//            String json = loggedInUser.getString(LOGGED_IN_USER, "");
+//            return gson.fromJson(json, User.class);
+////            byte[] photo = AnemiUtils.BASE64Decode(loggedInUser.getString(USER_PHOTO, ""));
+////            imageToStore = AnemiUtils.getBitmapFromBytesArray(photo);
+////            user.setPhoto(imageToStore);
+//        }
+//        return null;
+//    }
+
+    public static TokenUser getLoggedInUser(SharedPreferences loggedInUser) {
         if (loggedInUser.contains(LOGGED_IN_USER)) {
             Gson gson = new Gson();
             String json = loggedInUser.getString(LOGGED_IN_USER, "");
-            return gson.fromJson(json, User.class);
-//            byte[] photo = AnemiUtils.BASE64Decode(loggedInUser.getString(USER_PHOTO, ""));
-//            imageToStore = AnemiUtils.getBitmapFromBytesArray(photo);
-//            user.setPhoto(imageToStore);
+            return gson.fromJson(json, TokenUser.class);
         }
         return null;
     }
 
     public static void setUserPreference(SharedPreferences loggedInUser, User user){
+        SharedPreferences.Editor prefsEditor = loggedInUser.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(user);
+        prefsEditor.putString(AnemiUtils.LOGGED_IN_USER, json);
+        prefsEditor.apply();
+    }
+
+    public static void setUserPreference(SharedPreferences loggedInUser, TokenUser user){
         SharedPreferences.Editor prefsEditor = loggedInUser.edit();
         Gson gson = new Gson();
         String json = gson.toJson(user);

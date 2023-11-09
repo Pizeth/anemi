@@ -1,11 +1,13 @@
 package com.piseth.anemi.ui.fragments.dialog;
 
 import static android.content.ContentValues.TAG;
+import static android.content.Context.MODE_PRIVATE;
 
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -27,6 +29,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
@@ -41,6 +44,7 @@ import com.piseth.anemi.R;
 import com.piseth.anemi.firebase.viewmodel.FirebaseUserViewModel;
 import com.piseth.anemi.retrofit.apiservices.UserCallBack;
 import com.piseth.anemi.retrofit.viewmodel.UserViewModel;
+import com.piseth.anemi.utils.model.TokenUser;
 import com.piseth.anemi.utils.model.User;
 import com.piseth.anemi.utils.util.AnemiUtils;
 import com.piseth.anemi.utils.util.DatabaseManageHandler;
@@ -69,6 +73,8 @@ public class DialogUpdateUserFragment extends DialogFragment {
     private UserViewModel userViewModel;
     private FirebaseFirestore firebaseFirestore;
     private CollectionReference userRef;
+    private SharedPreferences loggedInUser;
+    private Long id;
 
     public DialogUpdateUserFragment(Bundle savedInstanceState) {
         super.setArguments(savedInstanceState);
@@ -135,170 +141,254 @@ public class DialogUpdateUserFragment extends DialogFragment {
         saveButton = view.findViewById(R.id.btnSave);
         firebaseFirestore = FirebaseFirestore.getInstance();
         userRef = firebaseFirestore.collection("Users");
-        userViewModel = new ViewModelProvider((getActivity())).get(UserViewModel.class);
-        firebaseUserViewModel = new ViewModelProvider(getActivity()).get(FirebaseUserViewModel.class);
-//        String id;
-        long id;
-        Fragment fragment = this; //or Activity activity = this;
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+        loggedInUser = getContext().getSharedPreferences(AnemiUtils.LOGGED_IN_USER, MODE_PRIVATE);
 
         if (getArguments() != null) {
-//            id = getArguments().getString("user_id");
             id = getArguments().getLong("user_id");
-            if (id != 0) {
+            if (id != null ) {
                 Log.d("Successful: ", "user_id to update is " + id);
-//                User user = new User();
-                userViewModel.getUserById(id, new UserCallBack() {
+                userViewModel.getUserById(id).observe(getViewLifecycleOwner(), new Observer<User>() {
                     @Override
-                    public void onSuccess(User user) {
-                        Log.d("msg", "jol again");
-                        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-                        txt_username.getEditText().setText(user.getUsername());
-                        txt_email.getEditText().setText(user.getEmail());
-                        txt_phone.getEditText().setText(user.getPhone());
-                        if(user.getAvatar().isEmpty()) {
-                            profileImage.setImageBitmap(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.baseline_person_outline_24));
-                        } else {
-//                            Glide.with(profileImage.getContext()).load(AnemiUtils.SERVER_API + user.getAvatar()).into(profileImage);
-                            Glide.with(profileImage.getContext()).load(user.getAvatar()).into(profileImage);
-                        }
-                        profileImage.setCropToPadding(true);
-                        profileImage.setClipToOutline(true);
-                        if(currentUser != null && !currentUser.getUid().equals(id)) {
-                            txt_email.getEditText().setEnabled(false);
-                            txt_password.getEditText().setEnabled(false);
-                            txt_re_password.getEditText().setEnabled(false);
-                        }
-                        Log.d("USERNAME: ", user.getUsername() + " 's data acquired'");
-
-                        addPhoto.setOnClickListener(view1 -> { pickImage.launch("image/*"); });
-
-                        profileImage.setOnClickListener(view1 -> { pickImage.launch("image/*"); });
-
-
-                        saveButton.setOnClickListener(view1 -> {
-                            String username, email, password, re_password, phone, current_password = user.getPassword();
-                            boolean isUpdateEmail = false, isUpdatePassword = false;
-
-//                    doc_id = getArguments().getString("user_id");
-                            username = (txt_username.getEditText() != null) ? txt_username.getEditText().getText().toString().trim() : "";
-                            email = (txt_email.getEditText() != null) ? txt_email.getEditText().getText().toString().trim() : "";
-                            password = (txt_password.getEditText() != null) ? txt_password.getEditText().getText().toString().trim() : "";
-                            re_password = (txt_re_password.getEditText() != null) ? txt_re_password.getEditText().getText().toString().trim() : "";
-                            phone = (txt_phone.getEditText() != null) ? txt_phone.getEditText().getText().toString().trim() : "";
-
-//                                Validation still has some problem
-//                                if (!isValidUsername(username) | !isValidPassword(password) |
-//                                    !isValidRePassword(re_password, password) | !isValidPhoneNo(phone) |
-//                                    !isValidPhoto(imageToStore)) {
-//                                    return;
-//                                }
-                            if (!username.isEmpty() && !username.equals(user.getUsername())) user.setUsername(username);
-                            if (!email.isEmpty() && !email.equals(user.getEmail())) {
-                                isUpdateEmail = true;
-                                user.setEmail(email);
-                            }
-                            if (!password.isEmpty() && !re_password.isEmpty() && password.equals(re_password)) {
-                                Log.d("hhh", "password " + password);
-                                Log.d("hhh", "re password " + re_password);
-                                isUpdatePassword = true;
-                                current_password = user.getPassword();
-                                user.setPassword(password);
-                            }
-                            if (!phone.isEmpty() && !phone.equals(user.getPhone())) user.setPhone(phone);
-
-//                            UploadPolicy policy = new UploadPolicy.Builder().maxRetries(3).backoffCriteria(
-//                                    100L,
-//                                    UploadPolicy.BackoffPolicy.EXPONENTIAL
-//                            ).build();
-
-
-                            if(imageToStore != null) {
-                                UploadcareClient uploadCare = new UploadcareClient(AnemiUtils.PUBLIC_KEY, AnemiUtils.PRIVATE_KEY);
-                                Uploader uploader = new FileUploader(uploadCare, imageToStore, getContext()).store(true);
-                                uploader.uploadAsync(new UploadFileCallback() {
-                                    @Override
-                                    public void onProgressUpdate(long l, long l1, double v) {}
-
-                                    @Override
-                                    public void onFailure(UploadcareApiException e) {
-                                        // Handle errors.
-                                        Log.d("Error", "Upload error " + e.getMessage());
-                                    }
-
-                                    @Override
-                                    public void onSuccess(UploadcareFile file) {
-                                        Log.d("Success", "File location is " + file.getSource());
-                                        Log.d("Success", "File URL is " + file.getUrl());
-                                        Log.d("Success", "File OG URL is " + file.getOriginalFileUrl());
-                                        Log.d("Success", "File OG name is " + file.getOriginalFilename());
-                                        String name = file.getOriginalFileUrl().toString();
-                                        Log.d("Uploaded", "File cdn location " + name);
-                                        String avatarUrl = name.replace(file.getOriginalFilename(), user.getUsername());
-                                        Log.d("Success Rename", "File after rename " + avatarUrl);
-//                                    Toast.makeText(getContext(), "File location is " + file.getSource(), Toast.LENGTH_SHORT).show();
-//                                    Toast.makeText(getContext(), "File URL is " + file.getUrl(), Toast.LENGTH_SHORT).show();
-//                                    Toast.makeText(getContext(), "File OG URL is " + file.getOriginalFileUrl(), Toast.LENGTH_SHORT).show();
-//                                    Toast.makeText(getContext(), "File OG name is " + file.getOriginalFilename(), Toast.LENGTH_SHORT).show();
-
-                                        user.setAvatar(avatarUrl);
-//                                        updateUser(id, user);
-                                        Log.d("User Updated", user.getUsername() + "'s info updated");
-                                        listener.onFinishUpdateDialog(id, user);
-                                    }
-                                });
+                    public void onChanged(User user) {
+                        Log.d(TAG, user.getUsername() + " 's data acquired'");
+                        if(user != null) {
+                            TokenUser currentUser = AnemiUtils.getLoggedInUser(loggedInUser);
+                            txt_username.getEditText().setText(user.getUsername());
+                            txt_email.getEditText().setText(user.getEmail());
+                            txt_phone.getEditText().setText(user.getPhone());
+                            if(user.getAvatar().isEmpty()) {
+                                profileImage.setImageBitmap(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.baseline_person_outline_24));
                             } else {
-                                listener.onFinishUpdateDialog(id, user);
+//                            Glide.with(profileImage.getContext()).load(AnemiUtils.SERVER_API + user.getAvatar()).into(profileImage);
+                                Glide.with(profileImage.getContext()).load(user.getAvatar()).into(profileImage);
                             }
+                            profileImage.setCropToPadding(true);
+                            profileImage.setClipToOutline(true);
+                            if(currentUser != null && currentUser.getId() != id) {
+                                txt_email.getEditText().setEnabled(false);
+                                txt_password.getEditText().setEnabled(false);
+                                txt_re_password.getEditText().setEnabled(false);
+                            }
+                            Log.d("USERNAME: ", user.getUsername() + " 's data acquired'");
 
+                            addPhoto.setOnClickListener(view1 -> { pickImage.launch("image/*"); });
+                            profileImage.setOnClickListener(view1 -> { pickImage.launch("image/*"); });
 
+                            saveButton.setOnClickListener(view1 -> {
+                                String username, email, password, re_password, phone, current_password = user.getPassword();
+                                username = (txt_username.getEditText() != null) ? txt_username.getEditText().getText().toString().trim() : "";
+                                email = (txt_email.getEditText() != null) ? txt_email.getEditText().getText().toString().trim() : "";
+                                password = (txt_password.getEditText() != null) ? txt_password.getEditText().getText().toString().trim() : "";
+                                re_password = (txt_re_password.getEditText() != null) ? txt_re_password.getEditText().getText().toString().trim() : "";
+                                phone = (txt_phone.getEditText() != null) ? txt_phone.getEditText().getText().toString().trim() : "";
 
-//                            ImageKit.Companion.getInstance().uploader().upload(
-//                                    createFile(getContext(), imageToStore),
-//                                    AnemiUtils.IMAGEKIT_TOKEN,
-//                                    username,
-//                                    false,
-//                                    new String[]{"nice", "copy", "books"},
-//                                    "/Images/Avatar/",
-//                                    false,
-//                                    "",
-//                                    "",
-//                                    null,
-//                                    "",
-//                                    true,
-//                                    true,
-//                                    true,
-//                                    true,
-//                                    null,
-//                                    policy,
-//                                    new ImageKitCallback() {
-//                                        @Override
-//                                        public void onSuccess(@NonNull UploadResponse uploadResponse) {
-////                                            uploadResponse.getWidth();
-////                                            updateUser(id, user, imageToStore, isUpdateEmail, isUpdatePassword, current_password);
-//                                        }
-//
-//                                        @Override
-//                                        public void onError(@NonNull UploadError uploadError) {
-//
-//                                        }
-//                                    }
-//                            );
+                                if (!username.isEmpty() && !username.equals(user.getUsername())) user.setUsername(username);
+                                if (!email.isEmpty() && !email.equals(user.getEmail())) {
+                                    user.setEmail(email);
+                                }
+                                if (!password.isEmpty() && !re_password.isEmpty() && password.equals(current_password) && password.equals(re_password)) {
+                                    Log.d("hhh", "password " + password);
+                                    Log.d("hhh", "re password " + re_password);
+                                    user.setPassword(password);
+                                }
+                                if (!phone.isEmpty() && !phone.equals(user.getPhone())) user.setPhone(phone);
 
-                            Log.d("Successful: ", "Back to manage user Screen");
-//                            if (listener != null) {
-//                                listener.onFinishUpdateDialog(id, user);
-//                                Log.d("Update: ", " Position " + getArguments().getInt("position"));
-//                                Log.d("Update", user.getUsername() + " " + user.getPassword() + " " + user.getPhone() + " " + user.getAvatar());
-//                            }
-                            dismiss();
-                        });
+                                if(imageToStore != null) {
+                                    UploadcareClient uploadCare = new UploadcareClient(AnemiUtils.PUBLIC_KEY, AnemiUtils.PRIVATE_KEY);
+                                    Uploader uploader = new FileUploader(uploadCare, imageToStore, getContext()).store(true);
+                                    uploader.uploadAsync(new UploadFileCallback() {
+                                        @Override
+                                        public void onProgressUpdate(long l, long l1, double v) {}
+
+                                        @Override
+                                        public void onFailure(UploadcareApiException e) {
+                                            // Handle errors.
+                                            Log.d("Error", "Upload error " + e.getMessage());
+                                        }
+
+                                        @Override
+                                        public void onSuccess(UploadcareFile file) {
+                                            Log.d("Success", "File OG URL is " + file.getOriginalFileUrl());
+                                            Log.d("Success", "File OG name is " + file.getOriginalFilename());
+                                            String name = file.getOriginalFileUrl().toString();
+                                            Log.d("Uploaded", "File cdn location " + name);
+                                            String avatarUrl = name.replace(file.getOriginalFilename(), user.getUsername());
+                                            Log.d("Success Rename", "File after rename " + avatarUrl);
+
+                                            user.setAvatar(avatarUrl);
+                                            Log.d("User Updated", user.getUsername() + "'s info updated");
+                                            listener.onFinishUpdateDialog(id, user);
+                                        }
+                                    });
+                                } else {
+                                    listener.onFinishUpdateDialog(id, user);
+                                }
+
+                                Log.d("Successful: ", "Back to manage user Screen");
+                                dismiss();
+                            });
+                        }
                     }
 
-                    @Override
-                    public void onFailure() {
-                        Log.d(TAG,"User not found!");
-                    }
                 });
+
+
+
+//                userViewModel.getUserById(id, new UserCallBack() {
+//                    @Override
+//                    public void onSuccess(User user) {
+//                        Log.d("msg", "jol again");
+//                        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+//                        txt_username.getEditText().setText(user.getUsername());
+//                        txt_email.getEditText().setText(user.getEmail());
+//                        txt_phone.getEditText().setText(user.getPhone());
+//                        if(user.getAvatar().isEmpty()) {
+//                            profileImage.setImageBitmap(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.baseline_person_outline_24));
+//                        } else {
+////                            Glide.with(profileImage.getContext()).load(AnemiUtils.SERVER_API + user.getAvatar()).into(profileImage);
+//                            Glide.with(profileImage.getContext()).load(user.getAvatar()).into(profileImage);
+//                        }
+//                        profileImage.setCropToPadding(true);
+//                        profileImage.setClipToOutline(true);
+//                        if(currentUser != null && !currentUser.getUid().equals(id)) {
+//                            txt_email.getEditText().setEnabled(false);
+//                            txt_password.getEditText().setEnabled(false);
+//                            txt_re_password.getEditText().setEnabled(false);
+//                        }
+//                        Log.d("USERNAME: ", user.getUsername() + " 's data acquired'");
+//
+//                        addPhoto.setOnClickListener(view1 -> { pickImage.launch("image/*"); });
+//
+//                        profileImage.setOnClickListener(view1 -> { pickImage.launch("image/*"); });
+//
+//
+//                        saveButton.setOnClickListener(view1 -> {
+//                            String username, email, password, re_password, phone, current_password = user.getPassword();
+//                            boolean isUpdateEmail = false, isUpdatePassword = false;
+//
+////                    doc_id = getArguments().getString("user_id");
+//                            username = (txt_username.getEditText() != null) ? txt_username.getEditText().getText().toString().trim() : "";
+//                            email = (txt_email.getEditText() != null) ? txt_email.getEditText().getText().toString().trim() : "";
+//                            password = (txt_password.getEditText() != null) ? txt_password.getEditText().getText().toString().trim() : "";
+//                            re_password = (txt_re_password.getEditText() != null) ? txt_re_password.getEditText().getText().toString().trim() : "";
+//                            phone = (txt_phone.getEditText() != null) ? txt_phone.getEditText().getText().toString().trim() : "";
+//
+////                                Validation still has some problem
+////                                if (!isValidUsername(username) | !isValidPassword(password) |
+////                                    !isValidRePassword(re_password, password) | !isValidPhoneNo(phone) |
+////                                    !isValidPhoto(imageToStore)) {
+////                                    return;
+////                                }
+//                            if (!username.isEmpty() && !username.equals(user.getUsername())) user.setUsername(username);
+//                            if (!email.isEmpty() && !email.equals(user.getEmail())) {
+//                                isUpdateEmail = true;
+//                                user.setEmail(email);
+//                            }
+//                            if (!password.isEmpty() && !re_password.isEmpty() && password.equals(re_password)) {
+//                                Log.d("hhh", "password " + password);
+//                                Log.d("hhh", "re password " + re_password);
+//                                isUpdatePassword = true;
+//                                current_password = user.getPassword();
+//                                user.setPassword(password);
+//                            }
+//                            if (!phone.isEmpty() && !phone.equals(user.getPhone())) user.setPhone(phone);
+//
+////                            UploadPolicy policy = new UploadPolicy.Builder().maxRetries(3).backoffCriteria(
+////                                    100L,
+////                                    UploadPolicy.BackoffPolicy.EXPONENTIAL
+////                            ).build();
+//
+//
+//                            if(imageToStore != null) {
+//                                UploadcareClient uploadCare = new UploadcareClient(AnemiUtils.PUBLIC_KEY, AnemiUtils.PRIVATE_KEY);
+//                                Uploader uploader = new FileUploader(uploadCare, imageToStore, getContext()).store(true);
+//                                uploader.uploadAsync(new UploadFileCallback() {
+//                                    @Override
+//                                    public void onProgressUpdate(long l, long l1, double v) {}
+//
+//                                    @Override
+//                                    public void onFailure(UploadcareApiException e) {
+//                                        // Handle errors.
+//                                        Log.d("Error", "Upload error " + e.getMessage());
+//                                    }
+//
+//                                    @Override
+//                                    public void onSuccess(UploadcareFile file) {
+//                                        Log.d("Success", "File location is " + file.getSource());
+//                                        Log.d("Success", "File URL is " + file.getUrl());
+//                                        Log.d("Success", "File OG URL is " + file.getOriginalFileUrl());
+//                                        Log.d("Success", "File OG name is " + file.getOriginalFilename());
+//                                        String name = file.getOriginalFileUrl().toString();
+//                                        Log.d("Uploaded", "File cdn location " + name);
+//                                        String avatarUrl = name.replace(file.getOriginalFilename(), user.getUsername());
+//                                        Log.d("Success Rename", "File after rename " + avatarUrl);
+////                                    Toast.makeText(getContext(), "File location is " + file.getSource(), Toast.LENGTH_SHORT).show();
+////                                    Toast.makeText(getContext(), "File URL is " + file.getUrl(), Toast.LENGTH_SHORT).show();
+////                                    Toast.makeText(getContext(), "File OG URL is " + file.getOriginalFileUrl(), Toast.LENGTH_SHORT).show();
+////                                    Toast.makeText(getContext(), "File OG name is " + file.getOriginalFilename(), Toast.LENGTH_SHORT).show();
+//
+//                                        user.setAvatar(avatarUrl);
+////                                        updateUser(id, user);
+//                                        Log.d("User Updated", user.getUsername() + "'s info updated");
+//                                        listener.onFinishUpdateDialog(id, user);
+//                                    }
+//                                });
+//                            } else {
+//                                listener.onFinishUpdateDialog(id, user);
+//                            }
+//
+//
+//
+////                            ImageKit.Companion.getInstance().uploader().upload(
+////                                    createFile(getContext(), imageToStore),
+////                                    AnemiUtils.IMAGEKIT_TOKEN,
+////                                    username,
+////                                    false,
+////                                    new String[]{"nice", "copy", "books"},
+////                                    "/Images/Avatar/",
+////                                    false,
+////                                    "",
+////                                    "",
+////                                    null,
+////                                    "",
+////                                    true,
+////                                    true,
+////                                    true,
+////                                    true,
+////                                    null,
+////                                    policy,
+////                                    new ImageKitCallback() {
+////                                        @Override
+////                                        public void onSuccess(@NonNull UploadResponse uploadResponse) {
+//////                                            uploadResponse.getWidth();
+//////                                            updateUser(id, user, imageToStore, isUpdateEmail, isUpdatePassword, current_password);
+////                                        }
+////
+////                                        @Override
+////                                        public void onError(@NonNull UploadError uploadError) {
+////
+////                                        }
+////                                    }
+////                            );
+//
+//                            Log.d("Successful: ", "Back to manage user Screen");
+////                            if (listener != null) {
+////                                listener.onFinishUpdateDialog(id, user);
+////                                Log.d("Update: ", " Position " + getArguments().getInt("position"));
+////                                Log.d("Update", user.getUsername() + " " + user.getPassword() + " " + user.getPhone() + " " + user.getAvatar());
+////                            }
+//                            dismiss();
+//                        });
+//                    }
+//
+//                    @Override
+//                    public void onFailure() {
+//                        Log.d(TAG,"User not found!");
+//                    }
+//                });
+
+
 
 //                userRef.document(id).get().addOnCompleteListener(task -> {
 //                    if (task.isSuccessful()) {

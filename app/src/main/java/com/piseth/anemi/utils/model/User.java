@@ -35,6 +35,28 @@ public class User {
         quizTakers = new ArrayList<>();
         refreshTokens = new ArrayList<>();
     }
+
+    public User(String username, String password) {
+        new User();
+        this.username = username;
+        this.password = password;
+    }
+
+    public  User(String username, String email, String password, /*String dob,*/ int roleId, /*String firstName, String lastName, String address,*/ String phone, String avatar) {
+
+        new User(username, password);
+//        this.username = username;
+        this.email = email;
+//        this.password = password;
+//        this.dob = dob;
+        this.roleId = roleId;
+//        this.firstName = firstName;
+//        this.lastName = lastName;
+//        this.address = address;
+        this.phone = phone;
+        this.avatar = avatar;
+
+    }
 //    public User(String username, String email, String password, int userRoleId, String phone) {
 //        this.username = username;
 //        this.email = email;
@@ -43,14 +65,6 @@ public class User {
 //        this.phone = phone;
 //    }
 
-//    public User(int id, String username, String password, int userRoleId, String phone, String photo) {
-//        this.id = id;
-//        this.username = username;
-//        this.password = password;
-//        this.userRoleId = userRoleId;
-//        this.phone = phone;
-//        this.photo = photo;
-//    }
 
 //    @Exclude
     public int getId() {

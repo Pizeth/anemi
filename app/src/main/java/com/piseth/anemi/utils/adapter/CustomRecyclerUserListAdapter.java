@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,6 +23,9 @@ import com.piseth.anemi.ui.fragments.dialog.DialogUpdateUserFragment;
 import com.piseth.anemi.utils.model.User;
 
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import de.danielbechler.diff.ObjectDifferBuilder;
 
@@ -158,7 +162,14 @@ public class CustomRecyclerUserListAdapter extends ListAdapter<User, CustomRecyc
         return getItem(position).getId();
     }
 
-//    public void setUsers(List<User> users) {
+    @Override
+    public void submitList(@Nullable List<User> list) {
+        Log.d("Compare List", "submitList: ey yo");
+        super.submitList(list != null ? new ArrayList<>(list) : null);
+
+    }
+
+    //    public void setUsers(List<User> users) {
 //        this.users = users;
 //        notifyDataSetChanged();
 //    }

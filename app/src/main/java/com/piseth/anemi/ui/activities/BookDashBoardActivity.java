@@ -184,7 +184,7 @@ public class BookDashBoardActivity extends AppCompatActivity implements Navigati
             prefsEditor.remove(AnemiUtils.LOGGED_IN_USER);
             prefsEditor.apply();
             drawerLayout.close();
-            FirebaseAuth.getInstance().signOut();
+//            FirebaseAuth.getInstance().signOut();
             Intent intent = new Intent(BookDashBoardActivity.this, Login.class);
             startActivity(intent);
             return true;
