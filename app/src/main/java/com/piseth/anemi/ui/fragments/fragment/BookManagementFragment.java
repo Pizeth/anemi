@@ -17,20 +17,22 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.piseth.anemi.R;
-import com.piseth.anemi.firebase.viewmodel.FirebaseBookViewModel;
+import com.piseth.anemi.retrofit.viewmodel.BookViewModel;
 import com.piseth.anemi.ui.fragments.dialog.DialogUpdateBookFragment;
-import com.piseth.anemi.utils.adapter.FirestoreRecyclerBookListAdapter;
+import com.piseth.anemi.utils.adapter.CustomRecyclerBookListAdapter;
 import com.piseth.anemi.utils.model.Book;
 import com.piseth.anemi.utils.model.User;
 import com.piseth.anemi.utils.util.AnemiUtils;
 import com.piseth.anemi.utils.util.WrapContentLinearLayoutManager;
+
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -51,8 +53,10 @@ public class BookManagementFragment extends Fragment {
     private SharedPreferences loggedInUser;
     private BookDetailFragment bookDetailFragment;
     private FloatingActionButton fabAddBook;
-    private FirebaseBookViewModel firebaseBookViewModel;
-    private FirestoreRecyclerBookListAdapter fireAdapter;
+//    private FirebaseBookViewModel firebaseBookViewModel;
+//    private FirestoreRecyclerBookListAdapter fireAdapter;
+    private CustomRecyclerBookListAdapter adapter;
+    private BookViewModel bookViewModel;
 
     public BookManagementFragment() {
         // Required empty public constructor
@@ -99,23 +103,37 @@ public class BookManagementFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        firebaseBookViewModel = new ViewModelProvider(getActivity()).get(FirebaseBookViewModel.class);
-        FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
-                .setQuery(firebaseBookViewModel.getAllBooksQuery(), Book.class)
-                .build();
-        fireAdapter = new FirestoreRecyclerBookListAdapter(options);
+//        firebaseBookViewModel = new ViewModelProvider(getActivity()).get(FirebaseBookViewModel.class);
+        bookViewModel = new ViewModelProvider(this).get(BookViewModel.class);
+//        FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
+//                .setQuery(firebaseBookViewModel.getAllBooksQuery(), Book.class)
+//                .build();
+//        fireAdapter = new FirestoreRecyclerBookListAdapter(options);
+        adapter = new CustomRecyclerBookListAdapter();
+
+
         recyclerView = view.findViewById(R.id.recyclerBookView);
         recyclerView.setLayoutManager(new WrapContentLinearLayoutManager(getContext()));
         recyclerView.setHasFixedSize(true);
-        recyclerView.setAdapter(fireAdapter);
+//        recyclerView.setAdapter(fireAdapter);
+//        bookViewModel.getAllBooks().observe(getViewLifecycleOwner(), books -> adapter.setList(books));
+        bookViewModel.getAllBooks().observe(getViewLifecycleOwner(), new Observer<List<Book>>() {
+            @Override
+            public void onChanged(List<Book> books) {
+                adapter = new CustomRecyclerBookListAdapter(getContext(), books);
+                recyclerView.setAdapter(adapter);
+
+            }
+        });
+
 
         fabAddBook = view.findViewById(R.id.floating_add_book);
         User user = AnemiUtils.getLoggedInUser(loggedInUser);
-//        if(user != null) {
-//            if(user.getRoleId() != AnemiUtils.ROLE_ADMIN) {
-//                fabAddBook.setVisibility(View.INVISIBLE);
-//            }
-//        }
+        if(user != null) {
+            if(user.getRoleId() != AnemiUtils.ROLE_ADMIN) {
+                fabAddBook.setVisibility(View.INVISIBLE);
+            }
+        }
         fabAddBook.setOnClickListener(view1 -> dialogAction(AnemiUtils.NEW_BOOK_ENTRY, AnemiUtils.STARTING_POSITION, AnemiUtils.ACTION_ADD));
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
                 ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
@@ -130,10 +148,10 @@ public class BookManagementFragment extends Fragment {
             }
         }).attachToRecyclerView(recyclerView);
 
-        fireAdapter.setOnBookListClickListener(new FirestoreRecyclerBookListAdapter.OnBookListClickListener() {
+        adapter.setOnUserListClickListener(new CustomRecyclerBookListAdapter.OnBookListClickListener() {
             @Override
             public void onUpdate(int p) {
-                dialogAction(fireAdapter.getDocumentId(p), p, AnemiUtils.ACTION_UPDATE);
+                dialogAction(adapter.getItemId(p), p, AnemiUtils.ACTION_UPDATE);
             }
 
             @Override
@@ -144,7 +162,7 @@ public class BookManagementFragment extends Fragment {
             @Override
             public void onView(int p) {
                 Bundle book_id = new Bundle();
-                book_id.putString("book_id", fireAdapter.getDocumentId(p));
+                book_id.putLong("book_id", adapter.getItemId(p));
                 bookDetailFragment = new BookDetailFragment(book_id);
                 getParentFragmentManager().beginTransaction().replace(R.id.container, bookDetailFragment).commit();
             }
@@ -156,13 +174,13 @@ public class BookManagementFragment extends Fragment {
     public void onStart() {
         super.onStart();
         recyclerView.getRecycledViewPool().clear();
-        fireAdapter.startListening();
+//        fireAdapter.startListening();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        fireAdapter.stopListening();
+//        fireAdapter.stopListening();
     }
 
     public void deleteBookDialog(int p) {
@@ -172,19 +190,21 @@ public class BookManagementFragment extends Fragment {
         alertDialog.setPositiveButton("CANCEL", (dialog, which) -> dialog.cancel());
         alertDialog.setNegativeButton("YES", (dialog, which) -> {
             // DO SOMETHING HERE
-            firebaseBookViewModel.deleteBook(fireAdapter.getDocumentId(p));
-            Log.d("BookManagement", "Successfully Delete book" + fireAdapter.getItem(p).getBookName());
-            Toast.makeText(getContext(), "Successfully Delete Book name " + fireAdapter.getItem(p).getBookName(), Toast.LENGTH_LONG).show();
+//            firebaseBookViewModel.deleteBook(fireAdapter.getDocumentId(p));
+            bookViewModel.deleteBook(adapter.getItemId(p));
+            Log.d("BookManagement", "Successfully Delete book");
+            Toast.makeText(getContext(), "Successfully Delete Book", Toast.LENGTH_LONG).show();
         });
 
         AlertDialog dialog = alertDialog.create();
         dialog.show();
     }
 
-    public void dialogAction(String book_id, int list_position, int action) {
+    public void dialogAction(Long book_id, int list_position, int action) {
         Bundle bundle = new Bundle();
         bundle.putBoolean("notAlertDialog", true);
-        bundle.putString("book_id", book_id);
+//        bundle.putString("book_id", book_id);
+        bundle.putLong("book_id", book_id);
         bundle.putInt("position", list_position);
 
         DialogUpdateBookFragment dialogFragment = new DialogUpdateBookFragment(bundle, action);

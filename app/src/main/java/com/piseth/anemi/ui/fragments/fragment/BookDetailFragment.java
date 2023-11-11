@@ -128,8 +128,8 @@ public class BookDetailFragment extends Fragment {
                     DocumentSnapshot doc = task.getResult();
                     Book book = doc.toObject(Book.class);
                     if (book != null) {
-                        txt_title.setText(book.getBookName());
-                        txt_author.setText(book.getAuthor());
+                        txt_title.setText(book.getBookTitle());
+                        txt_author.setText(book.getAuthor().getPenName());
                         txt_description.setText(book.getDescription());
                         Glide.with(bookCover.getContext()).load(book.getCover()).into(bookCover);
                     }

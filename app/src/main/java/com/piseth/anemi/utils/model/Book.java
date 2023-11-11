@@ -6,34 +6,44 @@ import androidx.room.PrimaryKey;
 
 import com.google.firebase.firestore.Exclude;
 
-@Entity(tableName = "table_book")
+import java.util.ArrayList;
+import java.util.List;
+
+//@Entity(tableName = "table_book")
 public class Book {
-    @Exclude
-    @PrimaryKey
+//    @Exclude
+//    @PrimaryKey
     private int bookId;
-    private String bookName;
+    private String bookTitle;
     private String description;
-    private String author;
+    private int authorId;
+    private String publishedDate;
+    private int categoryId;
+    private int genreId;
+    private List<BookChapter> bookChapters;
     private String cover;
-    @ColumnInfo(defaultValue = "0")
-    private int isDeleted;
+    private Author author;
+    private Genre genre;
+    private Category category;
+//    @ColumnInfo(defaultValue = "0")
+//    private int isDeleted;
 
-    public Book() {}
-
-    public Book(String bookName, String description, String author) {
-        this.bookName = bookName;
-        this.description = description;
-        this.author = author;
+    public Book() {
+        bookChapters = new ArrayList<>();
     }
-    public Book(int bookId, String bookName, String description, String author, String cover) {
-        this.bookId = bookId;
-        this.bookName = bookName;
+
+    public Book(String bookTitle, String description, String author) {
+        this.bookTitle = bookTitle;
         this.description = description;
-        this.author = author;
+    }
+    public Book(int bookId, String bookTitle, String description, String author, String cover) {
+        this.bookId = bookId;
+        this.bookTitle = bookTitle;
+        this.description = description;
         this.cover = cover;
     }
 
-    @Exclude
+//    @Exclude
     public int getBookId() {
         return bookId;
     }
@@ -42,12 +52,12 @@ public class Book {
         this.bookId = bookId;
     }
 
-    public String getBookName() {
-        return bookName;
+    public String getBookTitle() {
+        return bookTitle;
     }
 
-    public void setBookName(String bookName) {
-        this.bookName = bookName;
+    public void setBookTitle(String bookTitle) {
+        this.bookTitle = bookTitle;
     }
 
     public String getDescription() {
@@ -58,21 +68,46 @@ public class Book {
         this.description = description;
     }
 
-    public String getAuthor() {
-        return author;
+    public int getAuthorId() {
+        return authorId;
     }
 
-    public void setAuthor(String author) {
-        this.author = author;
+    public void setAuthorId(int authorId) {
+        this.authorId = authorId;
     }
 
-//    public Bitmap getCover() {
-//        return cover;
-//    }
-//
-//    public void setCover(Bitmap cover) {
-//        this.cover = cover;
-//    }
+    public String getPublishedDate() {
+        return publishedDate;
+    }
+
+    public void setPublishedDate(String publishDate) {
+        this.publishedDate = publishDate;
+    }
+
+    public int getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(int categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    public int getGenreId() {
+        return genreId;
+    }
+
+    public void setGenreId(int genreId) {
+        this.genreId = genreId;
+    }
+
+    public List<BookChapter> getBookChapters() {
+        return bookChapters;
+    }
+
+    public void setBookChapters(List<BookChapter> bookChapters) {
+        this.bookChapters = bookChapters;
+    }
+
     public String getCover() {
         return cover;
     }
@@ -81,11 +116,27 @@ public class Book {
         this.cover = cover;
     }
 
-    public int getIsDeleted() {
-        return isDeleted;
+    public Author getAuthor() {
+        return author;
     }
 
-    public void setIsDeleted(int isDeleted) {
-        this.isDeleted = isDeleted;
+    public void setAuthor(Author author) {
+        this.author = author;
+    }
+
+    public Genre getGenre() {
+        return genre;
+    }
+
+    public void setGenre(Genre genre) {
+        this.genre = genre;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
     }
 }

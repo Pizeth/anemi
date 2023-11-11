@@ -163,8 +163,8 @@ public class AddBookFragment extends Fragment implements View.OnClickListener {
 //            prefsEditor.putString(LOGGED_IN_USER, json);
 //            prefsEditor.putString(USER_PHOTO, AnemiUtils.BASE64Encode(userPhoto));
 //            prefsEditor.apply();
-            Log.d("Insert Book: ", "UserID: " + book.getBookId() + " Username: " + book.getBookName() + " Password" + book.getAuthor());
-            Toast.makeText(getContext(), book.getBookId() + " " + book.getBookName() + " " + book.getAuthor(), Toast.LENGTH_SHORT).show();
+            Log.d("Insert Book: ", "UserID: " + book.getBookId() + " Username: " + book.getBookTitle() + " Password" + book.getAuthor());
+            Toast.makeText(getContext(), book.getBookId() + " " + book.getBookTitle() + " " + book.getAuthor(), Toast.LENGTH_SHORT).show();
 
         }
         return checkOperation;

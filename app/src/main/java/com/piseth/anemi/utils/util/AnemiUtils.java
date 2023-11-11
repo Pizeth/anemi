@@ -1,5 +1,7 @@
 package com.piseth.anemi.utils.util;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -10,14 +12,16 @@ import android.net.Uri;
 import android.provider.OpenableColumns;
 import android.util.Base64;
 
+import androidx.annotation.NonNull;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.piseth.anemi.ui.activities.MainActivity;
 import com.piseth.anemi.utils.model.TokenUser;
 import com.piseth.anemi.utils.model.User;
 
-import org.checkerframework.checker.units.qual.Time;
-
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.util.concurrent.TimeUnit;
 
@@ -28,7 +32,10 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -54,11 +61,15 @@ public class AnemiUtils {
     public static final int ACTION_ADD = 1;
     public static final int ACTION_UPDATE = 2;
     public static final int NEW_ENTRY = 0;
-    public static final String NEW_BOOK_ENTRY = "NO_ID";
+//    public static final String NEW_BOOK_ENTRY = "NO_ID";
+    public static final Long NEW_BOOK_ENTRY = 0L;
     public static final int PICK_IMAGE = 1;
     public static final int DUMMY_ID = 99;
     public static final int STARTING_POSITION = -1;
     public static final String NO_WHITE_SPACE = "\\A\\w{1,20}\\z";
+    public static Context context = MainActivity.getContextOfApplication();
+    public static final String ACCESS_TOKEN = "ACCESS_TOKEN";
+    public static final String REFRESH_TOKEN = "REFRESH_TOKEN";
     public static final String REQUIREMENT = "^" +
                                             //"(?=.*[0-9])" +         //at least 1 digit
                                             //"(?=.*[a-z])" +         //at least 1 lower case letter
@@ -121,6 +132,8 @@ public class AnemiUtils {
         Gson gson = new Gson();
         String json = gson.toJson(user);
         prefsEditor.putString(AnemiUtils.LOGGED_IN_USER, json);
+        prefsEditor.putString(AnemiUtils.ACCESS_TOKEN, user.getAccessToken());
+        prefsEditor.putString(AnemiUtils.REFRESH_TOKEN, user.getRefreshToken());
         prefsEditor.apply();
     }
 
@@ -141,6 +154,15 @@ public class AnemiUtils {
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
         loggingInterceptor.setLevel(level);
         OkHttpClient okHttpClient = getUnsafeOkHttpClient()
+                .addInterceptor((new Interceptor() {
+                    @NonNull
+                    @Override
+                    public Response intercept(@NonNull Chain chain) throws IOException {
+                        Request ogRequest = chain.request();
+                        Request newRequest = ogRequest.newBuilder().header("Authorization", "Bearer " + getAccessToken()).build();
+                        return chain.proceed(newRequest);
+                    }
+                }))
                 .addInterceptor(loggingInterceptor)
                 .connectTimeout(5, TimeUnit.MINUTES)
                 .writeTimeout(5, TimeUnit.MINUTES)
@@ -191,6 +213,24 @@ public class AnemiUtils {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static final String getAccessToken() {
+        SharedPreferences accessToken = context.getSharedPreferences(LOGGED_IN_USER, MODE_PRIVATE);
+        String token = "";
+        if (accessToken.contains(ACCESS_TOKEN)) {
+            token = accessToken.getString(ACCESS_TOKEN, "");
+        }
+        return token;
+    }
+
+    public static final String getRefreshToken() {
+        SharedPreferences accessToken = context.getSharedPreferences(LOGGED_IN_USER, MODE_PRIVATE);
+        String token = "";
+        if (accessToken.contains(REFRESH_TOKEN)) {
+            token = accessToken.getString(REFRESH_TOKEN, "");
+        }
+        return token;
     }
 
     @SuppressLint("Range")

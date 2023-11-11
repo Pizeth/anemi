@@ -1,5 +1,6 @@
 package com.piseth.anemi.retrofit.apiservices;
 
+import com.piseth.anemi.utils.model.RefreshRequest;
 import com.piseth.anemi.utils.model.TokenUser;
 import com.piseth.anemi.utils.model.User;
 
@@ -35,4 +36,6 @@ public interface UserApi {
                           @Body User user);
     @DELETE("api/Users/{id}")
     Call<ResponseBody> deleteUser(@Path("id") long id);
+    @POST("api/Users/RefreshToken")
+    Call<TokenUser> getRefreshToken(@Body RefreshRequest refreshRequest);
 }

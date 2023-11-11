@@ -39,8 +39,8 @@ public class FirestoreRecyclerBookListAdapter extends FirestoreRecyclerAdapter<B
     @Override
     protected void onBindViewHolder(@NonNull FirestoreRecyclerBookListAdapter.BookListViewHolder holder, int position, @NonNull Book model) {
         Glide.with(holder.cover.getContext()).load(model.getCover()).into(holder.cover);
-        holder.title.setText(model.getBookName());
-        holder.author.setText(model.getAuthor());
+        holder.title.setText(model.getBookTitle());
+//        holder.author.setText(model.getAuthor());
     }
 
     @NonNull

@@ -31,7 +31,7 @@ public class FirestoreRecyclerHomeViewAdapter extends FirestoreRecyclerAdapter<B
     @Override
     protected void onBindViewHolder(@NonNull HomeViewHolder holder, int position, @NonNull Book model) {
         Picasso.get().load(model.getCover()).into(holder.cover);
-        holder.title.setText(model.getBookName());
+        holder.title.setText(model.getBookTitle());
     }
 
     @NonNull

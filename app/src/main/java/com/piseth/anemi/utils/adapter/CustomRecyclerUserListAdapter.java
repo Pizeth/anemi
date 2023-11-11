@@ -1,6 +1,5 @@
 package com.piseth.anemi.utils.adapter;
 
-import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,11 +14,8 @@ import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.firebase.ui.database.FirebaseRecyclerAdapter;
-import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.material.button.MaterialButton;
 import com.piseth.anemi.R;
-import com.piseth.anemi.ui.fragments.dialog.DialogUpdateUserFragment;
 import com.piseth.anemi.utils.model.User;
 
 import org.jetbrains.annotations.NotNull;
@@ -36,9 +32,7 @@ public class CustomRecyclerUserListAdapter extends ListAdapter<User, CustomRecyc
 //    private final Context context;
 //    private List<User> users;
 //    private final DatabaseManageHandler db;
-    private DialogUpdateUserFragment.OnUpdateCompletedDialogListener dialogListener;
     private OnUserListClickListener listener;
-    private SharedPreferences loggedInUser;
 //    private LayoutInflater inflater;
 
 //    public CustomRecyclerUserListAdapter(Context context, DialogUpdateUserFragment.DialogListener dialogListener, OnUserListClickListener onUserListClickListener) {

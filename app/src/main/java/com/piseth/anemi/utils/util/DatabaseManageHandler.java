@@ -6,11 +6,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 
 import androidx.annotation.Nullable;
 
-import com.piseth.anemi.R;
 import com.piseth.anemi.utils.model.Book;
 import com.piseth.anemi.utils.model.User;
 import com.piseth.anemi.utils.model.Role;
@@ -303,9 +301,9 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
     public long addBook(Book book) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues value = new ContentValues();
-        value.put(BOOK_NAME, book.getBookName());
+        value.put(BOOK_NAME, book.getBookTitle());
         value.put(DESCRIPTION, book.getDescription());
-        value.put(AUTHOR, book.getAuthor());
+//        value.put(AUTHOR, book.getAuthor());
 //        value.put(COVER, AnemiUtils.getBitmapAsByteArray(book.getCover()));
         return db.insert(TABLE_BOOK, null, value);
     }
@@ -313,9 +311,9 @@ public class DatabaseManageHandler extends SQLiteOpenHelper {
     public int updateBook(Book book) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues value = new ContentValues();
-        value.put(BOOK_NAME, book.getBookName());
+        value.put(BOOK_NAME, book.getBookTitle());
         value.put(DESCRIPTION, book.getDescription());
-        value.put(AUTHOR, book.getAuthor());
+//        value.put(AUTHOR, book.getAuthor());
 //        value.put(COVER, AnemiUtils.getBitmapAsByteArray(book.getCover()));
         return db.update(TABLE_BOOK, value, BOOK_ID + " = " + book.getBookId(), null);
     }

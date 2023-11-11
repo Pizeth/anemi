@@ -4,6 +4,7 @@ import static android.content.Context.MODE_PRIVATE;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,13 +14,13 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.button.MaterialButton;
-import com.piseth.anemi.utils.util.AnemiUtils;
-import com.piseth.anemi.utils.util.DatabaseManageHandler;
 import com.piseth.anemi.R;
 import com.piseth.anemi.ui.fragments.dialog.DialogUpdateBookFragment;
 import com.piseth.anemi.utils.model.Book;
 import com.piseth.anemi.utils.model.User;
+import com.piseth.anemi.utils.util.AnemiUtils;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -30,30 +31,26 @@ public class CustomRecyclerBookListAdapter extends RecyclerView.Adapter<CustomRe
 
     Context context;
     private List<Book> books;
-    private final DatabaseManageHandler db;
     private DialogUpdateBookFragment.OnCompletedDialogListener dialogListener;
-    private CustomRecyclerBookListAdapter.OnBookListClickListener onBookListClickListener;
-    private SharedPreferences loggedInUser;
+    private OnBookListClickListener listener;
+
+    public CustomRecyclerBookListAdapter() {
+    }
+
+    public void setList(List<Book> book) {
+        this.books = books;
+    }
 
     public CustomRecyclerBookListAdapter(Context context, List<Book> books) {
         this.context = context;
         this.books = books;
-        db = new DatabaseManageHandler(context);
-    }
-    public CustomRecyclerBookListAdapter(Context context, List<Book> books, DialogUpdateBookFragment.OnCompletedDialogListener dialogListener, CustomRecyclerBookListAdapter.OnBookListClickListener onBookListClickListener) {
-        this.context = context;
-        this.books = books;
-        this.dialogListener = dialogListener;
-        this.onBookListClickListener = onBookListClickListener;
-        db = new DatabaseManageHandler(context);
     }
 
     @NonNull
     @Override
     public BookListViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.book_list, parent, false);
-        BookListViewHolder holder = new BookListViewHolder(view, onBookListClickListener, context);
-        loggedInUser = context.getSharedPreferences(AnemiUtils.LOGGED_IN_USER, MODE_PRIVATE);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.book_list, parent, false);
+        SharedPreferences loggedInUser = context.getSharedPreferences(AnemiUtils.LOGGED_IN_USER, MODE_PRIVATE);
         User user = AnemiUtils.getLoggedInUser(loggedInUser);
         if(user != null) {
             if(user.getRoleId() != AnemiUtils.ROLE_ADMIN) {
@@ -61,16 +58,21 @@ public class CustomRecyclerBookListAdapter extends RecyclerView.Adapter<CustomRe
                 view.findViewById(R.id.btnDeleteBook).setVisibility(View.INVISIBLE);
             }
         }
-        return holder;
+        return new BookListViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull BookListViewHolder holder, int position) {
         Book book = books.get(position);
         if(book != null) {
-//            holder.cover.setImageBitmap(book.getCover());
-            holder.title.setText(book.getBookName());
-            holder.author.setText(book.getAuthor());
+            Log.d("Holder", "onBindViewHolder publish date: " + book.getPublishedDate());
+            Log.d("Holder", "onBindViewHolder author name: " + book.getAuthor().getPenName());
+            Log.d("Holder", "onBindViewHolder firstname name: " + book.getAuthor().getFirstName());
+            Log.d("Holder", "onBindViewHolder lastname name: " + book.getAuthor().getLastName());
+            Log.d("Holder", "onBindViewHolder lastname avatar: " + book.getAuthor().getAvatar());
+            Glide.with(holder.cover.getContext()).load(book.getCover()).into(holder.cover);
+            holder.title.setText(book.getBookTitle());
+            holder.author.setText(book.getAuthor().getPenName());
         }
     }
 
@@ -90,14 +92,16 @@ public class CustomRecyclerBookListAdapter extends RecyclerView.Adapter<CustomRe
         void onView(int p);
     }
 
-    public static class BookListViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public void setOnUserListClickListener(CustomRecyclerBookListAdapter.OnBookListClickListener listener) {
+        this.listener = listener;
+    }
+
+    public class BookListViewHolder extends RecyclerView.ViewHolder {
         ImageView cover;
         TextView title;
         TextView author;
         MaterialButton btnUpdate, btnDelete, btnView;
-        OnBookListClickListener onBookListClickListener;
-        Context context;
-        public BookListViewHolder(@NotNull View viewItem, OnBookListClickListener listener, Context context) {
+        public BookListViewHolder(@NotNull View viewItem) {
             super(viewItem);
             cover = viewItem.findViewById(R.id.book_cover);
             title = viewItem.findViewById(R.id.txtTitle);
@@ -106,23 +110,24 @@ public class CustomRecyclerBookListAdapter extends RecyclerView.Adapter<CustomRe
             btnDelete = viewItem.findViewById(R.id.btnDeleteBook);
             btnView = viewItem.findViewById(R.id.btnView);
 
-            this.onBookListClickListener = listener;
-            this.context = context;
-            btnUpdate.setOnClickListener(this);
-            btnDelete.setOnClickListener(this);
-            btnView.setOnClickListener(this);
-        }
-
-        @Override
-        public void onClick(View view) {
-            int id = view.getId();
-            if (id == R.id.btnUpdateBook) {
-                onBookListClickListener.onUpdate(this.getLayoutPosition());
-            } else if (id == R.id.btnDeleteBook) {
-                onBookListClickListener.onDelete(this.getLayoutPosition());
-            } else if (id == R.id.btnView) {
-                onBookListClickListener.onView(this.getLayoutPosition());
-            }
+            btnUpdate.setOnClickListener(v -> {
+                int position = getAbsoluteAdapterPosition();
+                if(position != RecyclerView.NO_POSITION && listener != null) {
+                    listener.onUpdate(position);
+                }
+            });
+            btnDelete.setOnClickListener(v -> {
+                int position = getAbsoluteAdapterPosition();
+                if(position != RecyclerView.NO_POSITION && listener != null) {
+                    listener.onDelete(position);
+                }
+            });
+            btnView.setOnClickListener(v -> {
+                int position = getAbsoluteAdapterPosition();
+                if(position != RecyclerView.NO_POSITION && listener != null) {
+                    listener.onView(position);
+                }
+            });
         }
     }
 }

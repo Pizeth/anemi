@@ -21,7 +21,6 @@ import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.material.chip.ChipGroup;
 import com.piseth.anemi.R;
 import com.piseth.anemi.firebase.viewmodel.FirebaseBookViewModel;
-import com.piseth.anemi.retrofit.repo.UserRetrofitRepo;
 import com.piseth.anemi.utils.adapter.FirestoreRecyclerHomeViewAdapter;
 import com.piseth.anemi.utils.model.Book;
 
@@ -145,7 +144,7 @@ public class HomeFragment extends Fragment {
         fireAdapter.setOnBookItemClickListener((view1, p) -> {
             Bundle book_id = new Bundle();
             book_id.putString("book_id", fireAdapter.getDocumentId(p));
-            book_id.putString("book_title", fireAdapter.getItem(p).getBookName());
+            book_id.putString("book_title", fireAdapter.getItem(p).getBookTitle());
             viewBookContentFragment = new ViewBookContentFragment(book_id);
             getParentFragmentManager().beginTransaction().replace(R.id.container, viewBookContentFragment).commit();
         });

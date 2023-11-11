@@ -26,7 +26,7 @@ public class FirebaseBookRepo {
     }
 
     public void addNewBook(Uri uri, Book book /*, FirebasePageViewModel page*/) {
-        StorageReference bookCoverRef = storageReference.child(book.getBookName());
+        StorageReference bookCoverRef = storageReference.child(book.getBookTitle());
         bookCoverRef.putFile(uri).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 if (task.isComplete()) {
@@ -44,7 +44,7 @@ public class FirebaseBookRepo {
     }
 
     public void updateBook(Uri uri, Book book, /*FirebasePageViewModel page,*/ String id) {
-        StorageReference bookCoverRef = storageReference.child(book.getBookName());
+        StorageReference bookCoverRef = storageReference.child(book.getBookTitle());
         if (uri != null) {
             Log.d("SUCCESS", "Change book cover to " + uri);
             bookCoverRef.putFile(uri).addOnCompleteListener(task -> {

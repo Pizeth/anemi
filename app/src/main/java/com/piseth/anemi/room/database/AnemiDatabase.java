@@ -17,7 +17,7 @@ import com.piseth.anemi.utils.model.User;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-@Database(entities = {Page.class, Book.class}, version = 1, exportSchema = false)
+//@Database(entities = {Page.class, Book.class}, version = 1, exportSchema = false)
 public abstract class AnemiDatabase extends RoomDatabase {
     private static AnemiDatabase mInstance;
     public abstract PageDao pageDao();

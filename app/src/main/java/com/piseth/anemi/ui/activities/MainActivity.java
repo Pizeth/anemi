@@ -1,6 +1,7 @@
 package com.piseth.anemi.ui.activities;
 
 import android.app.ActivityOptions;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -30,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageView image;
     private FirebaseAuth auth;
     private SharedPreferences loggedInUser;
+    public static Context contextOfApplication;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,16 +39,17 @@ public class MainActivity extends AppCompatActivity {
 //        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
 
-        ImageKit.Companion.init(
-                getApplicationContext(),
-                AnemiUtils.PUBLIC_KEY,
-                AnemiUtils.URL_ENDPOINT,
-                TransformationPosition.PATH,
-                new UploadPolicy.Builder()
-                        .requireNetworkType(UploadPolicy.NetworkType.ANY)
-                        .maxRetries(5)
-                        .build()
-        );
+//        ImageKit.Companion.init(
+//                getApplicationContext(),
+//                AnemiUtils.PUBLIC_KEY,
+//                AnemiUtils.URL_ENDPOINT,
+//                TransformationPosition.PATH,
+//                new UploadPolicy.Builder()
+//                        .requireNetworkType(UploadPolicy.NetworkType.ANY)
+//                        .maxRetries(5)
+//                        .build()
+//        );
+        contextOfApplication = getApplicationContext();
         //Animation
         topAnim = AnimationUtils.loadAnimation(this, R.anim.top_animation);
         bottomAnim = AnimationUtils.loadAnimation(this, R.anim.bottom_animation);
@@ -74,5 +77,9 @@ public class MainActivity extends AppCompatActivity {
             finish();
         }, SPLASH_SCREEN);
 
+    }
+
+    public static Context getContextOfApplication(){
+        return contextOfApplication;
     }
 }
